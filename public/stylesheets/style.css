@@ -1,8 +1,262 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+/*  Less Framework 4
+  http://lessframework.com
+  by Joni Korpi
+  License: http://opensource.org/licenses/mit-license.php */
+
+
+/*  Resets
+  ------  */
+
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, 
+p, blockquote, pre, a, abbr, address, cite, code, del, dfn, em, 
+img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, hr, 
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend, 
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figure, figcaption, hgroup, 
+menu, footer, header, nav, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
-a {
-  color: #00B7FF;
+article, aside, canvas, figure, figure img, figcaption, hgroup,
+footer, header, nav, section, audio, video {
+  display: block;
+}
+
+a img {border: 0;}
+
+
+
+/*  Typography presets
+  ------------------  */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+}
+
+.gigantic {
+  font-size: 110px;
+  line-height: 120px;
+  letter-spacing: -2px;
+}
+
+.huge, h1 {
+  font-size: 68px;
+  line-height: 72px;
+  letter-spacing: -1px;
+}
+
+.large, h2 {
+  font-size: 42px;
+  line-height: 48px;
+}
+
+.bigger, h3 {
+  font-size: 26px;
+  line-height: 36px;
+}
+
+.big, h4 {
+  font-size: 22px;
+  line-height: 30px;
+}
+
+body {
+  font: 16px/24px Georgia, serif;
+}
+
+.small, small {
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Selection colours (easy to forget) */
+
+::selection     {background: rgb(255,255,158);}
+::-moz-selection  {background: rgb(255,255,158);}
+img::selection    {background: transparent;}
+img::-moz-selection {background: transparent;}
+body {-webkit-tap-highlight-color: rgb(255,255,158);}
+
+
+body {
+  background-color: #E0E0E0;
+  color: rgb(60,60,60);
+  -webkit-text-size-adjust: 100%; /* Stops Mobile Safari from auto-adjusting font-sizes */
+}
+
+#content-wrapper {
+  width: 100%;
+  background: rgb(232,232,232);
+}
+
+
+/*    Default Layout: 992px. 
+    Gutters: 24px.
+    Outer margins: 48px.
+    Leftover space for scrollbars @1024px: 32px.
+-------------------------------------------------------------------------------
+cols    1     2      3      4      5      6      7      8      9      10
+px      68    160    252    344    436    528    620    712    804    896    */
+
+#content {
+  width: 896px;
+  padding: 84px 48px;
+}
+
+
+
+/*    Tablet Layout: 768px.
+    Gutters: 24px.
+    Outer margins: 28px.
+    Inherits styles from: Default Layout.
+-----------------------------------------------------------------
+cols    1     2      3      4      5      6      7      8
+px      68    160    252    344    436    528    620    712    */
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  
+  #content {
+    width: 712px;
+    padding: 84px 28px;
+  }
+}
+
+
+
+/*    Mobile Layout: 320px.
+    Gutters: 24px.
+    Outer margins: 34px.
+    Inherits styles from: Default Layout.
+---------------------------------------------
+cols    1     2      3
+px      68    160    252    */
+
+@media only screen and (max-width: 767px) {
+  
+  #content {
+    width: 252px;
+    padding: 84px 34px;
+  }
+  
+}
+
+
+
+/*    Wide Mobile Layout: 480px.
+    Gutters: 24px.
+    Outer margins: 22px.
+    Inherits styles from: Default Layout, Mobile Layout.
+------------------------------------------------------------
+cols    1     2      3      4      5
+px      68    160    252    344    436    */
+
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+  
+  #content {
+    width: 436px;
+    padding: 84px 22px;
+  }
+
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgb(195,195,195);
+  clear: both;
+}
+
+a, a:visited {
+  color: #3437A5;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #222460;
+}
+
+#topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 0;
+  background-color: #E0E0E0;
+  border-bottom: 1px solid #CCC;
+}
+
+#topbar ul {
+  list-style-type: none;
+  margin: 0 10px;
+}
+
+#topbar li {
+  display: block;
+  float: left;
+}
+
+#topbar li.right {
+  float: right;
+}
+
+#topbar ul a {
+  float: left;
+  display: block;
+  padding: 3px 15px;
+  margin: 0 10px;
+  border: 1px solid rgb(195,195,195);
+  color: #4447A0;
+  -webkit-tap-highlight-color: rgba(0,0,0, 0);
+  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0, 0.05);
+     -moz-box-shadow: inset 0 0 5px rgba(0,0,0, 0.05);
+      box-shadow: inset 0 0 5px rgba(0,0,0, 0.05);
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+      border-radius: 3px;
+  -webkit-transition: all 0.123s ease-out;
+     -moz-transition: all 0.123s ease-out;  
+      transition: all 0.123s ease-out;
+}
+
+#topbar ul a:hover, #topbar ul a:active {
+  text-decoration: none;
+  border-color: rgb(158,158,158);
+  -webkit-box-shadow: inset 0 0 8px rgba(0,0,0, 0.38);
+     -moz-box-shadow: inset 0 0 8px rgba(0,0,0, 0.38);
+      box-shadow: inset 0 0 8px rgba(0,0,0, 0.38);
+}
+
+#topbar ul a:active {
+  background: rgb(60,97,158);
+  border-color: rgb(23,37,60);
+  color: rgb(232,241,255);
+  text-shadow: 0 -1px 0 rgba(0,0,0, 0.9);
+  -webkit-box-shadow: inset 0 0 12px rgba(0,0,0, 0.765);
+     -moz-box-shadow: inset 0 0 12px rgba(0,0,0, 0.765);
+      box-shadow: inset 0 0 12px rgba(0,0,0, 0.765);
+}
+
+#topbar a.home {
+  font-family: Lobster;
+  float: left;
+  display: block;
+  padding: 3px 15px;
+  margin: 0 0 0 10px;
+  color: #4447A0;
+  font-size: 24px;
+  -webkit-transition: all 0.123s ease-out;
+     -moz-transition: all 0.123s ease-out;  
+      transition: all 0.123s ease-out;
+}
+
+#topbar a.home:hover {
+  color: #222460;
+}
+
+footer {
+  padding: 20px 20px 50px;
+  border-top: 1px solid #CCC;
+  font-size: 14px;
+  text-align: center;
 }

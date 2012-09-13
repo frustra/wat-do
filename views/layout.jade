@@ -1,7 +1,32 @@
 doctype 5
 html
   head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    block content
+    title
+      block title
+    //if lt IE 9
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    link(type='text/css', rel='stylesheet', href='//fonts.googleapis.com/css?family=Lobster&amp;text=wat do?')
+    link(type='text/css', rel='stylesheet', href='/stylesheets/style.css')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    block head
+
+  body(lang='en')
+    nav#topbar
+      a.home(href='/') wat do?
+      ul
+        li: a(href='/about') wat
+        li: a(href='/do') do
+        li.right: a(href='/login') login
+
+    #content-wrapper
+      #content
+        block content
+
+    footer
+      p &copy; 2012 
+        a(href='http://frustra.org') Frustra Software
+        | . by 
+        a(href='http://j-li.net') Justin Li
+        |  & 
+        a(href='http://jacobwirth.ca') Jacob Wirth
+        | .
