@@ -7,7 +7,8 @@ exports.define = function(db) {
     "end"    : { "type": "date" },
     "notify" : { "type": "int" } // If > 0 then hours after start, if < 0 then hours before end, else none
   };
-  Item.hasOne("user", User);
+  Item.hasOne("owner", User);
+  Item.hasMany"admins", User, "admin");
   Item.hasMany("categories", Category, "category");
   return Item;
 };
