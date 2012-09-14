@@ -4,74 +4,10 @@ body {
   -webkit-text-size-adjust: 100%; // Stops Mobile Safari from auto-adjusting font-sizes
 }
 
-#content-wrapper {
+#content {
   width: 100%;
   background: #EEE;
-}
-
-
-/*    Default Layout: 992px. 
-    Gutters: 24px.
-    Outer margins: 48px.
-    Leftover space for scrollbars @1024px: 32px.
--------------------------------------------------------------------------------
-cols    1     2      3      4      5      6      7      8      9      10
-px      68    160    252    344    436    528    620    712    804    896    */
-
-#content {
-  width: 896px;
-  padding: 84px 48px;
-}
-
-
-
-/*    Tablet Layout: 768px.
-    Gutters: 24px.
-    Outer margins: 28px.
-    Inherits styles from: Default Layout.
------------------------------------------------------------------
-cols    1     2      3      4      5      6      7      8
-px      68    160    252    344    436    528    620    712    */
-
-@media only screen and (min-width: 768px) and (max-width: 991px) {
-  #content {
-    width: 712px;
-    padding: 84px 28px;
-  }
-}
-
-
-
-/*    Mobile Layout: 320px.
-    Gutters: 24px.
-    Outer margins: 34px.
-    Inherits styles from: Default Layout.
----------------------------------------------
-cols    1     2      3
-px      68    160    252    */
-
-@media only screen and (max-width: 767px) {
-  #content {
-    width: 252px;
-    padding: 84px 34px;
-  }
-}
-
-
-
-/*    Wide Mobile Layout: 480px.
-    Gutters: 24px.
-    Outer margins: 22px.
-    Inherits styles from: Default Layout, Mobile Layout.
-------------------------------------------------------------
-cols    1     2      3      4      5
-px      68    160    252    344    436    */
-
-@media only screen and (min-width: 480px) and (max-width: 767px) {
-  #content {
-    width: 436px;
-    padding: 84px 22px;
-  }
+  margin-top: 52px;
 }
 
 #topbar {
@@ -79,6 +15,7 @@ px      68    160    252    344    436    */
   top: 0;
   left: 0;
   width: 100%;
+  height: 32px;
   padding: 10px 0;
   background-color: #E8E8E8;
   border-bottom: 1px solid #CCC;
@@ -138,6 +75,19 @@ px      68    160    252    344    436    */
       color: #222460;
     }
   }
+}
+
+aside {
+  position: absolute;
+  left: 0;
+  width: 250px;
+  padding: 0 10px;
+  background-color: #E8E8E8;
+  border-right: 1px solid #CCC;
+}
+
+#main {
+  margin-left: 270px;
 }
 
 footer {

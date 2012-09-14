@@ -11,16 +11,17 @@ html
     block head
 
   body(lang='en')
-    nav#topbar
-      a.home.watdo(href='/') wat do?
-      ul
-        li: a(href='/about') wat
-        li: a(href='/do') do
-        li.right: a(href='/login') login
+    #topbar
+      header
+        a.home.watdo(href='/') wat do?
+      nav
+        ul
+          li: a(href='/about') wat
+          li: a(href='/do') do
+          li.right: a(href='/login') login
 
-    #content-wrapper
-      #content
-        block content
+    #content
+      block content
 
     footer
       p &copy; 2012 
