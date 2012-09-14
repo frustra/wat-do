@@ -16,7 +16,7 @@ html
       ul
         - //li: a(href='/about') wat
         - //li: a(href='/do') do
-        if typeof user != 'undefined'
+        if !!user
           li.right: a(href='/logout') logout
           li.right: a(href='/account') account
         else

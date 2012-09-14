@@ -52,10 +52,11 @@ module.exports.setupAuth = function(app, passport) {
 
   app.get('/login', function(req, res) {
     res.redirect('/auth/google');
-  })
+  });
 
   app.get('/logout', function(req, res) {
-    req.logOut();
+    req.logout();
+    console.log(req.user)
     res.redirect('/');
-  })
+  });
 };

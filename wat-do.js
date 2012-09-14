@@ -46,8 +46,10 @@ app.configure(function() {
   app.use(passport.session());
 
   app.use(function(req, res, next) {
-    if (typeof req.user !== 'undefined') {
+    if (typeof req.user !== 'undefined' && req.user != null) {
       app.locals.user = req.user;
+    } else {
+      app.locals.user = null;
     }
     next();
   });
