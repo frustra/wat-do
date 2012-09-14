@@ -8,12 +8,16 @@ html
     link(type='text/css', rel='stylesheet', href='//fonts.googleapis.com/css?family=Lobster&amp;text=wat do?')
     link(type='text/css', rel='stylesheet', href='/master.css')
     meta(name='viewport', content='width=device-width, initial-scale=1')
+
+    script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js')
+    script(type='text/javascript', src='/layout.js')
     block head
 
   body(lang='en')
     #topbar
       header: a.home.watdo(href='/') wat do?
       nav: ul
+        li: a.info(href='#'): i.icon-info-sign
         - //li: a(href='/about') wat
         - //li: a(href='/do') do
         if !!user
