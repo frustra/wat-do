@@ -11,9 +11,9 @@ html
     block head
 
   body(lang='en')
-    nav#topbar
-      a.home.watdo(href='/') wat do?
-      ul
+    #topbar
+      header: a.home.watdo(href='/') wat do?
+      nav: ul
         - //li: a(href='/about') wat
         - //li: a(href='/do') do
         if !!user
