@@ -42,10 +42,6 @@ module.exports.setupAuth = function(app, passport) {
     processAuth(identifier, profile, done);
   }));
 
-  app.get('/login', function(req, res) {
-    res.redirect('/auth/google');
-  })
-
   app.get('/auth/google', passport.authenticate('google'), function(req, res) {
     res.send('Unknown failure.');
   });
@@ -53,4 +49,13 @@ module.exports.setupAuth = function(app, passport) {
   app.get('/auth/google/return', passport.authenticate('google', { failureRedirect: '/login' }), function(req, res) {
     res.redirect('/');
   });
+
+  app.get('/login', function(req, res) {
+    res.redirect('/auth/google');
+  })
+
+  app.get('/logout', function(req, res) {
+    req.logOut();
+    res.redirect('/');
+  })
 };
