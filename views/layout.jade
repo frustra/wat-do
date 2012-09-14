@@ -14,9 +14,13 @@ html
     nav#topbar
       a.home.watdo(href='/') wat do?
       ul
-        li: a(href='/about') wat
-        li: a(href='/do') do
-        li.right: a(href='/login') login
+        - //li: a(href='/about') wat
+        - //li: a(href='/do') do
+        if typeof user != 'undefined'
+          li.right: a(href='/logout') logout
+          li.right: a(href='/account') account
+        else
+          li.right: a(href='/login') login
 
     #content-wrapper
       #content
