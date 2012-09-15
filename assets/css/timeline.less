@@ -3,19 +3,45 @@
   top: 52px;
   left: 0;
   right: 0;
+  min-height: 100%;
+  background-color: #DDDDDD;
 
   svg {
     width: 100%;
 
+    text.rule {
+      color: #000000;
+    }
+
     line.rule {
-      stroke: #ffffff;
-      stroke-opacity: .2;
+      stroke: #EFEFEF;
+      stroke-width: 2;
+      stroke-opacity: .8;
       shape-rendering: crispEdges;
     }
 
-    rect {
+    line.now {
+      stroke: #000000;
+      stroke-width: 2;
+      stroke-opacity: .8;
+      shape-rendering: crispEdges;
+    }
+
+    rect.past {
+      fill-opacity: .5;
+      fill: #DDDDDD;
+    }
+
+    rect.item {
       fill-opacity: .6;
       fill: #1f77b4;
+      stroke: #444444;
+      stroke-width: 2;
+      stroke-opacity: .4;
+    }
+
+    rect.item:hover {
+      fill-opacity: 1;
     }
   }
 }
