@@ -1,47 +1,53 @@
-#timeline {
+#timeline-wrap {
   position: absolute;
   top: 52px;
   left: 0;
   right: 0;
-  min-height: 100%;
-  background-color: #DDDDDD;
+  overflow: hidden;
 
-  svg {
-    width: 100%;
+  #timeline {
+    position: absolute;
 
-    text.rule {
+    span.rule {
+      position: absolute;
+      top: 5px;
       color: #000000;
     }
 
-    line.rule {
-      stroke: #EFEFEF;
-      stroke-width: 2;
-      stroke-opacity: .8;
-      shape-rendering: crispEdges;
+    div.rule {
+      position: absolute;
+      top: 30px;
+      width: 2px;
+      background-color: rgba(239, 239, 239, 0.8);
     }
 
-    line.now {
-      stroke: #000000;
-      stroke-width: 2;
-      stroke-opacity: .8;
-      shape-rendering: crispEdges;
+    div.now {
+      position: absolute;
+      top: 30px;
+      width: 2px;
+      background-color: #000000;
     }
 
-    rect.past {
-      fill-opacity: .5;
-      fill: #DDDDDD;
+    div.past {
+      position: absolute;
+      background-color: rgba(221, 221, 221, 0.5);
     }
 
-    rect.item {
-      fill-opacity: .6;
-      fill: #1f77b4;
-      stroke: #444444;
-      stroke-width: 2;
-      stroke-opacity: .4;
+    div.item {
+      position: absolute;
+      height: 75px;
+      width: 0px;
+      background-color: rgba(31, 119, 180, 0.6);
+      border: solid 2px rgba(68, 68, 68, 0.4);
+
+      transition: width 750ms, background-color 300ms;
+      -moz-transition: width 750ms, background-color 300ms;
+      -webkit-transition: width 750ms, background-color 300ms;
+      -o-transition: width 750ms, background-color 300ms;
     }
 
-    rect.item:hover {
-      fill-opacity: 1;
+    div.item:hover {
+      background-color: rgb(31, 119, 180);
     }
   }
 }

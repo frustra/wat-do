@@ -7,15 +7,15 @@ window.onload = function() {
   var y = d3.scale.linear();
   var mouse;
 
-  var svg = d3.select("#timeline").append("svg")
-    .attr("height", screen.height);
+  var main = d3.select("#timeline-wrap")
+    .attr("style", "height:" + screen.height + "px;");
 
   var maxxoffset = 0;
   var xoffset = 0;
-  var timeline = svg.append("g")
-    .attr("transform", "translate(" + xoffset + ",0)");
-  var body = timeline.append("g");
-  var rules = timeline.append("g");
+  var timeline = main.select("#timeline")
+    .attr("style", "left:" + xoffset + "px;");
+  var body = timeline.append("div");
+  var rules = timeline.append("div");
 
   d3.json("timeline.json", function(data) {
     var gstart = (screen.width * -0.24);
@@ -24,7 +24,7 @@ window.onload = function() {
     gstart -= gstart % 24;
 
     var height = data.items.length * 80;
-    svg.attr("height", height + 40);
+    main.attr("style", "height:" + (height + 40) + "px;");
     y.range([0, height]);
 
     x.domain([gstart, gstart + 24]);
@@ -33,33 +33,26 @@ window.onload = function() {
 
     maxxoffset = w(-gend);
     xoffset = w(gstart) + 200;
+    timeline.attr("style", "left:" + xoffset + "px;");
 
     var bars = rules.selectAll(".rule")
       .data(d3.range((gend - gstart) / 24))
       .enter();
 
-    bars.append("line")
+    bars.append("div")
       .attr("class", "rule")
-      .attr("x1", function(d) { return x(d * 24 + gstart); })
-      .attr("x2", function(d) { return x(d * 24 + gstart); })
-      .attr("y1", y(0) + 30)
-      .attr("y2", height + 35);
+      .attr("style", function(d) { return "left:" + x(d * 24 + gstart) + "px;height:" + (height + 10) + "px;"; });
 
-    bars.append("text")
+    bars.append("span")
       .attr("class", "rule")
-      .attr("dy", ".35em")
-      .attr("x", function(d) { return x(d * 24 + gstart) - (4 * d.toString().length); })
-      .attr("y", 15)
+      .attr("style", function(d) { return "left:" + (x(d * 24 + gstart) - (4 * d.toString().length)) + "px;"; })
       .text(function(d) { return d; });
 
     rules.selectAll(".now")
       .data(d3.range(1))
-      .enter().append("line")
+      .enter().append("div")
       .attr("class", "now")
-      .attr("x1", x(0))
-      .attr("x2", x(0))
-      .attr("y1", y(0) + 30)
-      .attr("y2", height + 35);
+      .attr("style", "left:" + x(0) + "px;height:" + (height + 10) + "px;");
 
     // rules.selectAll(".past")
     //   .data(d3.range(1))
@@ -70,45 +63,37 @@ window.onload = function() {
     //   .attr("width", x(0))
     //   .attr("height", height + 35);
 
-    body.selectAll("rect")
+    body.selectAll("div")
       .data(data.items)
-      .enter().append("rect")
+      .enter().append("div")
       .attr("class", "item")
-      .attr("x", function(d) { return x(d.start); })
-      .attr("y", function(d,i) { return y(i) + 35; })
-      .attr("height", 75)
-      .attr("width", 1e-6);
+      .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;"; });
 
-    svg.on("mousedown", function() {
+    main.on("mousedown", function() {
       mouse = [d3.event.pageX, d3.event.pageY];
       d3.event.preventDefault();
     });
     d3.select(window).on("mousemove", function() {
       if (mouse) {
         var tmp = xoffset + d3.event.pageX - mouse[0];
-        tmp = Math.max(Math.min(tmp, 0), maxxoffset);
-        timeline.attr("transform", "translate(" + tmp + ",0)");
+        tmp = Math.max(Math.min(tmp, w(24)), maxxoffset);
+        timeline.attr("style", "left:" + tmp + "px;");
         d3.event.preventDefault();
       }
     }).on("mouseup", function() {
       if (mouse) {
         xoffset += d3.event.pageX - mouse[0];
-        xoffset = Math.max(Math.min(xoffset, 0), maxxoffset);
-        timeline.attr("transform", "translate(" + xoffset + ",0)");
+        xoffset = Math.max(Math.min(xoffset, w(24)), maxxoffset);
+        timeline.attr("style", "left:" + xoffset + "px;");
         d3.event.preventDefault();
         mouse = null;
       }
     });
 
-    redraw();
-
-    function redraw() {
-      body.selectAll("rect")
+    setTimeout(function(){
+      body.selectAll("div")
         .data(data.items)
-        .transition()
-        .duration(750)
-        .attr("width", function(d) { return w(d.end - d.start); });
-      timeline.attr("transform", "translate(" + xoffset + ",0)");
-    }
+        .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;width:" + w(d.end - d.start) + "px;"; });
+      }, 100);
   });
 };
