@@ -17,19 +17,19 @@ window.onload = function() {
   var body = timeline.append("div");
   var rules = timeline.append("div");
 
-  d3.json("timeline.json", function(data) {
+  d3.json("/items.json", function(data) {
     var gstart = (screen.width * -0.24);
-    var gend = d3.max(data.items, function(d) { return d.end }) + (screen.width * 0.24);
+    var gend = d3.max(data, function(d) { return d.end }) + (screen.width * 0.24);
     gend -= gstart % 24;
     gstart -= gstart % 24;
 
-    var height = data.items.length * 80;
+    var height = data.length * 80;
     main.attr("style", "height:" + (height + 40) + "px;");
     y.range([0, height]);
 
     x.domain([gstart, gstart + 24]);
     w.domain([0, 24]);
-    y.domain([0, data.items.length]);
+    y.domain([0, data.length]);
 
     maxxoffset = w(-gend);
     xoffset = w(gstart) + 200;
@@ -64,7 +64,7 @@ window.onload = function() {
     //   .attr("height", height + 35);
 
     body.selectAll("div")
-      .data(data.items)
+      .data(data)
       .enter().append("div")
       .attr("class", "item")
       .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;"; });
@@ -92,7 +92,7 @@ window.onload = function() {
 
     setTimeout(function(){
       body.selectAll("div")
-        .data(data.items)
+        .data(data)
         .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;width:" + w(d.end - d.start) + "px;"; });
       }, 100);
   });
