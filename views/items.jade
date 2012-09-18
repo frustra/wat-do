@@ -4,18 +4,5 @@ block title
   | wat do?
 
 block content
-  //section#timeline-wrap
+  section#timeline-wrap(ng-controller='TimelineCtrl')
     #timeline
-
-block head
-  script(type='text/x-handlebars', data-template-name='application')
-    {{outlet}}
-
-  script(type='text/x-handlebars', data-template-name='items')
-    section#timeline-wrap
-      #timeline
-
-  script(type='text/x-handlebars', data-template-name='item')
-    h2 {{content.name}}
-    h3 {{content.start}}
-    h3 {{content.end}}
