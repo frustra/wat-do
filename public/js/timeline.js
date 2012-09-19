@@ -6,6 +6,7 @@ var generateTimeline = function(element, data) {
     .range([0, scale]);
   var y = d3.scale.linear();
   var mouse;
+  var lastmouse;
 
   var main = d3.select(element)
     .attr("style", "height:" + screen.height + "px;");
@@ -83,8 +84,15 @@ var generateTimeline = function(element, data) {
     .attr("title", function(d) { return d.due.calendar(); })
     .text(function(d) { return d.due.calendar(); });
 
+  items.on("click", function(d) {
+    if (lastmouse && Math.abs(d3.event.pageX - lastmouse[0]) < 2) {
+      console.log(d.title);
+    }
+  });
+
   main.on("mousedown", function() {
     mouse = [d3.event.pageX, d3.event.pageY];
+    lastmouse = mouse;
     d3.event.preventDefault();
   });
 
