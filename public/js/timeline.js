@@ -23,7 +23,7 @@ var generateTimeline = function(element, data) {
   gstart -= gstart % 24;
 
   var height = data.length * 80;
-  main.attr("style", "height:" + (height + 40) + "px;");
+  main.attr("style", "height:" + (height + 50) + "px;");
   y.range([0, height]);
 
   x.domain([gstart, gstart + 24]);
@@ -42,10 +42,10 @@ var generateTimeline = function(element, data) {
     .attr("class", "rule")
     .attr("style", function(d) { return "left:" + x(d * 24 + gstart) + "px;height:" + (height + 10) + "px;"; });
 
-  bars.append("span")
-    .attr("class", "rule")
+  bars.append("div")
+    .attr("class", "rule-text")
     .attr("style", function(d) { return "left:" + (x(d * 24 + gstart) - (scale / 2)) + "px;width:" + scale + "px;"; })
-    .text(function(d) { var tmp = moment().add('days', d + (gstart / 24)); return tmp.date() == 1 ? tmp.format("MMM D") : tmp.format("D"); });
+    .html(function(d) { var tmp = moment().add('days', d + (gstart / 24)); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); });
 
   rules.selectAll(".now")
     .data(d3.range(1))
@@ -53,17 +53,20 @@ var generateTimeline = function(element, data) {
     .attr("class", "now")
     .attr("style", "left:" + x(0) + "px;height:" + (height + 10) + "px;");
 
-  // rules.selectAll(".past")
-  //   .data(d3.range(1))
-  //   .enter().append("div")
-  //   .attr("class", "past")
-  //   .attr("style", "left:" + x(gstart) + "px;width:" + x(0) + "px;height:" + (height + 10) + "px;");
-
   var items = body.selectAll(".item")
     .data(data, function(d) { d['due'] = moment().add('hours', d.end); return d; })
-    .enter().append("div")
+    .enter();
+
+  items.append("div")
+    .attr("class", "item-back")
+    .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;"; })
+    .append("div")
+    .attr("class", "white")
+    .attr("style", function(d) { return "width:" + Math.max(0, w(-d.start) - 1) + "px;"; });
+
+  items = items.append("div")
     .attr("class", "item")
-    .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;"; });
+    .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;"; });
 
   items.append("div")
     .attr("class", "info title")
@@ -105,6 +108,9 @@ var generateTimeline = function(element, data) {
   setTimeout(function() {
     body.selectAll(".item")
       .data(data)
-      .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;width:" + w(d.end - d.start) + "px;"; });
+      .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;width:" + w(d.end - d.start) + "px;"; });
+    body.selectAll(".item-back")
+      .data(data)
+      .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;width:" + w(d.end - d.start) + "px;"; });
   }, 100);
 };
