@@ -16,24 +16,46 @@ $(function() {
   $('#topbar .info').click(function(e) {
     e.preventDefault();
   });
+
+  $('.overlay').click(function(e) {
+    history.go(-1);
+  });
 });
 
 var watdo = angular.module('watdo', []);
+watdo.config(function($routeProvider) {
+  $routeProvider
+    .when('/item/:id', { action: 'item.show' });
+});
 
-watdo.controller('TimelineCtrl', function TimelineCtrl($scope, $http) {
+watdo.controller('TimelineCtrl', function TimelineCtrl($scope, $http, $location) {
   $http({
     method: 'GET',
     url: '/items.json'
   }).success(function(data) {
     $scope.data = data;
-  })
+  });
 });
 
-function ItemCtrl($scope) {
-  $scope.item = {
-    name: 'test'
-  }
-}
+watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $http) {
+  render = function() {
+    var id = $routeParams.id;
+    if (typeof id !== 'undefined' && typeof $route.current !== 'undefined') {
+      $http({
+        method: 'GET',
+        url: '/item/' + id + '.json'
+      }).success(function(data) {
+        $scope.item = data;
+        $('#item').show();
+      });
+    } else {
+      $('#item').hide();
+    }
+  };
+  $scope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute) {
+    render();
+  })
+});
 
 watdo.directive('timelineVisualization', function() {
   return {
@@ -49,3 +71,5 @@ watdo.directive('timelineVisualization', function() {
     }
   };
 });
+
+//watdo

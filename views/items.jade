@@ -4,5 +4,12 @@ block title
   | wat do?
 
 block content
-  div(ng-controller='TimelineCtrl')
-    section#timeline-wrap.timeline-visualization(val='data')
+  section#timeline-wrap(ng-controller='TimelineCtrl')
+    div.timeline-visualization(val='data')
+
+  section#item(ng-controller='ItemCtrl')
+    div.overlay
+    div.content
+      h2 {{item.title}}
+      h4 {{item.desc}}
+      p {{item.start}} to {{item.end}}

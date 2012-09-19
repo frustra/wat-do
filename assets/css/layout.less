@@ -94,6 +94,28 @@ body.scroll #topbar {
   }
 }
 
-section#item {
+#item {
   display: none;
+  .content {
+    position: fixed;
+    background-color: #EFEFEF;
+    .rounded(4px);
+    left: 50%;
+    top: 80px;
+    width: 600px;
+    margin-left: -300px;
+    padding: 20px;
+    z-index: 102;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: #000;
+    opacity: 0.6;
+    z-index: 101;
+  }
 }

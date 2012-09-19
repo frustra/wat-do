@@ -86,7 +86,7 @@ var generateTimeline = function(element, data) {
 
   items.on("click", function(d) {
     if (lastmouse && Math.abs(d3.event.pageX - lastmouse[0]) < 2) {
-      console.log(d.title);
+      location.hash = '#/item/' + d.id;
     }
   });
 
