@@ -14,8 +14,8 @@ window.onload = function() {
   var xoffset = 0;
   var timeline = main.select("#timeline")
     .attr("style", "left:" + xoffset + "px;");
-  var body = timeline.append("div");
   var rules = timeline.append("div");
+  var body = timeline.append("div");
 
   d3.json("/items.json", function(data) {
     var gstart = (screen.width * -0.24);
@@ -31,7 +31,7 @@ window.onload = function() {
     w.domain([0, 24]);
     y.domain([0, data.length]);
 
-    maxxoffset = w(-gend);
+    maxxoffset = -w(gend);
     xoffset = w(gstart) + 200;
     timeline.attr("style", "left:" + xoffset + "px;");
 
@@ -45,8 +45,8 @@ window.onload = function() {
 
     bars.append("span")
       .attr("class", "rule")
-      .attr("style", function(d) { return "left:" + (x(d * 24 + gstart) - (4 * d.toString().length)) + "px;"; })
-      .text(function(d) { return d; });
+      .attr("style", function(d) { return "left:" + (x(d * 24 + gstart) - (scale / 2)) + "px;width:" + scale + "px;"; })
+      .text(function(d) { var tmp = moment().add('days', d + (gstart / 24)); return tmp.date() == 1 ? tmp.format("MMM D") : tmp.format("D"); });
 
     rules.selectAll(".now")
       .data(d3.range(1))
@@ -56,18 +56,30 @@ window.onload = function() {
 
     // rules.selectAll(".past")
     //   .data(d3.range(1))
-    //   .enter().append("rect")
+    //   .enter().append("div")
     //   .attr("class", "past")
-    //   .attr("x", x(gstart))
-    //   .attr("y", y(0) + 30)
-    //   .attr("width", x(0))
-    //   .attr("height", height + 35);
+    //   .attr("style", "left:" + x(gstart) + "px;width:" + x(0) + "px;height:" + (height + 10) + "px;");
 
-    body.selectAll("div")
-      .data(data)
+    var items = body.selectAll(".item")
+      .data(data, function(d) { d['due'] = moment().add('hours', d.end); return d; })
       .enter().append("div")
       .attr("class", "item")
       .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;"; });
+
+    items.append("div")
+      .attr("class", "info title")
+      .attr("title", function(d) { return d.title; })
+      .text(function(d) { return d.title; });
+
+    items.append("div")
+      .attr("class", "info desc")
+      .attr("title", function(d) { return d.desc; })
+      .text(function(d) { return d.desc; });
+
+    items.append("div")
+      .attr("class", "info due")
+      .attr("title", function(d) { return d.due.calendar(); })
+      .text(function(d) { return d.due.calendar(); });
 
     main.on("mousedown", function() {
       mouse = [d3.event.pageX, d3.event.pageY];
@@ -91,7 +103,7 @@ window.onload = function() {
     });
 
     setTimeout(function(){
-      body.selectAll("div")
+      body.selectAll(".item")
         .data(data)
         .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 35) + "px;width:" + w(d.end - d.start) + "px;"; });
       }, 100);
