@@ -102,6 +102,11 @@
   -moz-transition: @a, @b;
   transition: @a, @b;
 }
+.transition(@a, @b, @c) {
+  -webkit-transition: @a, @b, @c;
+  -moz-transition: @a, @b, @c;
+  transition: @a, @b, @c;
+}
 .transition(@arguments) {
   -webkit-transition: @arguments;
   -moz-transition: @arguments;

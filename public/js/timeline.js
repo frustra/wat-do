@@ -115,12 +115,32 @@ var generateTimeline = function(element, data) {
     }
   });
 
-  setTimeout(function() {
-    body.selectAll(".item")
+  setTimeout(function() { updateData(data); }, 100);
+
+  function updateTime(data) {
+    d3.selectAll(".white")
+      .data(data)
+      .attr("style", function(d) { return "width:" + Math.max(0, w(-d.start) - 1) + "px;"; });
+  }
+
+  function updateData(data) {
+    d3.selectAll(".item-back")
       .data(data)
       .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;width:" + w(d.end - d.start) + "px;"; });
-    body.selectAll(".item-back")
+    var items = d3.selectAll(".item")
       .data(data)
       .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;width:" + w(d.end - d.start) + "px;"; });
-  }, 100);
+
+    items.select(".title")
+      .attr("title", function(d) { return d.title; })
+      .text(function(d) { return d.title; });
+
+    items.select(".desc")
+      .attr("title", function(d) { return d.desc; })
+      .text(function(d) { return d.desc; });
+
+    items.select(".due")
+      .attr("title", function(d) { return d.due.calendar(); })
+      .text(function(d) { return d.due.calendar(); });
+  }
 };
