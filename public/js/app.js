@@ -18,7 +18,7 @@ $(function() {
   });
 
   $('.overlay').click(function(e) {
-    history.go(-1);
+    window.location.hash = '';
   });
 });
 
@@ -41,20 +41,51 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $ht
   render = function() {
     var id = $routeParams.id;
     if (typeof id !== 'undefined' && typeof $route.current !== 'undefined') {
-      $http({
-        method: 'GET',
-        url: '/item/' + id + '.json'
-      }).success(function(data) {
-        $scope.item = data;
+      if (!isNaN(parseInt(id, 10))) {
+        // existing item
+        $scope.saveItem = function() {
+          var item = $scope.item;
+          $http({
+            method: 'POST',
+            url: '/item/' + item.id + '.json',
+            data: item
+          }).success(function(data) {
+            $scope.item = data;
+            window.location.hash = '#';
+          });
+        };
+
+        $http({
+          method: 'GET',
+          url: '/item/' + id + '.json'
+        }).success(function(data) {
+          $scope.item = data;
+          $('#item').show();
+        });
+      } else if (id == 'new') {
+        // new item
+        $scope.saveItem = function() {
+          var item = $scope.item;
+          $http({
+            method: 'POST',
+            url: '/item/new.json',
+            data: item
+          }).success(function(data) {
+            $scope.item = data;
+            window.location.hash = '#/item/' + data.id;
+          });
+        };
+
+        $scope.item = { title: '', desc: '' };
         $('#item').show();
-      });
+      }
     } else {
       $('#item').hide();
     }
   };
   $scope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute) {
     render();
-  })
+  });
 });
 
 watdo.directive('timelineVisualization', function() {

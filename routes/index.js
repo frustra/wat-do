@@ -22,4 +22,24 @@ exports.setupRoutes = function(app) {
   app.get('/item/:id.json', function(req, res) {
     res.json(items[parseInt(req.params.id, 10)]);
   });
+
+  app.post('/item/new.json', function(req, res) {
+    // Save to database and return parsed object
+
+    res.json(items[0]);
+  });
+
+  app.post('/item/:id.json', function(req, res) {
+    var item = items[parseInt(req.params.id, 10)]
+      , newItem = req.body;
+
+    if (newItem.title) item.title = newItem.title;
+    if (newItem.desc) item.desc = newItem.desc;
+    if (newItem.start) item.start = newItem.start;
+    if (newItem.end) item.end = newItem.end;
+
+    // Save to database
+
+    res.json(item);
+  });
 };

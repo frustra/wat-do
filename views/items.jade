@@ -12,4 +12,8 @@ block content
     div.content
       h2 {{item.title}}
       h4 {{item.desc}}
-      p {{item.start}} to {{item.end}}
+
+      form(ng-submit='saveItem()')
+        input(type='text', name='item-title', ng-model='item.title', class='big full-width')
+        textarea(name='item-description', ng-model='item.desc', class='medium full-width')
+        input(type='submit', value='Save', class='btn medium')
