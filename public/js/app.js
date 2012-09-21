@@ -102,5 +102,3 @@ watdo.directive('timelineVisualization', function() {
     }
   };
 });
-
-//watdo

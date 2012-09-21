@@ -3,7 +3,8 @@ var generateTimeline = function(element, data) {
   var x = d3.scale.linear()
     .range([0, scale]);
   var w = d3.scale.linear()
-    .range([0, scale]);
+    .range([0, scale])
+    .domain([0, 24]);
   var y = d3.scale.linear();
   var mouse;
   var lastmouse;
@@ -15,44 +16,45 @@ var generateTimeline = function(element, data) {
   var xoffset = 0;
   var timeline = main.append("div").attr("id", "timeline")
     .attr("style", "left:" + xoffset + "px;");
-  var rules = timeline.append("div");
-  var body = timeline.append("div");
+  var rules = timeline.append("div").attr("id", "tlrules");
+  var body = timeline.append("div").attr("id", "tlbody");
 
-  var gstart = (screen.width * -0.24);
-  var gend = d3.max(data, function(d) { return d.end }) + (screen.width * 0.24);
-  gend -= gstart % 24;
-  gstart -= gstart % 24;
+  var gstart = Math.min(0, d3.min(data, function(d) { return d.start; }));
+  var gend = Math.max(0, d3.max(data, function(d) { return d.end; }));
+  if (isNaN(gstart)) gstart = 0;
+  if (isNaN(gend)) gend = 0;
+  gstart -= (screen.width / scale * 24);
+  gend += (screen.width / scale * 24);
 
   var height = data.length * 80;
   main.attr("style", "height:" + (height + 50) + "px;");
   y.range([0, height]);
 
   x.domain([gstart, gstart + 24]);
-  w.domain([0, 24]);
   y.domain([0, data.length]);
 
-  maxxoffset = -w(gend);
-  xoffset = w(gstart) + 200;
+  maxxoffset = -x(gend + gstart);
+  xoffset = -x(0) + 200;
   timeline.attr("style", "left:" + xoffset + "px;");
 
   var bars = rules.selectAll(".rule")
-    .data(d3.range((gend - gstart) / 24))
+    .data(d3.range(Math.floor((gend - gstart) / 24)))
     .enter();
 
   bars.append("div")
     .attr("class", "rule")
-    .attr("style", function(d) { return "left:" + x(d * 24 + gstart) + "px;height:" + (height + 10) + "px;"; });
+    .attr("style", function(d) { return "left:" + x(d * 24 - Math.floor(-gstart / 24) * 24 + 24 - moment().hours()) + "px;"; });
 
   bars.append("div")
     .attr("class", "rule-text")
-    .attr("style", function(d) { return "left:" + (x(d * 24 + gstart) - (scale / 2)) + "px;width:" + scale + "px;"; })
-    .html(function(d) { var tmp = moment().add('days', d + (gstart / 24)); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); });
+    .attr("style", function(d) { return "left:" + (x(d * 24 - Math.floor(-gstart / 24) * 24 + 24 - moment().hours()) - (scale / 2)) + "px;width:" + scale + "px;"; })
+    .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); });
 
   rules.selectAll(".now")
     .data(d3.range(1))
     .enter().append("div")
     .attr("class", "now")
-    .attr("style", "left:" + x(0) + "px;height:" + (height + 10) + "px;");
+    .attr("style", "left:" + x(0) + "px;");
 
   var items = body.selectAll(".item")
     .data(data, function(d) { d['due'] = moment().add('hours', d.end); return d; })
@@ -90,7 +92,7 @@ var generateTimeline = function(element, data) {
     }
   });
 
-  main.on("mousedown", function() {
+  d3.select("#timeline-wrap").on("mousedown", function() {
     mouse = [d3.event.pageX, d3.event.pageY];
     lastmouse = mouse;
     d3.event.preventDefault();
@@ -99,14 +101,14 @@ var generateTimeline = function(element, data) {
   d3.select(window).on("mousemove", function() {
     if (mouse) {
       var tmp = xoffset + d3.event.pageX - mouse[0];
-      tmp = Math.max(Math.min(tmp, w(24)), maxxoffset);
+      tmp = Math.max(Math.min(tmp, 0), maxxoffset);
       timeline.attr("style", "left:" + tmp + "px;");
       d3.event.preventDefault();
     }
   }).on("mouseup", function() {
     if (mouse) {
       xoffset += d3.event.pageX - mouse[0];
-      xoffset = Math.max(Math.min(xoffset, w(24)), maxxoffset);
+      xoffset = Math.max(Math.min(xoffset, 0), maxxoffset);
       timeline.attr("style", "left:" + xoffset + "px;");
       d3.event.preventDefault();
       mouse = null;
