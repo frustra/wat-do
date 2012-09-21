@@ -3,7 +3,7 @@ $(function() {
     , addedScroll = false;
 
   $document.scroll(function(e) {
-    if ($document.scrollTop() > 4) {
+    if ($document.scrollTop() > 1) {
       if (addedScroll) return;
       addedScroll = true;
       $('body').addClass('scroll');
