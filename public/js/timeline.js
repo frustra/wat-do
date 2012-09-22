@@ -187,9 +187,4 @@ var timelineUpdate = function(data) {
   itemsEnter(items.enter());
   itemsUpdate(items);
   itemsExit(items.exit());
-
-  setTimeout(function() {
-    data.push({start: gtl.gstart + (screen.width / gtl.scale * 24) - 5, end: 40, title: "derp", desc: "derp2", due: moment().add('hours', 40)});
-    timelineUpdate(data);
-  }, 3000);
 };
