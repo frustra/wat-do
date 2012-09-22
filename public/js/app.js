@@ -33,6 +33,9 @@ watdo.controller('TimelineCtrl', function TimelineCtrl($scope, $http, $location)
     method: 'GET',
     url: '/items.json'
   }).success(function(data) {
+    for (var i = 0; i < data.length; i++) {
+      data[i].due = moment().add('hours', data[i].end);
+    }
     $scope.data = data;
   });
 });
@@ -73,6 +76,7 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $ht
           }).success(function(data) {
             $scope.item = data;
             window.location.hash = '#/item/' + data.id;
+            timelineUpdate(data);
           });
         };
 
@@ -97,7 +101,8 @@ watdo.directive('timelineVisualization', function() {
     link: function(scope, element, attrs) {
       scope.$watch('val', function(newVal, oldVal) {
         if (!newVal) return;
-        generateTimeline(element[0], newVal);
+        timelineInit();
+        timelineUpdate(newVal);
       });
     }
   };

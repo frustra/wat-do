@@ -1,146 +1,195 @@
-var generateTimeline = function(element, data) {
-  var scale = 100;
-  var x = d3.scale.linear()
-    .range([0, scale]);
-  var w = d3.scale.linear()
-    .range([0, scale])
-    .domain([0, 24]);
-  var y = d3.scale.linear();
-  var mouse;
-  var lastmouse;
+var gtl = {scale: 100, maxxoffset: 0, xoffset: 1, mouse: null, lastmouse: null};
 
-  var main = d3.select(element)
+var timelineInit = function() {
+  gtl.x = d3.scale.linear()
+    .range([0, gtl.scale]);
+  gtl.w = d3.scale.linear()
+    .range([0, gtl.scale])
+    .domain([0, 24]);
+  gtl.y = d3.scale.linear();
+
+  gtl.main = d3.select(".timeline-visualization")
     .attr("style", "height:" + screen.height + "px;");
 
-  var maxxoffset = 0;
-  var xoffset = 0;
-  var timeline = main.append("div").attr("id", "timeline")
-    .attr("style", "left:" + xoffset + "px;");
-  var rules = timeline.append("div").attr("id", "tlrules");
-  var body = timeline.append("div").attr("id", "tlbody");
-
-  var gstart = Math.min(0, d3.min(data, function(d) { return d.start; }));
-  var gend = Math.max(0, d3.max(data, function(d) { return d.end; }));
-  if (isNaN(gstart)) gstart = 0;
-  if (isNaN(gend)) gend = 0;
-  gstart -= (screen.width / scale * 24);
-  gend += (screen.width / scale * 24);
-
-  var height = data.length * 80;
-  main.attr("style", "height:" + (height + 50) + "px;");
-  y.range([0, height]);
-
-  x.domain([gstart, gstart + 24]);
-  y.domain([0, data.length]);
-
-  maxxoffset = -x(gend + gstart);
-  xoffset = -x(0) + 200;
-  timeline.attr("style", "left:" + xoffset + "px;");
-
-  var bars = rules.selectAll(".rule")
-    .data(d3.range(Math.floor((gend - gstart) / 24)))
-    .enter();
-
-  bars.append("div")
-    .attr("class", "rule")
-    .attr("style", function(d) { return "left:" + x(d * 24 - Math.floor(-gstart / 24) * 24 + 24 - moment().hours()) + "px;"; });
-
-  bars.append("div")
-    .attr("class", "rule-text")
-    .attr("style", function(d) { return "left:" + (x(d * 24 - Math.floor(-gstart / 24) * 24 + 24 - moment().hours()) - (scale / 2)) + "px;width:" + scale + "px;"; })
-    .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); });
-
-  rules.selectAll(".now")
-    .data(d3.range(1))
-    .enter().append("div")
-    .attr("class", "now")
-    .attr("style", "left:" + x(0) + "px;");
-
-  var items = body.selectAll(".item")
-    .data(data, function(d) { d['due'] = moment().add('hours', d.end); return d; })
-    .enter();
-
-  items.append("div")
-    .attr("class", "item-back")
-    .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;"; })
-    .append("div")
-    .attr("class", "white")
-    .attr("style", function(d) { return "width:" + Math.max(0, w(-d.start) - 1) + "px;"; });
-
-  items = items.append("div")
-    .attr("class", "item")
-    .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;"; });
-
-  items.append("div")
-    .attr("class", "info title")
-    .attr("title", function(d) { return d.title; })
-    .text(function(d) { return d.title; });
-
-  items.append("div")
-    .attr("class", "info desc")
-    .attr("title", function(d) { return d.desc; })
-    .text(function(d) { return d.desc; });
-
-  items.append("div")
-    .attr("class", "info due")
-    .attr("title", function(d) { return d.due.calendar(); })
-    .text(function(d) { return d.due.calendar(); });
-
-  items.on("click", function(d) {
-    if (lastmouse && Math.abs(d3.event.pageX - lastmouse[0]) < 2) {
-      location.hash = '#/item/' + d.id;
-    }
-  });
+  gtl.timeline = gtl.main.append("div").attr("id", "timeline")
+    .attr("style", "left:" + gtl.xoffset + "px;");
+  gtl.rules = gtl.timeline.append("div").attr("id", "tlrules");
+  gtl.body = gtl.timeline.append("div").attr("id", "tlbody");
 
   d3.select("#timeline-wrap").on("mousedown", function() {
-    mouse = [d3.event.pageX, d3.event.pageY];
-    lastmouse = mouse;
+    gtl.mouse = [d3.event.pageX, d3.event.pageY];
+    gtl.lastmouse = gtl.mouse;
     d3.event.preventDefault();
   });
 
   d3.select(window).on("mousemove", function() {
-    if (mouse) {
-      var tmp = xoffset + d3.event.pageX - mouse[0];
-      tmp = Math.max(Math.min(tmp, 0), maxxoffset);
-      timeline.attr("style", "left:" + tmp + "px;");
+    if (gtl.mouse) {
+      var tmp = gtl.xoffset + d3.event.pageX - gtl.mouse[0];
+      tmp = Math.max(Math.min(tmp, 0), gtl.maxxoffset);
+      gtl.timeline.attr("style", "left:" + tmp + "px;");
       d3.event.preventDefault();
     }
   }).on("mouseup", function() {
-    if (mouse) {
-      xoffset += d3.event.pageX - mouse[0];
-      xoffset = Math.max(Math.min(xoffset, 0), maxxoffset);
-      timeline.attr("style", "left:" + xoffset + "px;");
+    if (gtl.mouse) {
+      gtl.xoffset += d3.event.pageX - gtl.mouse[0];
+      gtl.xoffset = Math.max(Math.min(gtl.xoffset, 0), gtl.maxxoffset);
+      gtl.timeline.attr("style", "left:" + gtl.xoffset + "px;");
       d3.event.preventDefault();
-      mouse = null;
+      gtl.mouse = null;
     }
   });
+};
 
-  setTimeout(function() { updateData(data); }, 100);
+function barsEnter(bars) {
+  var wrap = bars.append("div").attr("class", "rule-wrap");
 
-  function updateTime(data) {
-    d3.selectAll(".white")
-      .data(data)
-      .attr("style", function(d) { return "width:" + Math.max(0, w(-d.start) - 1) + "px;"; });
-  }
+  wrap.append("div")
+    .attr("class", "rule")
+    .style("left", function(d) { return gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) + "px"; });
 
-  function updateData(data) {
-    d3.selectAll(".item-back")
-      .data(data)
-      .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;width:" + w(d.end - d.start) + "px;"; });
-    var items = d3.selectAll(".item")
-      .data(data)
-      .attr("style", function(d,i) { return "left:" + x(d.start) + "px;top:" + (y(i) + 45) + "px;width:" + w(d.end - d.start) + "px;"; });
+  wrap.append("div")
+    .attr("class", "rule-text")
+    .style("left", function(d) { return (gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) - (gtl.scale / 2)) + "px"; })
+    .style("width", function(d) { return gtl.scale + "px"; })
+    .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gtl.gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); });
 
-    items.select(".title")
-      .attr("title", function(d) { return d.title; })
-      .text(function(d) { return d.title; });
+  gtl.rules.selectAll(".now")
+    .data(d3.range(1))
+    .enter().append("div")
+    .attr("class", "now")
+    .style("left", gtl.x(0) + "px");
+}
 
-    items.select(".desc")
-      .attr("title", function(d) { return d.desc; })
-      .text(function(d) { return d.desc; });
+function barsUpdate(bars) {
+  bars.select(".rule")
+    .transition().duration(750)
+    .style("left", function(d) { return gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) + "px"; });
 
-    items.select(".due")
-      .attr("title", function(d) { return d.due.calendar(); })
-      .text(function(d) { return d.due.calendar(); });
-  }
+  bars.select(".rule-text")
+    .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gtl.gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); })
+    .transition().duration(750)
+    .style("left", function(d) { return (gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) - (gtl.scale / 2)) + "px"; })
+    .style("width", function(d) { return gtl.scale + "px"; });
+
+  gtl.rules.selectAll(".now")
+    .data(d3.range(1))
+    .transition().duration(750)
+    .style("left", gtl.x(0) + "px");
+}
+
+function barsExit(bars) {
+  bars.transition().duration(750).remove();
+}
+
+function itemsEnter(items) {
+  var wrap = items.append("div")
+    .attr("class", "item-wrap");
+
+  wrap.append("div")
+    .attr("class", "item-back")
+    .style("left", function(d) { return gtl.x(d.start) + "px"; })
+    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .append("div")
+    .attr("class", "white")
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.start) - 1) + "px"; });
+
+  var front = wrap.append("div")
+    .attr("class", "item")
+    .style("left", function(d) { return gtl.x(d.start) + "px"; })
+    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; });
+
+  front.append("div")
+    .attr("class", "info title")
+    .attr("title", function(d) { return d.title; })
+    .text(function(d) { return d.title; });
+
+  front.append("div")
+    .attr("class", "info desc")
+    .attr("title", function(d) { return d.desc; })
+    .text(function(d) { return d.desc; });
+
+  front.append("div")
+    .attr("class", "info due")
+    .attr("title", function(d) { return d.due.calendar(); })
+    .text(function(d) { return d.due.calendar(); });
+
+  front.on("click", function(d) {
+    if (gtl.lastmouse && Math.abs(d3.event.pageX - gtl.lastmouse[0]) < 2) {
+      location.hash = '#/item/' + d.id;
+    }
+  });
+}
+
+function itemsUpdate(items) {
+  items.select(".item-back")
+    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .transition().duration(750)
+    .style("left", function(d) { return gtl.x(d.start) + "px"; })
+    .style("width", function(d) { return gtl.w(d.end - d.start) + "px"; })
+    .select(".white")
+    .transition().duration(750)
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.start) - 1) + "px"; });
+
+  var front = items.select(".item")
+    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .transition().duration(750)
+    .style("left", function(d) { return gtl.x(d.start) + "px"; })
+    .style("width", function(d) { return gtl.w(d.end - d.start) + "px"; });
+
+  front.select("#title")
+    .attr("title", function(d) { return d.title; })
+    .text(function(d) { return d.title; });
+
+  front.select("#desc")
+    .attr("title", function(d) { return d.desc; })
+    .text(function(d) { return d.desc; });
+
+  front.select("#due")
+    .attr("title", function(d) { return d.due.calendar(); })
+    .text(function(d) { return d.due.calendar(); });
+}
+
+function itemsExit(items) {
+  items.transition().duration(750).style("opacity", 0).remove();
+}
+
+var timelineUpdate = function(data) {
+  gtl.gstart = Math.min(0, d3.min(data, function(d) { return d.start; }));
+  gtl.gend = Math.max(0, d3.max(data, function(d) { return d.end; }));
+  if (isNaN(gtl.gstart)) gtl.gstart = 0;
+  if (isNaN(gtl.gend)) gtl.gend = 0;
+  gtl.gstart -= (screen.width / gtl.scale * 24);
+  gtl.gend += (screen.width / gtl.scale * 24);
+
+  var height = data.length * 80;
+  gtl.main.attr("style", "height:" + (height + 50) + "px;");
+  gtl.y.range([0, height]);
+
+  gtl.x.domain([gtl.gstart, gtl.gstart + 24]);
+  gtl.y.domain([0, data.length]);
+
+  gtl.maxxoffset = -gtl.x(gtl.gend + gtl.gstart);
+  if (gtl.xoffset > 0) {
+    gtl.xoffset = -gtl.x(0) + 200;
+  } else gtl.xoffset = Math.max(gtl.maxxoffset, gtl.xoffset);
+  if (!gtl.mouse) gtl.timeline.attr("style", "left:" + gtl.xoffset + "px;");
+
+  var bars = gtl.rules.selectAll(".rule-wrap")
+    .data(d3.range(Math.floor((gtl.gend - gtl.gstart) / 24)));
+
+  barsEnter(bars.enter());
+  barsUpdate(bars);
+  barsExit(bars.exit());
+
+  var items = gtl.body.selectAll(".item-wrap")
+    .data(data);
+
+  itemsEnter(items.enter());
+  itemsUpdate(items);
+  itemsExit(items.exit());
+
+  setTimeout(function() {
+    data.push({start: gtl.gstart + (screen.width / gtl.scale * 24) - 5, end: 40, title: "derp", desc: "derp2", due: moment().add('hours', 40)});
+    timelineUpdate(data);
+  }, 3000);
 };
