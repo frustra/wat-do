@@ -168,7 +168,8 @@ var timelineUpdate = function(data) {
   gtl.x.domain([gtl.gstart, gtl.gstart + 24]);
   gtl.y.domain([0, data.length]);
 
-  gtl.maxxoffset = -gtl.x(gtl.gend + gtl.gstart);
+  gtl.maxxoffset = -gtl.x(gtl.gend) + screen.width;
+  console.log(gtl.maxxoffset);
   if (gtl.xoffset > 0) {
     gtl.xoffset = -gtl.x(0) + 200;
   } else gtl.xoffset = Math.max(gtl.maxxoffset, gtl.xoffset);
