@@ -17,4 +17,8 @@ block content
         h4 {{item.desc}}
         textarea(name='item-description', ng-model='item.desc', class='medium full-width')
 
+        input(type='text', name='start-date', ng-model='item.start', class='medium')
+
+        input(type='text', name='end-date', ng-model='item.end', class='medium')
+
         input(type='submit', value='Save', class='btn medium')

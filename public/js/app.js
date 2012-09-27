@@ -20,6 +20,8 @@ $(function() {
   $('.overlay').click(function(e) {
     window.location.hash = '';
   });
+
+  timelineInit();
 });
 
 var watdo = angular.module('watdo', []);
@@ -28,19 +30,17 @@ watdo.config(function($routeProvider) {
     .when('/item/:id', { action: 'item.show' });
 });
 
-watdo.controller('TimelineCtrl', function TimelineCtrl($scope, $http, $location) {
+watdo.controller('TimelineCtrl', function TimelineCtrl($rootScope, $http, $location) {
   $http({
     method: 'GET',
     url: '/items.json'
   }).success(function(data) {
-    for (var i = 0; i < data.length; i++) {
-      data[i].due = moment().add('hours', data[i].end);
-    }
-    $scope.data = data;
+    $rootScope.data = data;
+    timelineUpdate($rootScope.data);
   });
 });
 
-watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $http) {
+watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $routeParams, $http) {
   render = function() {
     var id = $routeParams.id;
     if (typeof id !== 'undefined' && typeof $route.current !== 'undefined') {
@@ -53,7 +53,15 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $ht
             url: '/item/' + item.id + '.json',
             data: item
           }).success(function(data) {
+            data.start = parseInt(data.start);
+            data.end = parseInt(data.end);
             $scope.item = data;
+            for (var i = 0; i < $rootScope.data.length; i++) {
+              if ($rootScope.data[i].id == data.id) {
+                $rootScope.data[i] = data;
+              }
+            }
+            timelineUpdate($rootScope.data);
             window.location.hash = '#';
           });
         };
@@ -74,9 +82,16 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $ht
             url: '/item/new.json',
             data: item
           }).success(function(data) {
+            data.start = parseInt(data.start);
+            data.end = parseInt(data.end);
             $scope.item = data;
+            for (var i = 0; i < $rootScope.data.length; i++) {
+              if ($rootScope.data[i].id == data.id) {
+                $rootScope.data[i] = data;
+              }
+            }
+            timelineUpdate($rootScope.data);
             window.location.hash = '#/item/' + data.id;
-            timelineUpdate(data);
           });
         };
 
@@ -90,20 +105,4 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $route, $routeParams, $ht
   $scope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute) {
     render();
   });
-});
-
-watdo.directive('timelineVisualization', function() {
-  return {
-    restrict: 'C',
-    scope: {
-      val: '='
-    },
-    link: function(scope, element, attrs) {
-      scope.$watch('val', function(newVal, oldVal) {
-        if (!newVal) return;
-        timelineInit();
-        timelineUpdate(newVal);
-      });
-    }
-  };
 });

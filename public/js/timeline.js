@@ -8,6 +8,8 @@ var timelineInit = function() {
     .domain([0, 24]);
   gtl.y = d3.scale.linear();
 
+  gtl.starttime = moment();
+
   gtl.main = d3.select(".timeline-visualization")
     .attr("style", "height:" + screen.height + "px;");
 
@@ -38,7 +40,19 @@ var timelineInit = function() {
       gtl.mouse = null;
     }
   });
+
+  setInterval(timeUpdate, 86400000 / gtl.scale);
 };
+
+function timeUpdate() {
+  gtl.rules.selectAll(".now")
+    .transition().duration(750)
+    .style("left", gtl.x(moment().diff(gtl.starttime) / 3600000) + "px");
+
+  gtl.body.selectAll(".white")
+    .transition().duration(750)
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.start + moment().diff(gtl.starttime) / 3600000) - 1) + "px"; });
+}
 
 function barsEnter(bars) {
   var wrap = bars.append("div").attr("class", "rule-wrap");
@@ -110,8 +124,8 @@ function itemsEnter(items) {
 
   front.append("div")
     .attr("class", "info due")
-    .attr("title", function(d) { return d.due.calendar(); })
-    .text(function(d) { return d.due.calendar(); });
+    .attr("title", function(d) { return moment().add('hours', d.end).calendar(); })
+    .text(function(d) { return moment().add('hours', d.end).calendar(); });
 
   front.on("click", function(d) {
     if (gtl.lastmouse && Math.abs(d3.event.pageX - gtl.lastmouse[0]) < 2) {
@@ -136,17 +150,17 @@ function itemsUpdate(items) {
     .style("left", function(d) { return gtl.x(d.start) + "px"; })
     .style("width", function(d) { return gtl.w(d.end - d.start) + "px"; });
 
-  front.select("#title")
+  front.select(".title")
     .attr("title", function(d) { return d.title; })
     .text(function(d) { return d.title; });
 
-  front.select("#desc")
+  front.select(".desc")
     .attr("title", function(d) { return d.desc; })
     .text(function(d) { return d.desc; });
 
-  front.select("#due")
-    .attr("title", function(d) { return d.due.calendar(); })
-    .text(function(d) { return d.due.calendar(); });
+  front.select(".due")
+    .attr("title", function(d) { return moment().add('hours', d.end).calendar(); })
+    .text(function(d) { return moment().add('hours', d.end).calendar(); });
 }
 
 function itemsExit(items) {
@@ -169,7 +183,6 @@ var timelineUpdate = function(data) {
   gtl.y.domain([0, data.length]);
 
   gtl.maxxoffset = -gtl.x(gtl.gend) + screen.width;
-  console.log(gtl.maxxoffset);
   if (gtl.xoffset > 0) {
     gtl.xoffset = -gtl.x(0) + 200;
   } else gtl.xoffset = Math.max(gtl.maxxoffset, gtl.xoffset);
@@ -183,7 +196,17 @@ var timelineUpdate = function(data) {
   barsExit(bars.exit());
 
   var items = gtl.body.selectAll(".item-wrap")
-    .data(data);
+    .data(data.sort(function(a, b) {
+      if (a.end < b.end) {
+        return -1
+      } else if (a.end == b.end) {
+        if (a.start < b.start) {
+          return -1;
+        } else if (a.start == b.start) {
+          return 0;
+        } else return 1;
+      } else return 1;
+    }), function(d) { return d.id; });
 
   itemsEnter(items.enter());
   itemsUpdate(items);
