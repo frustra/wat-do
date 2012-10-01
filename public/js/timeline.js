@@ -114,8 +114,8 @@ function itemsEnter(items) {
 
   front.append("div")
     .attr("class", "info title")
-    .attr("title", function(d) { return d.title; })
-    .text(function(d) { return d.title; });
+    .attr("title", function(d) { return d.name; })
+    .text(function(d) { return d.name; });
 
   front.append("div")
     .attr("class", "info desc")
@@ -129,7 +129,7 @@ function itemsEnter(items) {
 
   front.on("click", function(d) {
     if (gtl.lastmouse && Math.abs(d3.event.pageX - gtl.lastmouse[0]) < 2) {
-      location.hash = '#/item/' + d.id;
+      location.hash = '#/item/' + d._id;
     }
   });
 }
@@ -151,8 +151,8 @@ function itemsUpdate(items) {
     .style("width", function(d) { return gtl.w(d.end - d.start) + "px"; });
 
   front.select(".title")
-    .attr("title", function(d) { return d.title; })
-    .text(function(d) { return d.title; });
+    .attr("title", function(d) { return d.name; })
+    .text(function(d) { return d.name; });
 
   front.select(".desc")
     .attr("title", function(d) { return d.desc; })
@@ -168,6 +168,11 @@ function itemsExit(items) {
 }
 
 var timelineUpdate = function(data) {
+  var currentDate = moment();
+  for (var i = 0; i < data.length; ++i) {
+    data[i].start = moment(data[i].start).diff(currentDate, 'hours');
+    data[i].end = moment(data[i].end).diff(currentDate, 'hours');
+  }
   gtl.gstart = Math.min(0, d3.min(data, function(d) { return d.start; }));
   gtl.gend = Math.max(0, d3.max(data, function(d) { return d.end; }));
   if (isNaN(gtl.gstart)) gtl.gstart = 0;

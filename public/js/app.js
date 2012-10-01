@@ -44,36 +44,7 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
   render = function() {
     var id = $routeParams.id;
     if (typeof id !== 'undefined' && typeof $route.current !== 'undefined') {
-      if (!isNaN(parseInt(id, 10))) {
-        // existing item
-        $scope.saveItem = function() {
-          var item = $scope.item;
-          $http({
-            method: 'POST',
-            url: '/item/' + item.id + '.json',
-            data: item
-          }).success(function(data) {
-            data.start = parseInt(data.start);
-            data.end = parseInt(data.end);
-            $scope.item = data;
-            for (var i = 0; i < $rootScope.data.length; i++) {
-              if ($rootScope.data[i].id == data.id) {
-                $rootScope.data[i] = data;
-              }
-            }
-            timelineUpdate($rootScope.data);
-            window.location.hash = '#';
-          });
-        };
-
-        $http({
-          method: 'GET',
-          url: '/item/' + id + '.json'
-        }).success(function(data) {
-          $scope.item = data;
-          $('#item').show();
-        });
-      } else if (id == 'new') {
+      if (id == 'new') {
         // new item
         $scope.saveItem = function() {
           var item = $scope.item;
@@ -86,17 +57,44 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
             data.end = parseInt(data.end);
             $scope.item = data;
             for (var i = 0; i < $rootScope.data.length; i++) {
-              if ($rootScope.data[i].id == data.id) {
+              if ($rootScope.data[i]._id == data._id) {
                 $rootScope.data[i] = data;
               }
             }
             timelineUpdate($rootScope.data);
-            window.location.hash = '#/item/' + data.id;
+            window.location.hash = '#';
           });
         };
 
-        $scope.item = { title: '', desc: '' };
+        $scope.item = { name: '', desc: '' };
         $('#item').show();
+      } else if (id != '') {
+        // existing item
+        $scope.saveItem = function() {
+          var item = $scope.item;
+          $http({
+            method: 'POST',
+            url: '/item/' + item._id + '.json',
+            data: item
+          }).success(function(data) {
+            $scope.item = data;
+            for (var i = 0; i < $rootScope.data.length; i++) {
+              if ($rootScope.data[i]._id == data._id) {
+                $rootScope.data[i] = data;
+              }
+            }
+            timelineUpdate($rootScope.data);
+            window.location.hash = '#/item/' + data._id;
+          });
+        };
+
+        $http({
+          method: 'GET',
+          url: '/item/' + id + '.json'
+        }).success(function(data) {
+          $scope.item = data;
+          $('#item').show();
+        });
       }
     } else {
       $('#item').hide();

@@ -7,12 +7,12 @@ var ItemSchema = new mongoose.Schema({
   done: Boolean,
   createdAt: Date,
   start: Date,
-  end: Date,
-  notify: Number, // relative hours
+  end: Date//,
+  //notify: Number, // relative hours
 
-  creator: { type: ObjectId, ref: 'User' },
-  collaborators: [{ type: ObjectId, ref: 'User' }],
-  categories: [{ type: ObjectId, ref: 'Category' }]
+  //creator: { type: ObjectId, ref: 'User' },
+  //collaborators: [{ type: ObjectId, ref: 'User' }],
+  //categories: [{ type: ObjectId, ref: 'Category' }]
 });
 
 exports.Item = mongoose.model('Item', ItemSchema);

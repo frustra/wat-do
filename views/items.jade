@@ -11,8 +11,8 @@ block content
     div.overlay
     div.content
       form(ng-submit='saveItem()')
-        h2 {{item.title}}
-        input(type='text', name='item-title', ng-model='item.title', class='big full-width')
+        h2 {{item.name}}
+        input(type='text', name='item-name', ng-model='item.name', class='big full-width')
 
         h4 {{item.desc}}
         textarea(name='item-description', ng-model='item.desc', class='medium full-width')
