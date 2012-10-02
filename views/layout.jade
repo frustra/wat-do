@@ -23,7 +23,7 @@ html(ng-app='watdo')
       header: a.home.watdo(href='/') wat do?
       nav: ul
         li: a.info(href='/about'): i.icon-info-sign
-        - //li: a(href='/about') wat
+        li: a(href='#/item/new') new
         - //li: a(href='/do') do
         if !!user
           li.right: a(href='/logout') logout

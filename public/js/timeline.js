@@ -51,7 +51,7 @@ function timeUpdate() {
 
   gtl.body.selectAll(".white")
     .transition().duration(750)
-    .style("width", function(d) { return Math.max(0, gtl.w(-d.start + moment().diff(gtl.starttime) / 3600000) - 1) + "px"; });
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart + moment().diff(gtl.starttime) / 3600000) - 1) + "px"; });
 }
 
 function barsEnter(bars) {
@@ -101,15 +101,15 @@ function itemsEnter(items) {
 
   wrap.append("div")
     .attr("class", "item-back")
-    .style("left", function(d) { return gtl.x(d.start) + "px"; })
+    .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .append("div")
     .attr("class", "white")
-    .style("width", function(d) { return Math.max(0, gtl.w(-d.start) - 1) + "px"; });
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
 
   var front = wrap.append("div")
     .attr("class", "item")
-    .style("left", function(d) { return gtl.x(d.start) + "px"; })
+    .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; });
 
   front.append("div")
@@ -124,8 +124,8 @@ function itemsEnter(items) {
 
   front.append("div")
     .attr("class", "info due")
-    .attr("title", function(d) { return moment().add('hours', d.end).calendar(); })
-    .text(function(d) { return moment().add('hours', d.end).calendar(); });
+    .attr("title", function(d) { return moment().add('hours', d.rend).calendar(); })
+    .text(function(d) { return moment().add('hours', d.rend).calendar(); });
 
   front.on("click", function(d) {
     if (gtl.lastmouse && Math.abs(d3.event.pageX - gtl.lastmouse[0]) < 2) {
@@ -138,17 +138,17 @@ function itemsUpdate(items) {
   items.select(".item-back")
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .transition().duration(750)
-    .style("left", function(d) { return gtl.x(d.start) + "px"; })
-    .style("width", function(d) { return gtl.w(d.end - d.start) + "px"; })
+    .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
+    .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; })
     .select(".white")
     .transition().duration(750)
-    .style("width", function(d) { return Math.max(0, gtl.w(-d.start) - 1) + "px"; });
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
 
   var front = items.select(".item")
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .transition().duration(750)
-    .style("left", function(d) { return gtl.x(d.start) + "px"; })
-    .style("width", function(d) { return gtl.w(d.end - d.start) + "px"; });
+    .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
+    .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; });
 
   front.select(".title")
     .attr("title", function(d) { return d.name; })
@@ -159,8 +159,8 @@ function itemsUpdate(items) {
     .text(function(d) { return d.desc; });
 
   front.select(".due")
-    .attr("title", function(d) { return moment().add('hours', d.end).calendar(); })
-    .text(function(d) { return moment().add('hours', d.end).calendar(); });
+    .attr("title", function(d) { return moment().add('hours', d.rend).calendar(); })
+    .text(function(d) { return moment().add('hours', d.rend).calendar(); });
 }
 
 function itemsExit(items) {
@@ -170,17 +170,17 @@ function itemsExit(items) {
 var timelineUpdate = function(data) {
   var currentDate = moment();
   for (var i = 0; i < data.length; ++i) {
-    data[i].start = moment(data[i].start).diff(currentDate, 'hours');
-    data[i].end = moment(data[i].end).diff(currentDate, 'hours');
+    data[i].rstart = moment(data[i].start).diff(currentDate) / 3600000;
+    data[i].rend = moment(data[i].end).diff(currentDate) / 3600000;
   }
-  gtl.gstart = Math.min(0, d3.min(data, function(d) { return d.start; }));
-  gtl.gend = Math.max(0, d3.max(data, function(d) { return d.end; }));
+  gtl.gstart = Math.min(0, d3.min(data, function(d) { return d.rstart; }));
+  gtl.gend = Math.max(0, d3.max(data, function(d) { return d.rend; }));
   if (isNaN(gtl.gstart)) gtl.gstart = 0;
   if (isNaN(gtl.gend)) gtl.gend = 0;
   gtl.gstart -= (screen.width / gtl.scale * 24);
   gtl.gend += (screen.width / gtl.scale * 24);
 
-  var height = data.length * 80;
+  var height = data.length * 70;
   gtl.main.attr("style", "height:" + (height + 50) + "px;");
   gtl.y.range([0, height]);
 
@@ -189,7 +189,7 @@ var timelineUpdate = function(data) {
 
   gtl.maxxoffset = -gtl.x(gtl.gend) + screen.width;
   if (gtl.xoffset > 0) {
-    gtl.xoffset = -gtl.x(0) + 200;
+    gtl.xoffset = -gtl.x(0) + $(window).width() / 2;
   } else gtl.xoffset = Math.max(gtl.maxxoffset, gtl.xoffset);
   if (!gtl.mouse) gtl.timeline.attr("style", "left:" + gtl.xoffset + "px;");
 
@@ -202,16 +202,16 @@ var timelineUpdate = function(data) {
 
   var items = gtl.body.selectAll(".item-wrap")
     .data(data.sort(function(a, b) {
-      if (a.end < b.end) {
+      if (a.rend < b.rend) {
         return -1
-      } else if (a.end == b.end) {
-        if (a.start < b.start) {
+      } else if (a.rend == b.rend) {
+        if (a.rstart < b.rstart) {
           return -1;
-        } else if (a.start == b.start) {
+        } else if (a.rstart == b.rstart) {
           return 0;
         } else return 1;
       } else return 1;
-    }), function(d) { return d.id; });
+    }), function(d) { return d._id; });
 
   itemsEnter(items.enter());
   itemsUpdate(items);

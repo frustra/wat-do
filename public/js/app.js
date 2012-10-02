@@ -53,8 +53,6 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
             url: '/item/new.json',
             data: item
           }).success(function(data) {
-            data.start = parseInt(data.start);
-            data.end = parseInt(data.end);
             $scope.item = data;
             for (var i = 0; i < $rootScope.data.length; i++) {
               if ($rootScope.data[i]._id == data._id) {
