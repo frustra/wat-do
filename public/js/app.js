@@ -54,11 +54,7 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
             data: item
           }).success(function(data) {
             $scope.item = data;
-            for (var i = 0; i < $rootScope.data.length; i++) {
-              if ($rootScope.data[i]._id == data._id) {
-                $rootScope.data[i] = data;
-              }
-            }
+            $rootScope.data.push(data);
             timelineUpdate($rootScope.data);
             window.location.hash = '#';
           });
