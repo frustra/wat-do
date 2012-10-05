@@ -27,6 +27,13 @@
         font-size: 14px;
         cursor: default;
         z-index: 5;
+
+        &::selection {
+          background: transparent;
+        }
+        &::-moz-selection {
+          background: transparent;
+        }
       }
 
       div.rule {

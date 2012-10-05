@@ -17,31 +17,6 @@ var timelineInit = function() {
   gtl.rules = gtl.timeline.append("div").attr("id", "tlrules");
   gtl.body = gtl.timeline.append("div").attr("id", "tlbody");
 
-  d3.select(window).on("mousedown", function() {
-    console.log(d3.event.relatedTarget);
-    if (d3.event.pageY > 52) {
-      gtl.mouse = [d3.event.screenX, d3.event.screenY];
-      gtl.mousestart = gtl.mouse;
-      d3.event.preventDefault();
-    }
-  })
-  d3.select(window).on("mousemove", function() {
-    if (gtl.mouse) {
-      $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - d3.event.screenX);
-      $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - d3.event.screenY);
-      gtl.mouse = [d3.event.screenX, d3.event.screenY];
-      d3.event.preventDefault();
-    }
-  }).on("mouseup", function() {
-    if (gtl.mouse) {
-      $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - d3.event.screenX);
-      $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - d3.event.screenY);
-      gtl.mouse = [d3.event.screenX, d3.event.screenY];
-      d3.event.preventDefault();
-      gtl.mouse = null;
-    }
-  });
-
   setInterval(timeUpdate, 86400000 / gtl.scale);
 };
 

@@ -24,7 +24,32 @@ $(function() {
   });
 
   timelineInit();
+  $(window).bind("mousedown", mouseDown);
 });
+
+function mouseDown(e) {
+  if (e.clientY > 52) {
+    gtl.mouse = [e.screenX, e.screenY];
+    gtl.mousestart = gtl.mouse;
+    $(window).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
+    e.preventDefault();
+  }
+}
+
+function mouseMove(e) {
+  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
+  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
+  gtl.mouse = [e.screenX, e.screenY];
+  e.preventDefault();
+}
+
+function mouseUp(e) {
+  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
+  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
+  gtl.mouse = [e.screenX, e.screenY];
+  e.preventDefault();
+  $(window).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
+}
 
 var watdo = angular.module('watdo', []);
 watdo.config(function($routeProvider) {
@@ -58,7 +83,9 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
             $scope.item = data;
             $rootScope.data.push(data);
             timelineUpdate($rootScope.data);
-            window.location.hash = '#';
+            var save = $(window).scrollLeft();
+            window.location.hash = '';
+            $(window).scrollLeft(save);
           });
         };
 
@@ -80,7 +107,9 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
               }
             }
             timelineUpdate($rootScope.data);
-            window.location.hash = '#/item/' + data._id;
+            var save = $(window).scrollLeft();
+            window.location.hash = '';//#/item/' + data._id;
+            $(window).scrollLeft(save);
           });
         };
 
@@ -89,11 +118,13 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
           url: '/item/' + id + '.json'
         }).success(function(data) {
           $scope.item = data;
+          $(window).unbind("mousedown", mouseDown);
           $('#item').show();
         });
       }
     } else {
       $('#item').hide();
+      $(window).bind("mousedown", mouseDown);
     }
   };
   $scope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute) {
