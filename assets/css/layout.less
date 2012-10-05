@@ -106,27 +106,46 @@ body.scroll #topbar {
 #item {
   display: none;
 
-  .content {
-    position: fixed;
-    background-color: #EFEFEF;
-    .box-shadow(0 0 72px 1px #222);
-    .rounded(4px);
-    left: 50%;
-    top: 80px;
-    width: 600px;
-    margin-left: -300px;
-    padding: 10px;
-    z-index: 102;
-  }
-
   .overlay {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: #000;
-    opacity: 0.6;
     z-index: 101;
+
+    .overlay-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .content-wrap {
+      position: relative;
+      float: right;
+      right: 50%;
+      top: 80px;
+      width: 600px;
+      max-width: 90%;
+
+      .content {
+        position: relative;
+        float: right;
+        right: -50%;
+
+        background-color: #EFEFEF;
+        .box-shadow(0 0 72px 1px #222);
+        .rounded(4px);
+        width: 100%;
+        z-index: 2;
+
+        form {
+          margin: 10px;
+        }
+      }
+    }
   }
 }

@@ -17,8 +17,10 @@ $(function() {
     e.preventDefault();
   });
 
-  $('.overlay').click(function(e) {
+  $('.overlay-inner').click(function(e) {
+    var save = $(window).scrollLeft();
     window.location.hash = '';
+    $(window).scrollLeft(save);
   });
 
   timelineInit();

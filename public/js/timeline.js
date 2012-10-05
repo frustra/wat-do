@@ -1,4 +1,4 @@
-var gtl = {scale: 100, maxxoffset: 0, xoffset: 1, mouse: null, lastmouse: null};
+var gtl = {scale: 100, mouse: null, mousestart: null, scrolled: false};
 
 var timelineInit = function() {
   gtl.x = d3.scale.linear()
@@ -13,29 +13,30 @@ var timelineInit = function() {
   gtl.main = d3.select(".timeline-visualization")
     .attr("style", "height:" + screen.height + "px;");
 
-  gtl.timeline = gtl.main.append("div").attr("id", "timeline")
-    .attr("style", "left:" + gtl.xoffset + "px;");
+  gtl.timeline = gtl.main.append("div").attr("id", "timeline");
   gtl.rules = gtl.timeline.append("div").attr("id", "tlrules");
   gtl.body = gtl.timeline.append("div").attr("id", "tlbody");
 
-  d3.select("#timeline-wrap").on("mousedown", function() {
-    gtl.mouse = [d3.event.pageX, d3.event.pageY];
-    gtl.lastmouse = gtl.mouse;
-    d3.event.preventDefault();
-  });
-
+  d3.select(window).on("mousedown", function() {
+    console.log(d3.event.relatedTarget);
+    if (d3.event.pageY > 52) {
+      gtl.mouse = [d3.event.screenX, d3.event.screenY];
+      gtl.mousestart = gtl.mouse;
+      d3.event.preventDefault();
+    }
+  })
   d3.select(window).on("mousemove", function() {
     if (gtl.mouse) {
-      var tmp = gtl.xoffset + d3.event.pageX - gtl.mouse[0];
-      tmp = Math.max(Math.min(tmp, 0), gtl.maxxoffset);
-      gtl.timeline.attr("style", "left:" + tmp + "px;");
+      $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - d3.event.screenX);
+      $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - d3.event.screenY);
+      gtl.mouse = [d3.event.screenX, d3.event.screenY];
       d3.event.preventDefault();
     }
   }).on("mouseup", function() {
     if (gtl.mouse) {
-      gtl.xoffset += d3.event.pageX - gtl.mouse[0];
-      gtl.xoffset = Math.max(Math.min(gtl.xoffset, 0), gtl.maxxoffset);
-      gtl.timeline.attr("style", "left:" + gtl.xoffset + "px;");
+      $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - d3.event.screenX);
+      $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - d3.event.screenY);
+      gtl.mouse = [d3.event.screenX, d3.event.screenY];
       d3.event.preventDefault();
       gtl.mouse = null;
     }
@@ -128,7 +129,7 @@ function itemsEnter(items) {
     .text(function(d) { return moment().add('hours', d.rend).calendar(); });
 
   front.on("click", function(d) {
-    if (gtl.lastmouse && Math.abs(d3.event.pageX - gtl.lastmouse[0]) < 2) {
+    if (gtl.mousestart && Math.abs(d3.event.screenX - gtl.mousestart[0]) < 2) {
       location.hash = '#/item/' + d._id;
     }
   });
@@ -187,12 +188,6 @@ var timelineUpdate = function(data) {
   gtl.x.domain([gtl.gstart, gtl.gstart + 24]);
   gtl.y.domain([0, data.length]);
 
-  gtl.maxxoffset = -gtl.x(gtl.gend) + screen.width;
-  if (gtl.xoffset > 0) {
-    gtl.xoffset = -gtl.x(0) + $(window).width() / 2;
-  } else gtl.xoffset = Math.max(gtl.maxxoffset, gtl.xoffset);
-  if (!gtl.mouse) gtl.timeline.attr("style", "left:" + gtl.xoffset + "px;");
-
   var bars = gtl.rules.selectAll(".rule-wrap")
     .data(d3.range(Math.floor((gtl.gend - gtl.gstart) / 24)));
 
@@ -216,4 +211,9 @@ var timelineUpdate = function(data) {
   itemsEnter(items.enter());
   itemsUpdate(items);
   itemsExit(items.exit());
+
+  if (!gtl.mouse && !gtl.scrolled) {
+    $(window).scrollLeft(gtl.x(0) - $(window).width() / 2);
+    gtl.scrolled = true;
+  }
 };
