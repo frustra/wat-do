@@ -8,8 +8,6 @@ var timelineInit = function() {
     .domain([0, 24]);
   gtl.y = d3.scale.linear();
 
-  gtl.starttime = moment();
-
   gtl.main = d3.select(".timeline-visualization")
     .attr("style", "height:" + screen.height + "px;");
 
@@ -17,7 +15,7 @@ var timelineInit = function() {
   gtl.rules = gtl.timeline.append("div").attr("id", "tlrules");
   gtl.body = gtl.timeline.append("div").attr("id", "tlbody");
 
-  setInterval(timeUpdate, 86400000 / gtl.scale);
+  setInterval(timeUpdate, 1000);
 };
 
 function timeUpdate() {
@@ -62,9 +60,12 @@ function barsUpdate(bars) {
     .style("width", function(d) { return gtl.scale + "px"; });
 
   gtl.rules.selectAll(".now")
-    .data(d3.range(1))
     .transition().duration(750)
     .style("left", gtl.x(0) + "px");
+
+  gtl.body.selectAll(".white")
+    .transition().duration(750)
+    .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
 }
 
 function barsExit(bars) {
@@ -145,6 +146,8 @@ function itemsExit(items) {
 
 var timelineUpdate = function(data) {
   var currentDate = moment();
+  gtl.starttime = currentDate;
+  
   for (var i = 0; i < data.length; ++i) {
     data[i].rstart = moment(data[i].start).diff(currentDate) / 3600000;
     data[i].rend = moment(data[i].end).diff(currentDate) / 3600000;
@@ -172,15 +175,20 @@ var timelineUpdate = function(data) {
 
   var items = gtl.body.selectAll(".item-wrap")
     .data(data.sort(function(a, b) {
+      if (a.rend < 0 && b.rend >= 0) return 1;
+      if (b.rend < 0 && a.rend >= 0) return -1;
+      var ret = 0;
       if (a.rend < b.rend) {
-        return -1
+        ret = -1;
       } else if (a.rend == b.rend) {
         if (a.rstart < b.rstart) {
-          return -1;
-        } else if (a.rstart == b.rstart) {
-          return 0;
-        } else return 1;
-      } else return 1;
+          ret = -1;
+        } else if (a.rstart > b.rstart) {
+          ret = 1;
+        }
+      } else ret = 1;
+      if (a.rend < 0) return -ret;
+      return ret;
     }), function(d) { return d._id; });
 
   itemsEnter(items.enter());

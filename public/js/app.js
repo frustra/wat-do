@@ -23,6 +23,17 @@ $(function() {
     $(window).scrollLeft(save);
   });
 
+  $('.editable').keydown(function(e) {
+    if (e.which == 27) { // Escape
+      // TODO - Reset data in field
+      e.target.blur();
+      e.preventDefault();
+    } else if (e.which == 13) { // Return
+      e.target.blur();
+      e.preventDefault();
+    }
+  });
+
   timelineInit();
   $(window).bind("mousedown", mouseDown);
 });
@@ -90,6 +101,7 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
         };
 
         $scope.item = { name: '', desc: '' };
+        $(window).unbind("mousedown", mouseDown);
         $('#item').show();
       } else if (id != '') {
         // existing item
