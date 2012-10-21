@@ -21,7 +21,7 @@ $(function() {
 
   $('.overlay-inner').click(function(e) {
     var save = $(window).scrollLeft();
-    changeURL('');
+    changeURL('/');
     $(window).scrollLeft(save);
   });
 
@@ -61,35 +61,26 @@ function changeURL(page, noHistory) {
     case 'item':
       var id = path[1];
       console.log(id);
-      // open popup for id
+      setModal('item');
       break;
     default:
-      // close popups
+      setModal();
   }
 }
 
-function mouseDown(e) {
-  if (e.clientY > 52) {
-    gtl.mouse = [e.screenX, e.screenY];
-    gtl.mousestart = gtl.mouse;
-    $(window).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
-    e.preventDefault();
+function setModal(name) {
+  if (name) {
+    $('#modal').show();
+    $.each($('.modal-inner'), function() {
+      if ($(this)[0].id == name) {
+        $(this).show();
+      } else $(this).hide();
+    });
+    $(window).unbind("mousedown", mouseDown);
+  } else {
+    $('#modal').hide();
+    $(window).bind("mousedown", mouseDown);
   }
-}
-
-function mouseMove(e) {
-  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
-  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
-  gtl.mouse = [e.screenX, e.screenY];
-  e.preventDefault();
-}
-
-function mouseUp(e) {
-  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
-  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
-  gtl.mouse = [e.screenX, e.screenY];
-  e.preventDefault();
-  $(window).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
 }
 
 /*var watdo = angular.module('watdo', []);

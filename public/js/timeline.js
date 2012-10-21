@@ -144,6 +144,30 @@ function itemsExit(items) {
   items.transition().duration(750).style("opacity", 0).remove();
 }
 
+function mouseDown(e) {
+  if (e.clientY > 52) {
+    gtl.mouse = [e.screenX, e.screenY];
+    gtl.mousestart = gtl.mouse;
+    $(window).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
+    e.preventDefault();
+  }
+}
+
+function mouseMove(e) {
+  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
+  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
+  gtl.mouse = [e.screenX, e.screenY];
+  e.preventDefault();
+}
+
+function mouseUp(e) {
+  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
+  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
+  gtl.mouse = [e.screenX, e.screenY];
+  e.preventDefault();
+  $(window).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
+}
+
 var timelineUpdate = function(data) {
   var currentDate = moment();
   gtl.starttime = currentDate;
