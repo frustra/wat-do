@@ -1,5 +1,28 @@
 var gdata;
 
+function changeURL(page, noHistory) {
+  if (!noHistory) {
+    window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
+    window.history.pushState({'watpage': page}, 'Title', page);
+  }
+  crossroads.parse(page);
+}
+
+function setModal(name) {
+  if (name) {
+    $('#modal').show();
+    $.each($('.modal-inner'), function() {
+      if ($(this)[0].id == name) {
+        $(this).show();
+      } else $(this).hide();
+    });
+    $(window).unbind("mousedown", mouseDown);
+  } else {
+    $('#modal').hide();
+    $(window).bind("mousedown", mouseDown);
+  }
+}
+
 $(function() {
   var $document = $(document)
     , addedScroll = false;
@@ -40,6 +63,15 @@ $(function() {
     if (event.state != undefined && event.state.watpage != undefined) changeURL(event.state.watpage, true);
   };
 
+  crossroads.addRoute('/', function(id) {
+    setModal();
+  });
+
+  crossroads.addRoute('/item/{id}', function(id) {
+    console.log(id);
+    setModal('item');
+  });
+
   timelineInit();
   $.ajax({
     url: '/items.json',
@@ -50,38 +82,6 @@ $(function() {
   });
   $(window).bind("mousedown", mouseDown);
 });
-
-function changeURL(page, noHistory) {
-  if (!noHistory) {
-    window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
-    window.history.pushState({'watpage': page}, 'Title', page);
-  }
-  var path = page.substr(1).split('/');
-  switch (path[0]) {
-    case 'item':
-      var id = path[1];
-      console.log(id);
-      setModal('item');
-      break;
-    default:
-      setModal();
-  }
-}
-
-function setModal(name) {
-  if (name) {
-    $('#modal').show();
-    $.each($('.modal-inner'), function() {
-      if ($(this)[0].id == name) {
-        $(this).show();
-      } else $(this).hide();
-    });
-    $(window).unbind("mousedown", mouseDown);
-  } else {
-    $('#modal').hide();
-    $(window).bind("mousedown", mouseDown);
-  }
-}
 
 /*var watdo = angular.module('watdo', []);
 watdo.config(function($routeProvider) {
