@@ -1,3 +1,5 @@
+var gdata;
+
 $(function() {
   var $document = $(document)
     , addedScroll = false;
@@ -19,7 +21,7 @@ $(function() {
 
   $('.overlay-inner').click(function(e) {
     var save = $(window).scrollLeft();
-    window.location.hash = '';
+    changeURL('');
     $(window).scrollLeft(save);
   });
 
@@ -34,9 +36,37 @@ $(function() {
     }
   });
 
+  window.onpopstate = function(event) {
+    if (event.state != undefined && event.state.watpage != undefined) changeURL(event.state.watpage, true);
+  };
+
   timelineInit();
+  $.ajax({
+    url: '/items.json',
+    success: function(data) {
+      gdata = data;
+      timelineUpdate(gdata);
+    }
+  });
   $(window).bind("mousedown", mouseDown);
 });
+
+function changeURL(page, noHistory) {
+  if (!noHistory) {
+    window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
+    window.history.pushState({'watpage': page}, 'Title', page);
+  }
+  var path = page.substr(1).split('/');
+  switch (path[0]) {
+    case 'item':
+      var id = path[1];
+      console.log(id);
+      // open popup for id
+      break;
+    default:
+      // close popups
+  }
+}
 
 function mouseDown(e) {
   if (e.clientY > 52) {
@@ -62,7 +92,7 @@ function mouseUp(e) {
   $(window).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
 }
 
-var watdo = angular.module('watdo', []);
+/*var watdo = angular.module('watdo', []);
 watdo.config(function($routeProvider) {
   $routeProvider
     .when('/item/:id', { action: 'item.show' });
@@ -143,3 +173,4 @@ watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $rout
     render();
   });
 });
+*/

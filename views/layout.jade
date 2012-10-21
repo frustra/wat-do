@@ -13,7 +13,7 @@ html(ng-app='watdo')
     meta(name='viewport', content='width=device-width, initial-scale=1')
 
     script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js')
-    script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js')
+    // script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js')
     script(type='text/javascript', src='/js/d3.v2.min.js')
     script(type='text/javascript', src='/js/moment.min.js')
     script(type='text/javascript', src='/js/timeline.js')
@@ -34,3 +34,10 @@ html(ng-app='watdo')
 
     #content
       block content
+    section#modal
+      div.overlay
+        div.overlay-inner
+        div.content-wrap
+          div.content
+            block modal-content
+              include about
