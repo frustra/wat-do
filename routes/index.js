@@ -6,6 +6,14 @@ exports.setupRoutes = function(app) {
     res.render('items');
   });
 
+  app.get('/about', function(req, res) {
+    res.render('items');
+  });
+
+  app.get('/item/:id', function(req, res) {
+    res.render('items');
+  });
+
   app.get('/items.json', function(req, res) {
     Item.find(function(err, items) {
       res.json(items);

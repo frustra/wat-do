@@ -82,7 +82,7 @@ $(function() {
   }, 1);
 
   crossroads.bypassed.add(function(request) {
-    window.location = request;
+    if (window.location.pathname != request) window.location = request;
   });
 
   timelineInit();
@@ -94,6 +94,7 @@ $(function() {
     }
   });
   $(window).bind("mousedown", mouseDown);
+  changeURL(window.location.pathname, true);
 });
 
 /*var watdo = angular.module('watdo', []);

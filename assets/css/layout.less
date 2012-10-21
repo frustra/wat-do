@@ -145,13 +145,14 @@ body.scroll #topbar {
       bottom: 0;
       right: 0;
       background-color: rgba(0, 0, 0, 0.6);
+      z-index: 5;
     }
 
     .content-wrap {
       position: relative;
       float: right;
       right: 50%;
-      top: 80px;
+      top: 40px;
       width: 600px;
       max-width: 90%;
 
@@ -164,11 +165,12 @@ body.scroll #topbar {
         .box-shadow(0 0 72px 1px #222);
         .rounded(4px);
         width: 100%;
-        z-index: 2;
+        z-index: 10;
 
         .modal-inner {
           display: none;
           margin: 10px;
+          max-height: 80%;
         }
       }
     }
