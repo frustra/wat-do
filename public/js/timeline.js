@@ -145,8 +145,9 @@ function itemsExit(items) {
 }
 
 function mouseDown(e) {
-  if (e.clientY > 52) {
+  if (e.clientY > 52 && e.clientX < $(window).width() && e.clientY < $(window).height()) {
     gtl.mouse = [e.screenX, e.screenY];
+    gtl.scrollstart = [$(window).scrollLeft(), $(window).scrollTop()];
     gtl.mousestart = gtl.mouse;
     $(window).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
     e.preventDefault();
@@ -156,6 +157,7 @@ function mouseDown(e) {
 function mouseMove(e) {
   $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
   $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
+  gtl.scrollstart = [$(window).scrollLeft(), $(window).scrollTop()];
   gtl.mouse = [e.screenX, e.screenY];
   e.preventDefault();
 }
