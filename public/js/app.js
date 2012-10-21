@@ -38,7 +38,8 @@ $(function() {
     }
   });
 
-  $('#topbar .info').click(function(e) {
+  $('a').click(function(e) {
+    changeURL($(this).attr('href'));
     e.preventDefault();
   });
 
@@ -65,11 +66,23 @@ $(function() {
 
   crossroads.addRoute('/', function(id) {
     setModal();
-  });
+  }, 0);
+
+  crossroads.addRoute('/about', function(id) {
+    setModal('about');
+  }, 1);
+
+  crossroads.addRoute('/item/new', function(id) {
+    setModal('item');
+  }, 2);
 
   crossroads.addRoute('/item/{id}', function(id) {
     console.log(id);
     setModal('item');
+  }, 1);
+
+  crossroads.bypassed.add(function(request) {
+    window.location = request;
   });
 
   timelineInit();

@@ -13,7 +13,8 @@
     "passport": "0.1.12",
     "passport-google": "0.2.0",
     "hashish": "*",
-    "moment": "1.7.0"
+    "moment": "1.7.0",
+    "markdown": "0.4.0"
   },
 
   "engines": {
