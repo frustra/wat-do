@@ -146,26 +146,22 @@ function itemsExit(items) {
 
 function mouseDown(e) {
   if (e.clientY > 52 && e.clientX < $(window).width() && e.clientY < $(window).height()) {
-    gtl.mouse = [e.screenX, e.screenY];
-    gtl.scrollstart = [$(window).scrollLeft(), $(window).scrollTop()];
-    gtl.mousestart = gtl.mouse;
+    gtl.mousestart = [e.screenX, e.screenY];
+    gtl.mouse = [$(window).scrollLeft() + gtl.mousestart[0], $(window).scrollTop() + gtl.mousestart[1]];
     $(window).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
     e.preventDefault();
   }
 }
 
 function mouseMove(e) {
-  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
-  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
-  gtl.scrollstart = [$(window).scrollLeft(), $(window).scrollTop()];
-  gtl.mouse = [e.screenX, e.screenY];
+  if (gtl.mouse[0] != e.screenX || gtl.mouse[1] != e.screenY) {
+    window.scrollTo(gtl.mouse[0] - e.screenX, gtl.mouse[1] - e.screenY);
+  }
   e.preventDefault();
 }
 
 function mouseUp(e) {
-  $(window).scrollLeft($(window).scrollLeft() + gtl.mouse[0] - e.screenX);
-  $(window).scrollTop($(window).scrollTop() + gtl.mouse[1] - e.screenY);
-  gtl.mouse = [e.screenX, e.screenY];
+  window.scrollTo(gtl.mouse[0] - e.screenX, gtl.mouse[1] - e.screenY);
   e.preventDefault();
   $(window).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
 }
