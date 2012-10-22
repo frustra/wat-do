@@ -1,4 +1,4 @@
-var gdata;
+var gdata = [];
 
 function changeURL(page, noHistory) {
   if (!noHistory) {
@@ -14,12 +14,33 @@ function setModal(name) {
     $.each($('.modal-inner'), function() {
       if ($(this)[0].id == name) {
         $(this).show();
+        $(this).find("textarea").each(function() {
+          if ($(this).val() == '') $(this).val('');
+        });
       } else $(this).hide();
     });
     $(window).unbind("mousedown", mouseDown);
   } else {
     $('#modal').hide();
     $(window).bind("mousedown", mouseDown);
+  }
+}
+
+function setFormData(form, obj) {
+  if (obj == null) {
+    form.data("js-data", {});
+    $('textarea[js-data],input[js-data]').each(function() {
+      $(this).data('js-commit', null);
+      $(this).val('');
+    });
+  } else {
+    form.data("js-data", obj);
+    $.each(obj, function(k, v) {
+      $("textarea[js-data='" + k + "'],input[js-data='" + k + "']").each(function() {
+        $(this).data("js-commit", v);
+        $(this).val(v);
+      });
+    });
   }
 }
 
@@ -39,8 +60,8 @@ $(function() {
   });
 
   $('a').click(function(e) {
-    changeURL($(this).attr('href'));
     e.preventDefault();
+    changeURL($(this).attr('href'));
   });
 
   $('.overlay-inner').click(function(e) {
@@ -51,13 +72,29 @@ $(function() {
 
   $('.editable').keydown(function(e) {
     if (e.which == 27) { // Escape
-      // TODO - Reset data in field
-      e.target.blur();
       e.preventDefault();
+      $(e.target).val($(e.target).data('js-commit'));
+      e.target.blur();
     } else if (e.which == 13) { // Return
-      e.target.blur();
       e.preventDefault();
+      e.target.blur();
     }
+  });
+
+  $('.editable input, .editable textarea').blur(function() {
+    $(this).data("js-commit", $(this).val());
+  });
+
+  $('form[js-form]').each(function() {
+    var form = $(this);
+    form.data('js-data', {});
+    form.submit(function(e) {
+      e.preventDefault();
+      form.find('textarea[js-data],input[js-data]').each(function() {
+        form.data('js-data')[$(this).attr('js-data')] = $(this).val();
+      });
+      window[form.attr('js-form')](form.data('js-data'));
+    });
   });
 
   window.onpopstate = function(event) {
@@ -73,11 +110,17 @@ $(function() {
   }, 1);
 
   crossroads.addRoute('/item/new', function(id) {
+    setFormData($("#item form"), null);
     setModal('item');
   }, 2);
 
   crossroads.addRoute('/item/{id}', function(id) {
-    console.log(id);
+    for (var i = 0; i < gdata.length; i++) {
+      if (gdata[i]._id == id) {
+        setFormData($("#item form"), gdata[i]);
+        break;
+      }
+    }
     setModal('item');
   }, 1);
 
@@ -86,96 +129,44 @@ $(function() {
   });
 
   timelineInit();
+  $(window).bind("mousedown", mouseDown);
+
   $.ajax({
     url: '/items.json',
     success: function(data) {
       gdata = data;
       timelineUpdate(gdata);
+      changeURL(window.location.pathname, true);
     }
   });
-  $(window).bind("mousedown", mouseDown);
-  changeURL(window.location.pathname, true);
 });
 
-/*var watdo = angular.module('watdo', []);
-watdo.config(function($routeProvider) {
-  $routeProvider
-    .when('/item/:id', { action: 'item.show' });
-});
-
-watdo.controller('TimelineCtrl', function TimelineCtrl($rootScope, $http, $location) {
-  $http({
-    method: 'GET',
-    url: '/items.json'
-  }).success(function(data) {
-    $rootScope.data = data;
-    timelineUpdate($rootScope.data);
-  });
-});
-
-watdo.controller('ItemCtrl', function ItemCtrl($scope, $rootScope, $route, $routeParams, $http) {
-  render = function() {
-    var id = $routeParams.id;
-    if (typeof id !== 'undefined' && typeof $route.current !== 'undefined') {
-      if (id == 'new') {
-        // new item
-        $scope.saveItem = function() {
-          var item = $scope.item;
-          $http({
-            method: 'POST',
-            url: '/item/new.json',
-            data: item
-          }).success(function(data) {
-            $scope.item = data;
-            $rootScope.data.push(data);
-            timelineUpdate($rootScope.data);
-            var save = $(window).scrollLeft();
-            window.location.hash = '';
-            $(window).scrollLeft(save);
-          });
-        };
-
-        $scope.item = { name: '', desc: '' };
-        $(window).unbind("mousedown", mouseDown);
-        $('#item').show();
-      } else if (id != '') {
-        // existing item
-        $scope.saveItem = function() {
-          var item = $scope.item;
-          $http({
-            method: 'POST',
-            url: '/item/' + item._id + '.json',
-            data: item
-          }).success(function(data) {
-            $scope.item = data;
-            for (var i = 0; i < $rootScope.data.length; i++) {
-              if ($rootScope.data[i]._id == data._id) {
-                $rootScope.data[i] = data;
-              }
-            }
-            timelineUpdate($rootScope.data);
-            var save = $(window).scrollLeft();
-            window.location.hash = '';//#/item/' + data._id;
-            $(window).scrollLeft(save);
-          });
-        };
-
-        $http({
-          method: 'GET',
-          url: '/item/' + id + '.json'
-        }).success(function(data) {
-          $scope.item = data;
-          $(window).unbind("mousedown", mouseDown);
-          $('#item').show();
-        });
+function saveItem(item) {
+  if (item._id) { // Existing item
+    $.ajax({
+      type: 'POST',
+      url: '/item/' + item._id + '.json',
+      data: item,
+      success: function(data) {
+        for (var i = 0; i < gdata.length; i++) {
+          if (gdata[i]._id == data._id) {
+            gdata[i] = data;
+          }
+        }
+        timelineUpdate(gdata);
+        changeURL('/');
       }
-    } else {
-      $('#item').hide();
-      $(window).bind("mousedown", mouseDown);
-    }
-  };
-  $scope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute) {
-    render();
-  });
-});
-*/
+    });
+  } else { // New ITem
+    $.ajax({
+      type: 'POST',
+      url: '/item/new.json',
+      data: item,
+      success: function(data) {
+        gdata.push(data);
+        timelineUpdate(gdata);
+        changeURL('/');
+      }
+    });
+  }
+}

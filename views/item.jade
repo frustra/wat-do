@@ -1,11 +1,11 @@
 #item.modal-inner
-  form.editable(ng-submit='saveItem()')
-    input(type='text', name='item-name', ng-model='item.name', class='big full-width', placeholder='Name')
+  form.editable(js-form="saveItem")
+    input(type='text', name='item-name', js-data='name', class='big full-width', placeholder='Name')
 
-    textarea(name='item-description', ng-model='item.desc', class='medium full-width', placeholder='Description')
+    textarea(name='item-description', js-data='desc', class='medium full-width', placeholder='Description')
 
-    input(type='text', name='start-date', ng-model='item.start', class='medium', placeholder='Start Date')
+    input(type='text', name='start-date', js-data='start', class='medium', placeholder='Start Date')
 
-    input(type='text', name='end-date', ng-model='item.end', class='medium', placeholder='Due Date')
+    input(type='text', name='end-date', js-data='end', class='medium', placeholder='Due Date')
 
     input(type='submit', value='Save', class='btn medium')
