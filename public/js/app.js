@@ -1,11 +1,11 @@
 var gdata = [];
 
 function changeURL(page, noHistory) {
+  crossroads.parse(page);
   if (!noHistory) {
     window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
     window.history.pushState({'watpage': page}, 'Title', page);
   }
-  crossroads.parse(page);
 }
 
 function setModal(name) {
