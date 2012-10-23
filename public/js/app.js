@@ -26,21 +26,25 @@ function setModal(name) {
   }
 }
 
-function setFormData(form, obj) {
+function setFormData(form, obj, force) {
   if (obj == null) {
-    form.data("js-data", {});
-    $('textarea[js-data],input[js-data]').each(function() {
-      $(this).data('js-commit', null);
-      $(this).val('');
-    });
-  } else {
-    form.data("js-data", obj);
-    $.each(obj, function(k, v) {
-      $("textarea[js-data='" + k + "'],input[js-data='" + k + "']").each(function() {
-        $(this).data("js-commit", v);
-        $(this).val(v);
+    if (Object.keys(form.data('js-data')).length != 0 || force) {
+      form.data('js-data', {});
+      $('textarea[js-data],input[js-data]').each(function() {
+        $(this).data('js-commit', null);
+        $(this).val('');
       });
-    });
+    }
+  } else {
+    if (form.data('js-data') != obj || force) {
+      form.data('js-data', obj);
+      $.each(obj, function(k, v) {
+        $("textarea[js-data='" + k + "'],input[js-data='" + k + "']").each(function() {
+          $(this).data("js-commit", v);
+          $(this).val(v);
+        });
+      });
+    }
   }
 }
 
@@ -157,7 +161,7 @@ function saveItem(item) {
         changeURL('/');
       }
     });
-  } else { // New ITem
+  } else { // New Item
     $.ajax({
       type: 'POST',
       url: '/item/new.json',
