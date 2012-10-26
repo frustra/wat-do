@@ -20,15 +20,16 @@ var timelineInit = function() {
   });
   $('input[name="item-done"]').click(function(e) {
     e.preventDefault();
-    if ($(this).attr('checked')) {
-      $(this).attr('checked', false);
+    var $this = $(this);
+    if ($this.attr('checked')) {
+      $this.attr('checked', false);
       $('#done').removeAttr('done');
     } else {
-      $(this).attr('checked', true);
+      $this.attr('checked', true);
       $('#done').attr('done', '');
     }
-    $(this).blur();
-  });
+    $this.blur();
+  }).attr('checked', false);;
 
   setInterval(timeUpdate, 1000);
 };

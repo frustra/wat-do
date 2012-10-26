@@ -31,10 +31,11 @@ function setFormData(form, obj, force) {
     if (Object.keys(form.data('js-data')).length != 0 || force) {
       form.data('js-data', {});
       $('textarea[js-data],input[js-data]').each(function() {
-        $(this).data('js-commit', null);
-        if ($(this).attr('type') == 'checkbox') {
-          if (!$(this).attr('checked')) $(this).click();
-        } else $(this).val('');
+        var $this = $(this);
+        $this.data('js-commit', null);
+        if ($this.attr('type') == 'checkbox') {
+          if (!!$this.attr('checked')) $this.click();
+        } else $this.val('');
       });
     }
   } else {
@@ -42,10 +43,11 @@ function setFormData(form, obj, force) {
       form.data('js-data', obj);
       $.each(obj, function(k, v) {
         $("textarea[js-data='" + k + "'],input[js-data='" + k + "']").each(function() {
-          $(this).data("js-commit", v);
-          if ($(this).attr('type') == 'checkbox') {
-          if (!!$(this).attr('checked') != v) $(this).click();
-          } else $(this).val(v);
+          var $this = $(this);
+          $this.data("js-commit", v);
+          if ($this.attr('type') == 'checkbox') {
+            if (!!$this.attr('checked') != v) $this.click();
+          } else $this.val(v);
         });
       });
     }

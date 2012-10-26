@@ -41,19 +41,13 @@ exports.setupRoutes = function(app) {
       if (items && items.length > 0) {
         var item = items[0];
         var newItem = req.body;
-        if (newItem.name != undefined) item.name = newItem.name;
-        if (newItem.desc != undefined) item.desc = newItem.desc;
-        if (newItem.done != undefined) {
-          console.log('good: ' + newItem.done);
-          item.done = newItem.done; // What the fuck is going on?
-          console.log('end: ' + item.done);
-        }
-        if (newItem.start != undefined) item.start = newItem.start;
-        if (newItem.end != undefined) item.end = newItem.end;
-        console.log(item.done);
+        if (typeof newItem.name !== 'undefined') item.name = newItem.name;
+        if (typeof newItem.desc !== 'undefined') item.desc = newItem.desc;
+        if (typeof newItem.done !== 'undefined') item.done = newItem.done === 'true';
+        if (typeof newItem.start !== 'undefined') item.start = newItem.start;
+        if (typeof newItem.end !== 'undefined') item.end = newItem.end;
         item.save();
         res.json(item);
-        console.log(item.done);
       } else res.json(undefined);
     });
   });
