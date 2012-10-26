@@ -32,7 +32,9 @@ function setFormData(form, obj, force) {
       form.data('js-data', {});
       $('textarea[js-data],input[js-data]').each(function() {
         $(this).data('js-commit', null);
-        $(this).val('');
+        if ($(this).attr('type') == 'checkbox') {
+          if (!$(this).attr('checked')) $(this).click();
+        } else $(this).val('');
       });
     }
   } else {
@@ -41,7 +43,9 @@ function setFormData(form, obj, force) {
       $.each(obj, function(k, v) {
         $("textarea[js-data='" + k + "'],input[js-data='" + k + "']").each(function() {
           $(this).data("js-commit", v);
-          $(this).val(v);
+          if ($(this).attr('type') == 'checkbox') {
+          if (!!$(this).attr('checked') != v) $(this).click();
+          } else $(this).val(v);
         });
       });
     }
@@ -79,7 +83,7 @@ $(function() {
       e.preventDefault();
       $(e.target).val($(e.target).data('js-commit'));
       e.target.blur();
-    } else if (e.which == 13) { // Return
+    } else if (e.which == 13 && !e.shiftKey) { // Return
       e.preventDefault();
       e.target.blur();
     }
@@ -95,10 +99,17 @@ $(function() {
     form.submit(function(e) {
       e.preventDefault();
       form.find('textarea[js-data],input[js-data]').each(function() {
-        form.data('js-data')[$(this).attr('js-data')] = $(this).val();
+        if ($(this).attr('type') == 'checkbox') {
+          form.data('js-data')[$(this).attr('js-data')] = !!$(this).attr('checked');
+        } else form.data('js-data')[$(this).attr('js-data')] = $(this).val();
       });
       window[form.attr('js-form')](form.data('js-data'));
     });
+  });
+
+  $('#cancel').click(function(e) {
+    setFormData($(this).parents('form[js-form]'), null, true);
+    changeURL('/');
   });
 
   window.onpopstate = function(event) {

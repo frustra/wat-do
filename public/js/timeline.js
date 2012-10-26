@@ -15,6 +15,21 @@ var timelineInit = function() {
   gtl.rules = gtl.timeline.append("div").attr("id", "tlrules");
   gtl.body = gtl.timeline.append("div").attr("id", "tlbody");
 
+  $('#done').click(function(e) {
+    $('input[name="item-done"]').click();
+  });
+  $('input[name="item-done"]').click(function(e) {
+    e.preventDefault();
+    if ($(this).attr('checked')) {
+      $(this).attr('checked', false);
+      $('#done').removeAttr('done');
+    } else {
+      $(this).attr('checked', true);
+      $('#done').attr('done', '');
+    }
+    $(this).blur();
+  });
+
   setInterval(timeUpdate, 1000);
 };
 

@@ -29,7 +29,7 @@ exports.setupRoutes = function(app) {
 
   app.post('/item/new.json', function(req, res) {
     // Save to database and return parsed object
-    var item = new Item({ name: req.body.name, desc: req.body.desc, start: req.body.start, end: req.body.end });
+    var item = new Item({ name: req.body.name, desc: req.body.desc, done: req.body.done, start: req.body.start, end: req.body.end });
     item.save(function(err) {
       if (!err) res.json(item);
       else res.json(undefined);
@@ -41,12 +41,19 @@ exports.setupRoutes = function(app) {
       if (items && items.length > 0) {
         var item = items[0];
         var newItem = req.body;
-        if (newItem.name) item.name = newItem.name;
-        if (newItem.desc) item.desc = newItem.desc;
-        if (newItem.start) item.start = newItem.start;
-        if (newItem.end) item.end = newItem.end;
+        if (newItem.name != undefined) item.name = newItem.name;
+        if (newItem.desc != undefined) item.desc = newItem.desc;
+        if (newItem.done != undefined) {
+          console.log('good: ' + newItem.done);
+          item.done = newItem.done; // What the fuck is going on?
+          console.log('end: ' + item.done);
+        }
+        if (newItem.start != undefined) item.start = newItem.start;
+        if (newItem.end != undefined) item.end = newItem.end;
+        console.log(item.done);
         item.save();
         res.json(item);
+        console.log(item.done);
       } else res.json(undefined);
     });
   });
