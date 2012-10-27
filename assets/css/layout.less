@@ -139,6 +139,7 @@ body.scroll #topbar {
       color: #EFEFEF;
       text-shadow: -2px 0 2px #999999, 0 2px 2px #999999, 2px 0 2px #999999, 0 -2px 2px #999999;
       cursor: pointer;
+      .transition(color 300ms, text-shadow 300ms);
 
       &[done] {
         color: #4A4;
@@ -150,12 +151,15 @@ body.scroll #topbar {
       padding-right: 30px;
     }
 
-    .btn {
+    #buttons {
       float: right;
-      margin-left: 10px;
 
-      &#save {
-        .buttonBackground(#9D9, #4A4, #FFF, 0 1px 1px rgba(150,150,150,.75));
+      .btn {
+        margin-left: 10px;
+
+        &#save {
+          .buttonBackground(#9D9, #4A4, #FFF, 0 1px 1px rgba(150,150,150,.75));
+        }
       }
     }
   }

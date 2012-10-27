@@ -29,7 +29,7 @@ exports.setupRoutes = function(app) {
 
   app.post('/item/new.json', function(req, res) {
     // Save to database and return parsed object
-    var item = new Item({ name: req.body.name, desc: req.body.desc, done: req.body.done, start: req.body.start, end: req.body.end });
+    var item = new Item({ name: req.body.name, desc: req.body.desc, done: req.body.done === 'true', start: req.body.start, end: req.body.end });
     item.save(function(err) {
       if (!err) res.json(item);
       else res.json(undefined);
