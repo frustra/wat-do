@@ -10,6 +10,10 @@ exports.setupRoutes = function(app) {
     res.render('items');
   });
 
+  app.get('/account', function(req, res) {
+    res.render('items');
+  });
+
   app.get('/item/:id', function(req, res) {
     res.render('items');
   });

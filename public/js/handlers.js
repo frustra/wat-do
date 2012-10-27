@@ -1,5 +1,7 @@
 var handlers = {
   saveItem: function(item) {
+    item.start = moment(item.start).utc().format();
+    item.end = moment(item.end).utc().format();
     if (item._id) { // Existing item
       $.ajax({
         type: 'POST',
@@ -36,6 +38,11 @@ var handlers = {
 
     crossroads.addRoute('/about', function(id) {
       setModal('about');
+    }, 1);
+
+    crossroads.addRoute('/account', function(id) {
+      setModal();
+      alert("Ohai");
     }, 1);
 
     crossroads.addRoute('/item/new', function(id) {
