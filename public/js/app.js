@@ -12,12 +12,13 @@ function setModal(name) {
   if (name) {
     $('#modal').show();
     $.each($('.modal-inner'), function() {
-      if ($(this)[0].id == name) {
-        $(this).show();
-        $(this).find("textarea").each(function() {
-          if ($(this).val() == '') $(this).val('');
+      var $this = $(this);
+      if (this.id == name) {
+        $this.show();
+        $this.find("textarea").each(function() {
+          if ($this.val() == '') $this.val('');
         });
-      } else $(this).hide();
+      } else $this.hide();
     });
     $(window).unbind("mousedown", mouseDown);
   } else {
@@ -41,14 +42,17 @@ function setFormData(form, obj, force) {
   } else {
     if (form.data('js-data') != obj || force) {
       form.data('js-data', obj);
-      $.each(obj, function(k, v) {
-        $("textarea[js-data='" + k + "'],input[js-data='" + k + "']").each(function() {
-          var $this = $(this);
-          $this.data("js-commit", v);
-          if ($this.attr('type') == 'checkbox') {
-            if (!!$this.attr('checked') != v) $this.click();
-          } else $this.val(v);
-        });
+      $('textarea[js-data],input[js-data]').each(function() {
+        var $this = $(this);
+        var key = $this.attr("js-data");
+        var val = '';
+        if (typeof obj[key] !== 'undefined') {
+          val = obj[key];
+        }
+        $this.data("js-commit", val);
+        if ($this.attr('type') == 'checkbox') {
+          if (!!$this.attr('checked') != val) $this.click();
+        } else $this.val(val);
       });
     }
   }
@@ -105,7 +109,7 @@ $(function() {
           form.data('js-data')[$(this).attr('js-data')] = !!$(this).attr('checked');
         } else form.data('js-data')[$(this).attr('js-data')] = $(this).val();
       });
-      window[form.attr('js-form')](form.data('js-data'));
+      handlers[form.attr('js-form')](form.data('js-data'));
     });
   });
 
@@ -118,32 +122,7 @@ $(function() {
     if (event.state != undefined && event.state.watpage != undefined) changeURL(event.state.watpage, true);
   };
 
-  crossroads.addRoute('/', function(id) {
-    setModal();
-  }, 0);
-
-  crossroads.addRoute('/about', function(id) {
-    setModal('about');
-  }, 1);
-
-  crossroads.addRoute('/item/new', function(id) {
-    setFormData($("#item form"), null);
-    setModal('item');
-  }, 2);
-
-  crossroads.addRoute('/item/{id}', function(id) {
-    for (var i = 0; i < gdata.length; i++) {
-      if (gdata[i]._id == id) {
-        setFormData($("#item form"), gdata[i]);
-        break;
-      }
-    }
-    setModal('item');
-  }, 1);
-
-  crossroads.bypassed.add(function(request) {
-    if (window.location.pathname != request) window.location = request;
-  });
+  handlers.setupRoutes();
 
   timelineInit();
   $(window).bind("mousedown", mouseDown);
@@ -157,33 +136,3 @@ $(function() {
     }
   });
 });
-
-function saveItem(item) {
-  if (item._id) { // Existing item
-    $.ajax({
-      type: 'POST',
-      url: '/item/' + item._id + '.json',
-      data: item,
-      success: function(data) {
-        for (var i = 0; i < gdata.length; i++) {
-          if (gdata[i]._id == data._id) {
-            gdata[i] = data;
-          }
-        }
-        timelineUpdate(gdata);
-        changeURL('/');
-      }
-    });
-  } else { // New Item
-    $.ajax({
-      type: 'POST',
-      url: '/item/new.json',
-      data: item,
-      success: function(data) {
-        gdata.push(data);
-        timelineUpdate(gdata);
-        changeURL('/');
-      }
-    });
-  }
-}

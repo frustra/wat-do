@@ -94,6 +94,8 @@ function itemsEnter(items) {
 
   wrap.append("div")
     .attr("class", "item-back")
+    .attr("done", function(d) { return d.done; })
+    .attr("rend", function(d) { return d.rend; })
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .append("div")
@@ -102,6 +104,8 @@ function itemsEnter(items) {
 
   var front = wrap.append("div")
     .attr("class", "item")
+    .attr("done", function(d) { return d.done; })
+    .attr("rend", function(d) { return d.rend; })
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; });
 
@@ -130,6 +134,8 @@ function itemsEnter(items) {
 function itemsUpdate(items) {
   items.select(".item-back")
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .attr("done", function(d) { return d.done; })
+    .attr("rend", function(d) { return d.rend; })
     .transition().duration(750)
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; })
@@ -139,6 +145,8 @@ function itemsUpdate(items) {
 
   var front = items.select(".item")
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .attr("done", function(d) { return d.done; })
+    .attr("rend", function(d) { return d.rend; })
     .transition().duration(750)
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; });
@@ -161,10 +169,11 @@ function itemsExit(items) {
 }
 
 function mouseDown(e) {
-  if (e.clientY > 52 && e.clientX < $(window).width() && e.clientY < $(window).height()) {
+  var $window = $(window);
+  if (e.clientY > 52 && e.clientX < $window.width() && e.clientY < $window.height()) {
     gtl.mousestart = [e.screenX, e.screenY];
-    gtl.mouse = [$(window).scrollLeft() + gtl.mousestart[0], $(window).scrollTop() + gtl.mousestart[1]];
-    $(window).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
+    gtl.mouse = [$window.scrollLeft() + gtl.mousestart[0], $window.scrollTop() + gtl.mousestart[1]];
+    $window.bind("mousemove", mouseMove).bind("mouseup", mouseUp);
     e.preventDefault();
   }
 }
