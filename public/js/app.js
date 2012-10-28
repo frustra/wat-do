@@ -20,10 +20,10 @@ function setModal(name) {
         });
       } else $this.hide();
     });
-    $(window).unbind("mousedown", mouseDown);
+    $(window).unbind("mousedown", handlers.mouseDown);
   } else {
     $('#modal').hide();
-    $(window).bind("mousedown", mouseDown);
+    $(window).bind("mousedown", handlers.mouseDown);
   }
 }
 
@@ -126,7 +126,6 @@ $(function() {
 
   if ($('.timeline-visualization')[0]) {
     timelineInit();
-    $(window).bind("mousedown", mouseDown);
 
     $.ajax({
       url: '/items.json',
@@ -137,4 +136,6 @@ $(function() {
       }
     });
   } else changeURL(window.location.pathname, true);
+
+  $(window).bind("mousedown", handlers.mouseDown);
 });

@@ -168,29 +168,6 @@ function itemsExit(items) {
   items.transition().duration(750).style("opacity", 0).remove();
 }
 
-function mouseDown(e) {
-  var $window = $(window);
-  if (e.clientY > 52 && e.clientX < $window.width() && e.clientY < $window.height()) {
-    gtl.mousestart = [e.screenX, e.screenY];
-    gtl.mouse = [$window.scrollLeft() + gtl.mousestart[0], $window.scrollTop() + gtl.mousestart[1]];
-    $window.bind("mousemove", mouseMove).bind("mouseup", mouseUp);
-    e.preventDefault();
-  }
-}
-
-function mouseMove(e) {
-  if (gtl.mouse[0] != e.screenX || gtl.mouse[1] != e.screenY) {
-    window.scrollTo(gtl.mouse[0] - e.screenX, gtl.mouse[1] - e.screenY);
-  }
-  e.preventDefault();
-}
-
-function mouseUp(e) {
-  window.scrollTo(gtl.mouse[0] - e.screenX, gtl.mouse[1] - e.screenY);
-  e.preventDefault();
-  $(window).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
-}
-
 var timelineUpdate = function(data) {
   var currentDate = moment();
   gtl.starttime = currentDate;

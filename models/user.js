@@ -1,11 +1,13 @@
 var mongoose = require('mongoose')
   , ObjectId = mongoose.Schema.ObjectId;
 
-var UserSchema = new mongoose.Schema({
+var userSchema = new mongoose.Schema({
   name: String,
   email: String,
   openid: String,
-  createdAt: Date
+  createdAt: Date,
+  public: Boolean,
+  items: [{ type: ObjectId, ref: 'Item' }]
 });
 
-exports.User = mongoose.model('User', UserSchema);
+exports.User = mongoose.model('User', userSchema);

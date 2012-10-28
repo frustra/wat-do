@@ -31,6 +31,31 @@ var handlers = {
     }
   },
 
+  mouseDown: function(e) {
+    if ($('.timeline-visualization')[0]) {
+      var $window = $(window);
+      if (e.clientY > 52 && e.clientX < $window.width() && e.clientY < $window.height()) {
+        gtl.mousestart = [e.screenX, e.screenY];
+        gtl.mouse = [$window.scrollLeft() + gtl.mousestart[0], $window.scrollTop() + gtl.mousestart[1]];
+        $window.bind("mousemove", handlers.mouseMove).bind("mouseup", handlers.mouseUp);
+        e.preventDefault();
+      }
+    }
+  },
+
+  mouseMove: function(e) {
+    if (gtl.mouse[0] != e.screenX || gtl.mouse[1] != e.screenY) {
+      window.scrollTo(gtl.mouse[0] - e.screenX, gtl.mouse[1] - e.screenY);
+    }
+    e.preventDefault();
+  },
+
+  mouseUp: function(e) {
+    window.scrollTo(gtl.mouse[0] - e.screenX, gtl.mouse[1] - e.screenY);
+    e.preventDefault();
+    $(window).unbind("mousemove", handlers.mouseMove).unbind("mouseup", handlers.mouseUp);
+  },
+
   setupRoutes: function() {
     crossroads.addRoute('/', function(id) {
       setModal();
@@ -38,6 +63,26 @@ var handlers = {
 
     crossroads.addRoute('/about', function(id) {
       setModal('about');
+    }, 1);
+
+    crossroads.addRoute('/account', function(id) {
+      setModal('account');
+    }, 1);
+
+    crossroads.addRoute('/user/(id) ', function(id) {
+      setModal();
+    }, 1);
+
+    //crossroads.addRoute('/list/new ', function(id) {
+    //  setModal('list');
+    //}, 2);
+
+    //crossroads.addRoute('/list/edit/(id) ', function(id) {
+    //  setModal('list');
+    //}, 2);
+
+    crossroads.addRoute('/list/(id) ', function(id) {
+      setModal();
     }, 1);
 
     crossroads.addRoute('/item/new', function(id) {
