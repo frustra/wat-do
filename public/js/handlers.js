@@ -40,11 +40,6 @@ var handlers = {
       setModal('about');
     }, 1);
 
-    crossroads.addRoute('/account', function(id) {
-      setModal();
-      alert("Ohai");
-    }, 1);
-
     crossroads.addRoute('/item/new', function(id) {
       setFormData($("#item form"), {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});
       setModal('item');

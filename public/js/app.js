@@ -124,15 +124,17 @@ $(function() {
 
   handlers.setupRoutes();
 
-  timelineInit();
-  $(window).bind("mousedown", mouseDown);
+  if ($('.timeline-visualization')[0]) {
+    timelineInit();
+    $(window).bind("mousedown", mouseDown);
 
-  $.ajax({
-    url: '/items.json',
-    success: function(data) {
-      gdata = data;
-      timelineUpdate(gdata);
-      changeURL(window.location.pathname, true);
-    }
-  });
+    $.ajax({
+      url: '/items.json',
+      success: function(data) {
+        gdata = data;
+        timelineUpdate(gdata);
+        changeURL(window.location.pathname, true);
+      }
+    });
+  } else changeURL(window.location.pathname, true);
 });

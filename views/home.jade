@@ -1,0 +1,20 @@
+extends layout
+
+block title
+  | wat do?
+
+block content
+  div#home
+    div.content-wrap
+      div.content
+        #logo.watdo wat do?
+        :markdown
+          **Welcome to wat do!**
+
+          To get started using **wat do**, all you need to do is click the login button in the top right or the **Get Started** button bellow.
+          **wat do** uses your **google open id** for login, so there is no registration process.
+
+          Once you're logged in, you can add new items to your list, share and create new lists, view other's shared lists and eventually complete lists.
+          For more information on what **wat do** is, click the info button in the top left.
+        #get-started
+          a.btn(href='/login') Get Started

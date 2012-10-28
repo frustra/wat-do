@@ -5,7 +5,9 @@ var express = require('express')
   , mongoose = require('mongoose')
   , passport = require('passport');
 
-var setupRoutes = require('./routes/').setupRoutes
+var setupMain = require('./routes/').setupMain
+  , setupItems = require('./routes/items').setupItems
+  , setupLists = require('./routes/lists').setupLists
   , setupAuth = require('./routes/auth').setupAuth;
 
 
@@ -64,7 +66,9 @@ app.configure('development', function() {
 
 
 // Setup
-setupRoutes(app);
+setupMain(app);
+setupItems(app);
+setupLists(app);
 setupAuth(app, passport);
 
 

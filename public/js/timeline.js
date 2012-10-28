@@ -29,7 +29,7 @@ var timelineInit = function() {
       $('#done').attr('done', '');
     }
     $this.blur();
-  }).attr('checked', false);;
+  }).attr('checked', false);
 
   setInterval(timeUpdate, 1000);
 };
@@ -222,20 +222,11 @@ var timelineUpdate = function(data) {
 
   var items = gtl.body.selectAll(".item-wrap")
     .data(data.sort(function(a, b) {
-      if (a.rend < 0 && b.rend >= 0) return 1;
-      if (b.rend < 0 && a.rend >= 0) return -1;
-      var ret = 0;
-      if (a.rend < b.rend) {
-        ret = -1;
-      } else if (a.rend == b.rend) {
-        if (a.rstart < b.rstart) {
-          ret = -1;
-        } else if (a.rstart > b.rstart) {
-          ret = 1;
-        }
-      } else ret = 1;
-      if (a.rend < 0) return -ret;
-      return ret;
+      if (a.done == b.done) {
+          return a.rend > b.rend ? 1 : (a.rend == b.rend ? 0 : -1);
+      } else if (a.done) {
+        return 1;
+      } else return -1;
     }), function(d) { return d._id; });
 
   itemsEnter(items.enter());
