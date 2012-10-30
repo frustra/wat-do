@@ -18,23 +18,43 @@ exports.setupLists = function(app) {
 
   app.get('/list/:id.json', function(req, res) {
     List.findById(req.params.id)
-    .$where('this.public' + (req.user ? ' || this._id.toString() === "' + req.user._id.toString() + '"' : ''))
     .populate('items')
-    .exec(function(err, user) {
-      if (!err && user) {
-        res.json(Item.clientObjects(user.items, req.user._id));
+    .exec(function(err, list) {
+      if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
+        res.json(Item.clientObjects(list.items, req.user ? req.user._id : null));
       } else res.json(undefined);
     });
   });
 
+  app.get('/list/:id', function(req, res) {
+    List.findById(req.params.id)
+    .populate('items')
+    .exec(function(err, list) {
+      if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
+        res.render('items');
+      } else res.render('home');
+    });
+  });
+
   app.get('/user/:id.json', function(req, res) {
+    var own = req.user && req.params.id.toString() === req.user._id.toString();
     User.findById(req.params.id)
-    .$where('this.public' + (req.user ? ' || this._id.toString() === "' + req.user._id.toString() + '"' : ''))
     .populate('items')
     .exec(function(err, user) {
-      if (!err && user) {
-        res.json(Item.clientObjects(user.items, req.user._id));
+      if (!err && user && (user.public || own)) {
+        res.json(Item.clientObjects(user.items, req.user ? req.user._id : null));
       } else res.json(undefined);
+    });
+  });
+
+  app.get('/user/:id', function(req, res) {
+    var own = req.user && req.params.id.toString() === req.user._id.toString();
+    User.findById(req.params.id)
+    .populate('items')
+    .exec(function(err, user) {
+      if (!err && user && (user.public || own)) {
+        res.render('items');
+      } else res.render('home');
     });
   });
 };

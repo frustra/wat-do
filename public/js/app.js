@@ -1,4 +1,4 @@
-var gdata = [];
+var gdata = null;
 
 function changeURL(page, noHistory) {
   crossroads.parse(page);
@@ -56,6 +56,17 @@ function setFormData(form, obj, force) {
       });
     }
   }
+}
+
+function showError(msg) {
+  if (msg) {
+    $('#error #defaultmsg').hide();
+    $('#error #msg').show().text(msg);
+  } else {
+    $('#error #defaultmsg').show();
+    $('#error #msg').hide();
+  }
+  setModal('error');
 }
 
 $(function() {
@@ -118,24 +129,18 @@ $(function() {
     changeURL('/');
   });
 
+  $('input.link[readonly]').click(function(e) {
+    $(this).select();
+  });
+
   window.onpopstate = function(event) {
     if (event.state != undefined && event.state.watpage != undefined) changeURL(event.state.watpage, true);
   };
 
   handlers.setupRoutes();
 
-  if ($('.timeline-visualization')[0]) {
-    timelineInit();
-
-    $.ajax({
-      url: '/items.json',
-      success: function(data) {
-        gdata = data;
-        timelineUpdate(gdata);
-        changeURL(window.location.pathname, true);
-      }
-    });
-  } else changeURL(window.location.pathname, true);
+  if ($('.timeline-visualization')[0]) timelineInit();
+  changeURL(window.location.pathname, true);
 
   $(window).bind("mousedown", handlers.mouseDown);
 });

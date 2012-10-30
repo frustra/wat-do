@@ -3,14 +3,6 @@ var moment = require('moment')
   , Item = require('../models/item').Item;
 
 exports.setupItems = function(app) {
-  app.get('/item/:id.json', function(req, res) {
-    Item.findById(req.params.id, function(err, item) {
-      if (!err && item) {
-        res.json(item.clientObject(req.user._id));
-      } else res.json(undefined);
-    });
-  });
-
   app.post('/item/new.json', function(req, res) {
     if (req.user) {
       // Save to database and return parsed object
@@ -38,6 +30,14 @@ exports.setupItems = function(app) {
     } else res.json(undefined);
   });
 
+  app.get('/item/:id.json', function(req, res) {
+    Item.findById(req.params.id, function(err, item) {
+      if (!err && item) {
+        res.json(item.clientObject(req.user ? req.user._id : null));
+      } else res.json(undefined);
+    });
+  });
+
   app.post('/item/:id.json', function(req, res) {
     if (req.user) {
       Item.findById(req.params.id, function(err, item) {
@@ -53,5 +53,24 @@ exports.setupItems = function(app) {
         } else res.json(undefined);
       });
     } else res.json(undefined);
+  });
+
+  app.get('/item/new', function(req, res) {
+    if (req.user) {
+      res.render('items');
+    } else {
+      res.render('home');
+    }
+  });
+
+  app.get('/item/:id', function(req, res) {
+    // Needs to detect what list item is part of
+    if (req.user) {
+      Item.findById(req.params.id, function(err, item) {
+        if (!err && item) {
+          res.render('items');;
+        } else res.render('home');
+      });
+    } else res.render('home');
   });
 };

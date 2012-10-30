@@ -3,12 +3,12 @@
     .icon-ok#done
     input(type='checkbox', name='item-done', js-data='done', style='display: none;')
     #name-wrap
-      input(type='text', name='item-name', js-data='name', class='big full-width', placeholder='Name')
-    textarea(name='item-description', js-data='desc', class='medium full-width', placeholder='Description')
+      input.big.full-width(type='text', name='item-name', js-data='name', placeholder='Name')
+    textarea.medium.full-width(name='item-description', js-data='desc', placeholder='Description')
 
-    input(type='text', name='start-date', js-data='start', class='medium', placeholder='Start Date')
-    input(type='text', name='end-date', js-data='end', class='medium', placeholder='Due Date')
+    input.medium(type='text', name='start-date', js-data='start', placeholder='Start Date')
+    input.medium(type='text', name='end-date', js-data='end', placeholder='Due Date')
 
     div#buttons
-      input(type='button', id='cancel', value='Cancel', class='btn medium')
-      input(type='submit', id='save', value='Save', class='btn medium')
+      input#cancel.btn.medium(type='button', value='Cancel')
+      input#save.btn.medium(type='submit', value='Save')

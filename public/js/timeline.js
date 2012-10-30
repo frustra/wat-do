@@ -169,6 +169,10 @@ function itemsExit(items) {
 }
 
 var timelineUpdate = function(data) {
+  if (!data) {
+    showError();
+    return;
+  }
   var currentDate = moment();
   gtl.starttime = currentDate;
   

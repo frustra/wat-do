@@ -66,9 +66,9 @@ app.configure('development', function() {
 
 
 // Setup
-setupMain(app);
 setupItems(app);
 setupLists(app);
+setupMain(app);
 setupAuth(app, passport);
 
 

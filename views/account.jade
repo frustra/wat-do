@@ -1,2 +1,19 @@
 #account.modal-inner
-  p TODO
+  form.editable(js-form="saveAccount")
+    input.big.full-width(type='text', name='account-name', js-data='name', placeholder='Name')
+    label.readonly
+      | E-mail:
+      input.medium.full-width(type='text', readonly='readonly', name='account-email', js-data='email')
+    label.readonly
+      | First Login:
+      input.medium.full-width(type='text', readonly='readonly', name='account-creation', js-data='createdAt')
+    label.checkbox
+      input#public.medium(type='checkbox', name='account-public', js-data='public')
+      | List is Public
+    label.readonly
+      | Share Link:
+      input.medium.full-width.link(type='text', readonly="readonly", name='account-share', js-data='share')
+
+    div#buttons
+      input#cancel.btn.medium(type='button', value='Cancel')
+      input#save.btn.medium(type='submit', value='Save')

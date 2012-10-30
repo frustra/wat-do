@@ -14,7 +14,7 @@ itemSchema.statics.clientObjects = function(items, user) {
   var tmp = [];
   for (var i = 0; i < items.length; i++) {
     tmp[i] = items[i].toObject();
-    tmp[i].done = items[i].completed.indexOf(user) >= 0;
+    tmp[i].done = user ? items[i].completed.indexOf(user) >= 0 : false;
     tmp[i].completed = undefined;
   }
   return tmp;
@@ -22,7 +22,7 @@ itemSchema.statics.clientObjects = function(items, user) {
 
 itemSchema.methods.clientObject = function(user) {
   var tmp = this.toObject();
-  tmp.done = this.completed.indexOf(user) >= 0;
+  tmp.done = user ? this.completed.indexOf(user) >= 0 : false;
   tmp.completed = undefined;
   return tmp;
 }
