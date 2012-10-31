@@ -1,12 +1,5 @@
 var gdata = null;
-
-function changeURL(page, noHistory) {
-  crossroads.parse(page);
-  if (!noHistory) {
-    window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
-    window.history.pushState({'watpage': page}, 'Title', page);
-  }
-}
+var owndata = false;
 
 function setModal(name) {
   if (name) {
@@ -31,7 +24,7 @@ function setFormData(form, obj, force) {
   if (obj == null) {
     if (Object.keys(form.data('js-data')).length != 0 || force) {
       form.data('js-data', {});
-      $('textarea[js-data],input[js-data]').each(function() {
+      form.find('textarea[js-data],input[js-data]').each(function() {
         var $this = $(this);
         $this.data('js-commit', null);
         if ($this.attr('type') == 'checkbox') {
@@ -42,7 +35,7 @@ function setFormData(form, obj, force) {
   } else {
     if (form.data('js-data') != obj || force) {
       form.data('js-data', obj);
-      $('textarea[js-data],input[js-data]').each(function() {
+      form.find('textarea[js-data],input[js-data]').each(function() {
         var $this = $(this);
         var key = $this.attr("js-data");
         var val = '';
@@ -86,13 +79,13 @@ $(function() {
 
   $('a').click(function(e) {
     e.preventDefault();
-    changeURL($(this).attr('href'));
+    handlers.changeURL($(this).attr('href'));
   });
 
   $('.overlay-inner').click(function(e) {
-    var save = $(window).scrollLeft();
-    changeURL('/');
-    $(window).scrollLeft(save);
+    if (!handlers.lastpage || window.history.length <= 1) {
+      handlers.changeURL('/');
+    } else window.history.back();
   });
 
   $('.editable').keydown(function(e) {
@@ -124,9 +117,9 @@ $(function() {
     });
   });
 
-  $('#cancel').click(function(e) {
+  $('.btn-cancel').click(function(e) {
     setFormData($(this).parents('form[js-form]'), null, true);
-    changeURL('/');
+    handlers.changeURL('/');
   });
 
   $('input.link[readonly]').click(function(e) {
@@ -134,13 +127,13 @@ $(function() {
   });
 
   window.onpopstate = function(event) {
-    if (event.state != undefined && event.state.watpage != undefined) changeURL(event.state.watpage, true);
+    if (event.state != undefined && event.state.watpage != undefined) handlers.changeURL(event.state.watpage, true);
   };
 
   handlers.setupRoutes();
 
   if ($('.timeline-visualization')[0]) timelineInit();
-  changeURL(window.location.pathname, true);
+  handlers.changeURL(window.location.pathname, true);
 
   $(window).bind("mousedown", handlers.mouseDown);
 });

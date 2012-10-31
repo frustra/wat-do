@@ -14,7 +14,7 @@ var handlers = {
             }
           }
           timelineUpdate(gdata);
-          changeURL('/');
+          handlers.changeURL('/');
         }
       });
     } else { // New Item
@@ -25,7 +25,7 @@ var handlers = {
         success: function(data) {
           gdata.push(data);
           timelineUpdate(gdata);
-          changeURL('/');
+          handlers.changeURL('/');
         }
       });
     }
@@ -37,7 +37,7 @@ var handlers = {
       url: '/account.json',
       data: account,
       success: function(data) {
-        changeURL('/');
+        handlers.changeURL('/');
       }
     });
   },
@@ -67,16 +67,29 @@ var handlers = {
     $(window).unbind("mousemove", handlers.mouseMove).unbind("mouseup", handlers.mouseUp);
   },
 
+  lastpage: undefined,
+  changeURL: function(page, noHistory) {
+    crossroads.parse(page);
+    if (!noHistory) {
+      handlers.lastpage = window .location.pathname;
+      window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
+      window.history.pushState({'watpage': page}, 'Title', page);
+    }
+  },
+
   loadData: function(link, error, cb, param) {
-    if (!link) link = '/items.json';
+    if (!$('.timeline-visualization')[0]) return;
     $.ajax({
-      url: link,
+      url: link ? link : '/items.json',
       success: function(data) {
         if (data) {
+          owndata = !link;
           handlers.loadedData(data);
           if (cb && param) {
             cb(param);
           } else if (cb) cb();
+        } else if (typeof error === 'function') {
+          error();
         } else if (error) showError(error);
       }
     });
@@ -90,7 +103,11 @@ var handlers = {
   setupRoutes: function() {
     crossroads.addRoute('/', function(id) {
       setModal();
-      if (!gdata) handlers.loadData();
+      if (!gdata || !owndata) {
+        handlers.loadData(null, function() {
+          window.location = '/';
+        });
+      }
     }, 0);
 
     crossroads.addRoute('/about', function(id) {
@@ -99,17 +116,12 @@ var handlers = {
     }, 1);
 
     crossroads.addRoute('/account', function(id) {
-      $.ajax({
-        url: '/account.json',
-        success: function(data) {
-          if (data) {
-            data.createdAt = moment(data.createdAt).format("MMM D YYYY, h:mm a");
-            data.share = window.location.protocol + "//" + window.location.host + "/user/" + data._id;
-            setFormData($("#account form"), data);
-            setModal('account');
-          } else changeURL('/');
-        }
-      });
+      if (fromserver.user) {
+        fromserver.user.createdAt = moment(fromserver.user.createdAt).format("MMM D YYYY, h:mm a");
+        fromserver.user.share = window.location.protocol + "//" + window.location.host + "/user/" + fromserver.user._id;
+        setFormData($("#account form"), fromserver.user);
+        setModal('account');
+      } else handlers.changeURL('/');
       if (!gdata) handlers.loadData();
     }, 1);
 

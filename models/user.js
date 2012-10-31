@@ -10,4 +10,11 @@ var userSchema = new mongoose.Schema({
   items: [{ type: ObjectId, ref: 'Item' }]
 });
 
+userSchema.methods.clientObject = function() {
+  var tmp = this.toObject();
+  tmp.openid = undefined;
+  tmp.items = undefined;
+  return tmp;
+}
+
 exports.User = mongoose.model('User', userSchema);

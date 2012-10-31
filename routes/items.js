@@ -1,4 +1,5 @@
 var moment = require('moment')
+  , render = require('./').render
   , User = require('../models/user').User
   , Item = require('../models/item').Item;
 
@@ -30,6 +31,12 @@ exports.setupItems = function(app) {
     } else res.json(undefined);
   });
 
+  app.get('/item/new', function(req, res) {
+    if (req.user) {
+      render(req, res, 'items');
+    } else render(req, res, 'index');
+  });
+
   app.get('/item/:id.json', function(req, res) {
     Item.findById(req.params.id, function(err, item) {
       if (!err && item) {
@@ -55,22 +62,9 @@ exports.setupItems = function(app) {
     } else res.json(undefined);
   });
 
-  app.get('/item/new', function(req, res) {
-    if (req.user) {
-      res.render('items');
-    } else {
-      res.render('home');
-    }
-  });
-
   app.get('/item/:id', function(req, res) {
-    // Needs to detect what list item is part of
     if (req.user) {
-      Item.findById(req.params.id, function(err, item) {
-        if (!err && item) {
-          res.render('items');;
-        } else res.render('home');
-      });
-    } else res.render('home');
+      render(req, res, 'items');
+    } else render(req, res, 'index');
   });
 };

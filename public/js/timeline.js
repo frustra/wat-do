@@ -126,7 +126,7 @@ function itemsEnter(items) {
 
   front.on("click", function(d) {
     if (gtl.mousestart && Math.abs(d3.event.screenX - gtl.mousestart[0]) < 2) {
-      changeURL('/item/' + d._id);
+      handlers.changeURL('/item/' + d._id);
     }
   });
 }

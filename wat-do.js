@@ -50,9 +50,8 @@ app.configure(function() {
   app.use(function(req, res, next) {
     if (typeof req.user !== 'undefined' && req.user != null) {
       app.locals.user = req.user;
-    } else {
-      app.locals.user = null;
-    }
+    } else app.locals.user = null;
+    if (typeof app.locals.toclient === 'undefined') app.locals.toclient = null;
     next();
   });
 
