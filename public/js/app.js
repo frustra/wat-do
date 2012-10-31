@@ -109,9 +109,10 @@ $(function() {
     form.submit(function(e) {
       e.preventDefault();
       form.find('textarea[js-data],input[js-data]').each(function() {
-        if ($(this).attr('type') == 'checkbox') {
-          form.data('js-data')[$(this).attr('js-data')] = !!$(this).attr('checked');
-        } else form.data('js-data')[$(this).attr('js-data')] = $(this).val();
+        var $this = $(this);
+        if ($this.attr('type') == 'checkbox') {
+          form.data('js-data')[$this.attr('js-data')] = !!$this.attr('checked');
+        } else form.data('js-data')[$this.attr('js-data')] = $this.val();
       });
       handlers[form.attr('js-form')](form.data('js-data'));
     });
@@ -132,7 +133,7 @@ $(function() {
 
   handlers.setupRoutes();
 
-  if ($('.timeline-visualization')[0]) timelineInit();
+  if (fromserver.template === 'items') timelineInit();
   handlers.changeURL(window.location.pathname, true);
 
   $(window).bind("mousedown", handlers.mouseDown);

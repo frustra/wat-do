@@ -28,9 +28,7 @@ module.exports.setupAuth = function(app, passport) {
             done(err, user);
           }
         });
-      } else {
-        done(err, result);
-      }
+      } else done(err, result);
     });
   }
 
@@ -56,7 +54,6 @@ module.exports.setupAuth = function(app, passport) {
 
   app.get('/logout', function(req, res) {
     req.logout();
-    console.log(req.user)
     res.redirect('/');
   });
 };

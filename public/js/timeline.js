@@ -31,6 +31,11 @@ var timelineInit = function() {
     $this.blur();
   }).attr('checked', false);
 
+  var form = $('#item form');
+  form.find('.btn-delete').click(function(e) {
+    handlers.deleteItem(form.data('js-data'));
+  });
+
   setInterval(timeUpdate, 1000);
 };
 

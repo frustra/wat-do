@@ -37,6 +37,7 @@ exports.setupItems = function(app) {
     } else render(req, res, 'index');
   });
 
+  // TODO Add in permissions
   app.get('/item/:id.json', function(req, res) {
     Item.findById(req.params.id, function(err, item) {
       if (!err && item) {
@@ -55,8 +56,38 @@ exports.setupItems = function(app) {
           if (typeof newItem.done !== 'undefined') item.setDone(newItem.done, req.user._id);
           if (typeof newItem.start !== 'undefined') item.start = newItem.start;
           if (typeof newItem.end !== 'undefined') item.end = newItem.end;
-          item.save();
-          res.json(item.clientObject(req.user._id));
+          item.save(function(err) {
+            if (!err) {
+              res.json(item.clientObject(req.user._id));
+            } else res.json(undefined);
+          });
+        } else res.json(undefined);
+      });
+    } else res.json(undefined);
+  });
+
+  app.delete('/item/:id.json', function(req, res) {
+    if (req.user) {
+      User.findById(req.user._id)
+      .populate('items')
+      .exec(function(err, user) {
+        if (!err && user) {
+          for (var i = 0; i < user.items.length; i++) {
+            var id = user.items[i]._id;
+            if (id.toString() === req.params.id) {
+              user.items[i].remove(function(err) {
+                if (!err) {
+                  user.items.remove(id);
+                  user.save(function(err) {
+                    if (!err) {
+                      res.send('success');
+                    } else res.json(undefined);
+                  });
+                } else res.json(undefined);
+              });
+              break;
+            }
+          }
         } else res.json(undefined);
       });
     } else res.json(undefined);

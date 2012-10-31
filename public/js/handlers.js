@@ -11,6 +11,7 @@ var handlers = {
           for (var i = 0; i < gdata.length; i++) {
             if (gdata[i]._id == data._id) {
               gdata[i] = data;
+              break;
             }
           }
           timelineUpdate(gdata);
@@ -29,6 +30,28 @@ var handlers = {
         }
       });
     }
+  },
+
+  deleteItem: function(item) {
+    $.ajax({
+      type: 'DELETE',
+      url: '/item/' + item._id + '.json',
+      success: function(data) {
+        if (data !== 'success') {
+          // Failed to delete item.
+          handlers.changeURL('/');
+        } else {
+          for (var i = 0; i < gdata.length; i++) {
+            if (gdata[i]._id == item._id) {
+              gdata.splice(i, i);
+              break;
+            }
+          }
+          timelineUpdate(gdata);
+          handlers.changeURL('/');
+        }
+      }
+    });
   },
 
   saveAccount: function(account) {
@@ -78,7 +101,7 @@ var handlers = {
   },
 
   loadData: function(link, error, cb, param) {
-    if (!$('.timeline-visualization')[0]) return;
+    if (fromserver.template !== 'items') return;
     $.ajax({
       url: link ? link : '/items.json',
       success: function(data) {
@@ -144,7 +167,9 @@ var handlers = {
     }, 1);
 
     function doNew() {
-      setFormData($("#item form"), {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});
+      var form = $("#item form");
+      form.find('.btn-delete').css('display', 'none');
+      setFormData(form, {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});
       setModal('item');
     }
 
@@ -159,7 +184,9 @@ var handlers = {
         if (gdata[i]._id == id) {
           gdata[i].start = moment(gdata[i].start).format("MMM D YYYY, h:mm a");
           gdata[i].end = moment(gdata[i].end).format("MMM D YYYY, h:mm a");
-          setFormData($("#item form"), gdata[i]);
+          var form = $("#item form");
+          form.find('.btn-delete').css('display', '');
+          setFormData(form, gdata[i]);
           break;
         }
       }
