@@ -163,7 +163,6 @@ var handlers = {
     }, 2);
 
     function doItem(id) {
-      var found = false;
       for (var i = 0; i < gdata.length; i++) {
         if (gdata[i]._id == id) {
           gdata[i].start = moment(gdata[i].start).format("MMM D YYYY, h:mm a");
@@ -171,13 +170,11 @@ var handlers = {
           var form = $("#item form");
           form.find('.btn-delete').show();
           setFormData(form, gdata[i]);
-          found = true;
-          break;
+          setModal('item');
+          return;
         }
       }
-      if (found) {
-        setModal('item');
-      } showError('The requested item does not exist.');
+      showError('The requested item does not exist.');
     }
 
     crossroads.addRoute('/item/{id}', function(id) {

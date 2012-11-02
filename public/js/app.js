@@ -79,6 +79,7 @@ function makeRequest(type, url, noerror, reqdata, callback) {
       if (!data) {
         showError();
       } else if (data.error) {
+        console.log('Error: ' + data.error);
         showError(data.msg);
       } else if (data.response) {
         callback(data.response);
@@ -88,7 +89,10 @@ function makeRequest(type, url, noerror, reqdata, callback) {
       if (noerror) return;
       if (status === 'timeout') {
         showError('wat do could not connect to the server, please try again later.');
-      } else showError();
+      } else {
+        console.log('Request error: ' + status);
+        showError();
+      }
     }
   });
 }
