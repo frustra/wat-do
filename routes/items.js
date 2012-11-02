@@ -108,6 +108,22 @@ exports.setupItems = function(app) {
     } else res.json({error: 'no-user', msg: 'You must be logged in to delete this item.'});
   });
 
+  app.get('/user/:id/item/new', function(req, res) {
+    res.render('index');
+  });
+
+  app.get('/user/:uid/item/:iid', function(req, res) {
+    res.render('index');
+  });
+
+  app.get('/list/:id/item/new', function(req, res) {
+    res.render('index');
+  });
+
+  app.get('/list/:lid/item/:iid', function(req, res) {
+    res.render('index');
+  });
+
   app.get('/item/new', function(req, res) {
     res.render('index');
   });

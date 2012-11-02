@@ -1,5 +1,4 @@
 var gdata = null;
-var owndata = false;
 
 function setModal(name) {
   if (name) {
@@ -85,12 +84,12 @@ function makeRequest(type, url, noerror, reqdata, callback) {
         callback(data.response);
       } else showError();
     },
-    error: function(jqXHR, status) {
+    error: function(jqXHR, status, error) {
       if (noerror) return;
       if (status === 'timeout') {
         showError('wat do could not connect to the server, please try again later.');
       } else {
-        console.log('Request error: ' + status);
+        console.log('Request error: ' + status + (error ? ' - ' + error : ''));
         showError();
       }
     }
