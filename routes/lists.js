@@ -17,12 +17,45 @@ exports.setupLists = function(app) {
     } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
   });
 
+  app.post('/list/new.json', function(req, res) {
+    // TODO
+    List.findById(req.params.id)
+    .populate('items')
+    .exec(function(err, list) {
+      if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
+        res.json({response: Item.clientObjects(list.items, req.user ? req.user._id : null)});
+      } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
+    });
+  });
+
   app.get('/list/:id.json', function(req, res) {
     List.findById(req.params.id)
     .populate('items')
     .exec(function(err, list) {
       if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
         res.json({response: Item.clientObjects(list.items, req.user ? req.user._id : null)});
+      } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
+    });
+  });
+
+  app.post('/list/:id.json', function(req, res) {
+    // TODO
+    List.findById(req.params.id)
+    .populate('items')
+    .exec(function(err, list) {
+      if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
+        res.json({response: Item.clientObjects(list.items, req.user ? req.user._id : null)});
+      } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
+    });
+  });
+
+  app.delete('/list/:id.json', function(req, res) {
+    // TODO
+    List.findById(req.params.id)
+    .populate('items')
+    .exec(function(err, list) {
+      if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
+        res.json({response: req.params.id});
       } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
     });
   });
@@ -38,11 +71,19 @@ exports.setupLists = function(app) {
     });
   });
 
-  app.get('/user/:id', function(req, res) {
+  app.get('/list/new', function(req, res) {
+    res.render('index');
+  });
+
+  app.get('/list/edit/:id', function(req, res) {
     res.render('index');
   });
 
   app.get('/list/:id', function(req, res) {
+    res.render('index');
+  });
+
+  app.get('/user/:id', function(req, res) {
     res.render('index');
   });
 };

@@ -4,6 +4,8 @@ var moment = require('moment')
   , Item = require('../models/item').Item;
 
 exports.setupItems = function(app) {
+  // TODO: Generalize for the 3 list urls.
+
   app.post('/item/new.json', function(req, res) {
     if (req.user) {
       // Save to database and return parsed object
@@ -34,17 +36,12 @@ exports.setupItems = function(app) {
   app.get('/item/:id.json', function(req, res) {
     if (req.user) {
       User.findById(req.user._id)
-      .populate('items')
+      .populate('items', null, {_id: req.params.id})
       .exec(function(err, user) {
         if (!err && user) {
-          for (var i = 0; i < user.items.length; i++) {
-            var id = user.items[i]._id;
-            if (id.toString() === req.params.id) {
-              res.json({response: user.items[i].clientObject(req.user._id)});
-              return;
-            }
-          }
-          res.json({error: 'no-item', msg: 'The requested item does not exists.'});
+          if (user.items.length == 1) {
+            res.json({response: user.items[0].clientObject(req.user._id)});
+          } else res.json({error: 'no-item', msg: 'The requested item does not exist.'});
         } else res.json({error: 'unknown1'});
       });
     } else res.json({error: 'no-user', msg: 'You must be logged in to view this item.'});
@@ -53,28 +50,23 @@ exports.setupItems = function(app) {
   app.post('/item/:id.json', function(req, res) {
     if (req.user) {
       User.findById(req.user._id)
-      .populate('items')
+      .populate('items', null, {_id: req.params.id})
       .exec(function(err, user) {
         if (!err && user) {
-          for (var i = 0; i < user.items.length; i++) {
-            var id = user.items[i]._id;
-            if (id.toString() === req.params.id) {
-              var newItem = req.body;
-              var item = user.items[i];
-              if (typeof newItem.name !== 'undefined') item.name = newItem.name;
-              if (typeof newItem.desc !== 'undefined') item.desc = newItem.desc;
-              if (typeof newItem.done !== 'undefined') item.setDone(newItem.done, req.user._id);
-              if (typeof newItem.start !== 'undefined') item.start = newItem.start;
-              if (typeof newItem.end !== 'undefined') item.end = newItem.end;
-              item.save(function(err) {
-                if (!err) {
-                  res.json({response: item.clientObject(req.user._id)});
-                } else res.json({error: 'unknown2'});
-              });
-              return;
-            }
-          }
-          res.json({error: 'no-item', msg: 'The requested item does not exists.'});
+          if (user.items.length == 1) {
+            var newItem = req.body;
+            var item = user.items[0];
+            if (typeof newItem.name !== 'undefined') item.name = newItem.name;
+            if (typeof newItem.desc !== 'undefined') item.desc = newItem.desc;
+            if (typeof newItem.done !== 'undefined') item.setDone(newItem.done, req.user._id);
+            if (typeof newItem.start !== 'undefined') item.start = newItem.start;
+            if (typeof newItem.end !== 'undefined') item.end = newItem.end;
+            item.save(function(err) {
+              if (!err) {
+                res.json({response: item.clientObject(req.user._id)});
+              } else res.json({error: 'unknown2'});
+            });
+          } else res.json({error: 'no-item', msg: 'The requested item does not exist.'});
         } else res.json({error: 'unknown1'});
       });
     } else res.json({error: 'no-user', msg: 'You must be logged in to edit this item.'});
@@ -83,26 +75,22 @@ exports.setupItems = function(app) {
   app.delete('/item/:id.json', function(req, res) {
     if (req.user) {
       User.findById(req.user._id)
-      .populate('items')
+      .populate('items', null, {_id: req.params.id})
       .exec(function(err, user) {
         if (!err && user) {
-          for (var i = 0; i < user.items.length; i++) {
-            var id = user.items[i]._id;
-            if (id.toString() === req.params.id) {
-              user.items[i].remove(function(err) {
-                if (!err) {
-                  user.items.remove(id);
-                  user.save(function(err) {
-                    if (!err) {
-                      res.json({response: id});
-                  } else res.json({error: 'unknown3'});
-                  });
-                } else res.json({error: 'unknown2'});
-              });
-              return;
-            }
-          }
-          res.json({error: 'no-item', msg: 'The requested item does not exists.'});
+          if (user.items.length == 1) {
+            var id = user.items[0]._id;
+            user.items[0].remove(function(err) {
+              if (!err) {
+                user.items.remove(id);
+                user.save(function(err) {
+                  if (!err) {
+                    res.json({response: id});
+                } else res.json({error: 'unknown3'});
+                });
+              } else res.json({error: 'unknown2'});
+            });
+          } else res.json({error: 'no-item', msg: 'The requested item does not exist.'});
         } else res.json({error: 'unknown1'});
       });
     } else res.json({error: 'no-user', msg: 'You must be logged in to delete this item.'});
