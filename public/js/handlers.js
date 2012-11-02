@@ -25,8 +25,8 @@ var handlers = {
   deleteItem: function(item) {
     makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
       for (var i = 0; i < gdata.length; i++) {
-        if (gdata[i]._id == item._id) {
-          gdata.splice(i, i);
+        if (gdata[i]._id === item._id) {
+          gdata.splice(i, 1);
           break;
         }
       }

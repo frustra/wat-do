@@ -48,6 +48,12 @@ function timeUpdate() {
   gtl.body.selectAll(".white")
     .transition().duration(750)
     .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart + moment().diff(gtl.starttime) / 3600000) - 1) + "px"; });
+
+  gtl.body.selectAll(".item-back")
+    .attr("rend", function(d) { return d.rend - moment().diff(gtl.starttime) / 3600000; });
+
+  gtl.body.selectAll(".item")
+    .attr("rend", function(d) { return d.rend - moment().diff(gtl.starttime) / 3600000; });
 }
 
 function barsEnter(bars) {
