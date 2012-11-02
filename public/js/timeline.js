@@ -1,4 +1,4 @@
-var gtl = {scale: 100, mouse: null, mousestart: null, scrolled: false};
+var gtl = {init: false, scale: 100, mouse: null, mousestart: null, scrolled: false};
 
 var timelineInit = function() {
   gtl.x = d3.scale.linear()
@@ -23,10 +23,10 @@ var timelineInit = function() {
     var $this = $(this);
     if ($this.attr('checked')) {
       $this.attr('checked', false);
-      $('#done').removeAttr('done');
+      $('#done').removeClass('done');
     } else {
       $this.attr('checked', true);
-      $('#done').attr('done', '');
+      $('#done').addClass('done');
     }
     $this.blur();
   }).attr('checked', false);
@@ -36,6 +36,7 @@ var timelineInit = function() {
     handlers.deleteItem(form.data('js-data'));
   });
 
+  gtl.init = true;
   setInterval(timeUpdate, 1000);
 };
 
@@ -174,6 +175,7 @@ function itemsExit(items) {
 }
 
 var timelineUpdate = function(data) {
+  if (!gtl.init) timelineInit();
   if (!data) {
     showError();
     return;

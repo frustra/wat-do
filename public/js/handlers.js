@@ -3,65 +3,41 @@ var handlers = {
     item.start = moment(item.start).utc().format();
     item.end = moment(item.end).utc().format();
     if (item._id) { // Existing item
-      $.ajax({
-        type: 'POST',
-        url: '/item/' + item._id + '.json',
-        data: item,
-        success: function(data) {
-          for (var i = 0; i < gdata.length; i++) {
-            if (gdata[i]._id == data._id) {
-              gdata[i] = data;
-              break;
-            }
+      makeRequest('POST', '/item/' + item._id + '.json', false, item, function(data) {
+        for (var i = 0; i < gdata.length; i++) {
+          if (gdata[i]._id == data._id) {
+            gdata[i] = data;
+            break;
           }
-          timelineUpdate(gdata);
-          handlers.changeURL('/');
         }
+        timelineUpdate(gdata);
+        handlers.changeURL('/');
       });
     } else { // New Item
-      $.ajax({
-        type: 'POST',
-        url: '/item/new.json',
-        data: item,
-        success: function(data) {
-          gdata.push(data);
-          timelineUpdate(gdata);
-          handlers.changeURL('/');
-        }
+      makeRequest('POST', '/item/new.json', false, item, function(data) {
+        gdata.push(data);
+        timelineUpdate(gdata);
+        handlers.changeURL('/');
       });
     }
   },
 
   deleteItem: function(item) {
-    $.ajax({
-      type: 'DELETE',
-      url: '/item/' + item._id + '.json',
-      success: function(data) {
-        if (data !== 'success') {
-          // Failed to delete item.
-          handlers.changeURL('/');
-        } else {
-          for (var i = 0; i < gdata.length; i++) {
-            if (gdata[i]._id == item._id) {
-              gdata.splice(i, i);
-              break;
-            }
-          }
-          timelineUpdate(gdata);
-          handlers.changeURL('/');
+    makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
+      for (var i = 0; i < gdata.length; i++) {
+        if (gdata[i]._id == item._id) {
+          gdata.splice(i, i);
+          break;
         }
       }
+      timelineUpdate(gdata);
+      handlers.changeURL('/');
     });
   },
 
   saveAccount: function(account) {
-    $.ajax({
-      type: 'POST',
-      url: '/account.json',
-      data: account,
-      success: function(data) {
-        handlers.changeURL('/');
-      }
+    makeRequest('POST', '/account.json', false, account, function(data) {
+      handlers.changeURL('/');
     });
   },
 
@@ -94,63 +70,60 @@ var handlers = {
   changeURL: function(page, noHistory) {
     crossroads.parse(page);
     if (!noHistory) {
-      handlers.lastpage = window .location.pathname;
+      handlers.lastpage = window.location.pathname;
       window.history.replaceState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
       window.history.pushState({'watpage': page}, 'Title', page);
     }
   },
 
-  loadData: function(link, error, cb, param) {
-    if (fromserver.template !== 'items') return;
-    $.ajax({
-      url: link ? link : '/items.json',
-      success: function(data) {
-        if (data) {
-          owndata = !link;
-          handlers.loadedData(data);
-          if (cb && param) {
-            cb(param);
-          } else if (cb) cb();
-        } else if (typeof error === 'function') {
-          error();
-        } else if (error) showError(error);
-      }
-    });
+  setTimelineVisible: function(visible) {
+    var $sectiontimeline = $('section#timeline-wrap');
+    var $sectionhome = $('section#home');
+    if (visible) {
+      if (!$sectiontimeline.is(':visible')) $sectiontimeline.show();
+      if ($sectionhome.is(':visible')) $sectionhome.hide();
+      if (!gtl.init) timelineInit();
+    } else {
+      if ($sectiontimeline.is(':visible')) $sectiontimeline.hide();
+      if (!$sectionhome.is(':visible')) $sectionhome.show();
+    }
   },
 
-  loadedData: function(data) {
-    gdata = data;
-    timelineUpdate(gdata);
+  loadData: function(link, cb, param) {
+    makeRequest('GET', link ? link : '/items.json', false, function(data) {
+      owndata = !link;
+      gdata = data;
+      timelineUpdate(gdata);
+      if (cb && param) {
+        cb(param);
+      } else if (cb) cb();
+    });
   },
 
   setupRoutes: function() {
     crossroads.addRoute('/', function(id) {
       setModal();
-      if (!gdata || !owndata) {
-        handlers.loadData(null, function() {
-          window.location = '/';
-        });
-      }
+      handlers.setTimelineVisible(user);
+      if (user && (!gdata || !owndata)) handlers.loadData();
     }, 0);
 
     crossroads.addRoute('/about', function(id) {
       setModal('about');
-      if (!gdata) handlers.loadData();
+      handlers.setTimelineVisible(user);
+      if (user && !gdata) handlers.loadData();
     }, 1);
 
     crossroads.addRoute('/account', function(id) {
-      if (fromserver.user) {
-        fromserver.user.createdAt = moment(fromserver.user.createdAt).format("MMM D YYYY, h:mm a");
-        fromserver.user.share = window.location.protocol + "//" + window.location.host + "/user/" + fromserver.user._id;
-        setFormData($("#account form"), fromserver.user);
-        setModal('account');
-      } else handlers.changeURL('/');
-      if (!gdata) handlers.loadData();
-    }, 1);
-
-    crossroads.addRoute('/user/{id}', function(id) {
-      setModal();
-      handlers.loadData('/user/' + id + '.json', 'This user has not set their items to public or does not exist.');
+      handlers.setTimelineVisible(user);
+      if (user) {
+        makeRequest('GET', '/account.json', false, function(data) {
+          data.createdAt = moment(data.createdAt).format("MMM D YYYY, h:mm a");
+          data.share = window.location.protocol + "//" + window.location.host + "/user/" + data._id;
+          setFormData($("#account form"), data);
+          setModal('account');
+        });
+        if (!gdata) handlers.loadData();
+      } else showError('You must be logged in to view this page.');
     }, 1);
 
     //crossroads.addRoute('/list/new ', function(id) {
@@ -163,40 +136,57 @@ var handlers = {
 
     crossroads.addRoute('/list/{id}', function(id) {
       setModal();
-      handlers.loadData('/list/' + id + '.json', 'This list is not public or does not exist.');
+      handlers.setTimelineVisible(true);
+      handlers.loadData('/list/' + id + '.json');
+    }, 1);
+
+    crossroads.addRoute('/user/{id}', function(id) {
+      setModal();
+      handlers.setTimelineVisible(true);
+      handlers.loadData('/user/' + id + '.json');
     }, 1);
 
     function doNew() {
       var form = $("#item form");
-      form.find('.btn-delete').css('display', 'none');
+      form.find('.btn-delete').hide();
       setFormData(form, {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});
       setModal('item');
     }
 
     crossroads.addRoute('/item/new', function() {
-      if (!gdata) {
-        handlers.loadData(null, 'You must be logged in to create items.', doNew);
-      } else doNew();
+      handlers.setTimelineVisible(user);
+      if (user) {
+        if (!gdata) {
+          handlers.loadData(null, doNew);
+        } else doNew();
+      } else showError('You must be logged in to create new items.');
     }, 2);
 
     function doItem(id) {
+      var found = false;
       for (var i = 0; i < gdata.length; i++) {
         if (gdata[i]._id == id) {
           gdata[i].start = moment(gdata[i].start).format("MMM D YYYY, h:mm a");
           gdata[i].end = moment(gdata[i].end).format("MMM D YYYY, h:mm a");
           var form = $("#item form");
-          form.find('.btn-delete').css('display', '');
+          form.find('.btn-delete').show();
           setFormData(form, gdata[i]);
+          found = true;
           break;
         }
       }
-      setModal('item');
+      if (found) {
+        setModal('item');
+      } showError('The requested item does not exist.');
     }
 
     crossroads.addRoute('/item/{id}', function(id) {
-      if (!gdata) {
-        handlers.loadData(null, 'This item is not public or does not exist.', doItem, id);
-      } else doItem(id);
+      handlers.setTimelineVisible(user);
+      if (user) {
+        if (!gdata) {
+          handlers.loadData(null, doItem, id);
+        } else doItem(id);
+      } else showError('You must be logged in to view this page.');
     }, 1);
 
     crossroads.bypassed.add(function(request) {

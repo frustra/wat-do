@@ -21,28 +21,22 @@ exports.setupItems = function(app) {
             if (!err) {
               user.save(function(err) {
                 if (!err) {
-                  res.json(item.clientObject(req.user._id));
-                } else res.json(undefined);
+                  res.json({response: item.clientObject(req.user._id)});
+                } else res.json({error: 'unknown3'});
               });
-            } else res.json(undefined);
+            } else res.json({error: 'unknown2'});
           });
-        } else res.json(undefined);
+        } else res.json({error: 'unknown1'});
       });
-    } else res.json(undefined);
-  });
-
-  app.get('/item/new', function(req, res) {
-    if (req.user) {
-      render(req, res, 'items');
-    } else render(req, res, 'index');
+    } else res.json({error: 'no-user', msg: 'You must be logged in to create new items.'});
   });
 
   // TODO Add in permissions
   app.get('/item/:id.json', function(req, res) {
     Item.findById(req.params.id, function(err, item) {
       if (!err && item) {
-        res.json(item.clientObject(req.user ? req.user._id : null));
-      } else res.json(undefined);
+        res.json({response: item.clientObject(req.user ? req.user._id : null)});
+      } else res.json({error: 'no-item', msg: 'The requested item does not exists.'});
     });
   });
 
@@ -58,12 +52,12 @@ exports.setupItems = function(app) {
           if (typeof newItem.end !== 'undefined') item.end = newItem.end;
           item.save(function(err) {
             if (!err) {
-              res.json(item.clientObject(req.user._id));
-            } else res.json(undefined);
+              res.json({response: item.clientObject(req.user._id)});
+            } else res.json({error: 'unknown1'});
           });
-        } else res.json(undefined);
+        } else res.json({error: 'no-item', msg: 'The requested item does not exists.'});
       });
-    } else res.json(undefined);
+    } else res.json({error: 'no-user', msg: 'You must be logged in to edit this item.'});
   });
 
   app.delete('/item/:id.json', function(req, res) {
@@ -80,22 +74,24 @@ exports.setupItems = function(app) {
                   user.items.remove(id);
                   user.save(function(err) {
                     if (!err) {
-                      res.send('success');
-                    } else res.json(undefined);
+                      res.json({response: id});
+                  } else res.json({error: 'unknown3'});
                   });
-                } else res.json(undefined);
+                } else res.json({error: 'unknown2'});
               });
               break;
             }
           }
-        } else res.json(undefined);
+        } else res.json({error: 'unknown1'});
       });
-    } else res.json(undefined);
+    } else res.json({error: 'no-user', msg: 'You must be logged in to delete this item.'});
+  });
+
+  app.get('/item/new', function(req, res) {
+    res.render('index');
   });
 
   app.get('/item/:id', function(req, res) {
-    if (req.user) {
-      render(req, res, 'items');
-    } else render(req, res, 'index');
+    res.render('index');
   });
 };

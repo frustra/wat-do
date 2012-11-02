@@ -20,10 +20,10 @@ html
     script(type='text/javascript', src='/js/timeline.js')
     script(type='text/javascript', src='/js/handlers.js')
     script(type='text/javascript', src='/js/app.js')
-    if !!toclient
-      script var fromserver = !{JSON.stringify(toclient).replace('/', '\/', 'g')};
+    if !!user
+      script var user = !{!!user};
     else
-      script var fromserver = null;
+      script var user = null;
     block head
 
   body(lang='en')

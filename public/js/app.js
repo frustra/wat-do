@@ -62,6 +62,37 @@ function showError(msg) {
   setModal('error');
 }
 
+function makeRequest(type, url, noerror, reqdata, callback) {
+  if (typeof reqdata === 'function') {
+    callback = reqdata;
+    reqdata = undefined;
+  }
+  $.ajax({
+    type: type,
+    url: url,
+    data: reqdata,
+    success: function(data) {
+      if (noerror) {
+        callback(data ? data.response : undefined);
+        return;
+      }
+      if (!data) {
+        showError();
+      } else if (data.error) {
+        showError(data.msg);
+      } else if (data.response) {
+        callback(data.response);
+      } else showError();
+    },
+    error: function(jqXHR, status) {
+      if (noerror) return;
+      if (status === 'timeout') {
+        showError('wat do could not connect to the server, please try again later.');
+      } else showError();
+    }
+  });
+}
+
 $(function() {
   var $document = $(document)
     , addedScroll = false;
@@ -83,9 +114,11 @@ $(function() {
   });
 
   $('.overlay-inner').click(function(e) {
-    if (!handlers.lastpage || window.history.length <= 1) {
-      handlers.changeURL('/');
-    } else window.history.back();
+    if (window.location.pathname !== '/') {
+      if (!handlers.lastpage || window.history.length <= 1) {
+        handlers.changeURL('/');
+      } else window.history.back();
+    } else setModal();
   });
 
   $('.editable').keydown(function(e) {
@@ -120,7 +153,7 @@ $(function() {
 
   $('.btn-cancel').click(function(e) {
     setFormData($(this).parents('form[js-form]'), null, true);
-    handlers.changeURL('/');
+    $('.overlay-inner').click();
   });
 
   $('input.link[readonly]').click(function(e) {
@@ -132,9 +165,6 @@ $(function() {
   };
 
   handlers.setupRoutes();
-
-  if (fromserver.template === 'items') timelineInit();
   handlers.changeURL(window.location.pathname, true);
-
   $(window).bind("mousedown", handlers.mouseDown);
 });

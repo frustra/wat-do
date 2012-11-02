@@ -103,6 +103,7 @@ body.scroll #topbar {
   margin-top: 52px;
 
   #home {
+    display: none;
     padding: 30px 0;
 
     .content-wrap {
@@ -258,7 +259,7 @@ body.scroll #topbar {
         cursor: pointer;
         .transition(color 300ms, text-shadow 300ms);
 
-        &[done] {
+        &.done {
           color: #4A4;
           text-shadow: -1px 0 2px #4C4, 0 1px 2px #4C4, 1px 0 2px #4C4, 0 -1px 2px #4C4;
         }

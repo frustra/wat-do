@@ -3,27 +3,27 @@ var moment = require('moment')
   , User = require('../models/user').User
   , Item = require('../models/item').Item;
 
-render = exports.render = function(req, res, template) {
-  res.render(template, {toclient: {template: template, user: req.user ? req.user.clientObject() : undefined}});
-}
-
 exports.setupMain = function(app) {
   app.get('/', function(req, res) {
-    if (req.user) {
-      render(req, res, 'items');
-    } else render(req, res, 'index');
+    res.render('index');
   });
 
   app.get('/about', function(req, res) {
-    if (req.user) {
-      render(req, res, 'items');
-    } else render(req, res, 'index');
+    res.render('index');
   });
 
   app.get('/account', function(req, res) {
+    res.render('index');
+  });
+
+  app.get('/account.json', function(req, res) {
     if (req.user) {
-      render(req, res, 'items');
-    } else render(req, res, 'index');
+      User.findById(req.user._id, function(err, user) {
+        if (!err && user) {
+          res.json({response: user.clientObject()});
+        } else res.json({error: 'unknown1'});
+      });
+    } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
   });
 
   app.post('/account.json', function(req, res) {
@@ -33,10 +33,13 @@ exports.setupMain = function(app) {
           var newUser = req.body;
           if (typeof newUser.name !== 'undefined') user.name = newUser.name;
           if (typeof newUser.public !== 'undefined') user.public = newUser.public === 'true';
-          user.save();
-          res.json(user.clientObject());
-        } else res.json(undefined);
+          user.save(function(err) {
+            if (!err) {
+              res.json({response: user.clientObject()});
+            } else res.json({error: 'unknown2'});
+          });
+        } else res.json({error: 'unknown1'});
       });
-    } else res.json(undefined);
+    } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
   });
 };
