@@ -97,11 +97,11 @@ function makeRequest(type, url, noerror, reqdata, callback) {
 }
 
 $(function() {
-  var $document = $(document)
+  var $window = $(window)
     , addedScroll = false;
 
-  $document.scroll(function(e) {
-    if ($document.scrollTop() > 1) {
+  $window.scroll(function(e) {
+    if ($window.scrollTop() > 1) {
       if (addedScroll) return;
       addedScroll = true;
       $('body').addClass('scroll');
@@ -109,6 +109,14 @@ $(function() {
       $('body').removeClass('scroll');
       addedScroll = false;
     }
+  });
+
+  $window.resize(function() {
+    $('#modal .content').css('max-height', ($window.height() - 80) + 'px');
+    $('.modal-inner').each(function() {
+      var $this = $(this);
+      $this.css('max-height', ($window.height() - 80 - $this.outerHeight(true) + $this.height()) + 'px');
+    });
   });
 
   $('a').click(function(e) {
@@ -169,5 +177,6 @@ $(function() {
 
   handlers.setupRoutes();
   handlers.changeURL(window.location.pathname, true);
-  $(window).bind("mousedown", handlers.mouseDown);
+  $window.bind("mousedown", handlers.mouseDown);
+  $window.resize();
 });
