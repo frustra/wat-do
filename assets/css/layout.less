@@ -203,7 +203,7 @@ body.scroll #topbar {
           display: none;
           margin: 10px;
 
-          .clearfix();
+          .clearfix
         }
       }
     }
@@ -268,17 +268,73 @@ body.scroll #topbar {
       #name-wrap {
         padding-right: 30px;
       }
+
+      #start-date, #due-date {
+        float: left;
+        width: 50%;
+        margin-top: 3px;
+        min-width: 250px;
+
+        p {
+          float: left;
+          padding: 5px;
+          margin-right: -85px;
+          width: 75px;
+
+          font-size: 15px;
+          line-height: 18px;
+        }
+
+        .date-wrap {
+          margin-left: 85px;
+
+          input[type='text'] {
+            padding: 5px;
+            width: 100%;
+            line-height: 18px;
+          }
+        }
+      }
+
+      #start-date {
+        .date-wrap {
+          margin-right: 22px;
+        }
+      }
+
+      #due-date {
+        .date-wrap {
+          margin-right: 12px;
+        }
+      }
     }
   }
 
   #buttons {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
+    clear: both;
+    margin-top: 5px;
+    .clearfix;
+
+    div {
+      .btn {
+        margin-left: 10px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+
+      &.left-group {
+        float: left;
+      }
+
+      &.right-group {
+        float: right;
+        margin-left: 10px;
+      }
+    }
 
     .btn {
-      margin-left: 10px;
-
       &.btn-save {
         .buttonBackground(#62C462, #51A351, #FFF, 0 -1px rgba(0,0,0,.25));
       }
