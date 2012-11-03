@@ -11,7 +11,5 @@ compile-assets:
 	#rm site/public/master.tmp.js
 
 dev:
-	supervisor --no-restart-on error --extensions 'node|js|less' --ignore 'site/public' -x make run-dev
-
-run-dev: compile-assets
-	node wat-do.js
+	supervisor -n exit -e 'less' -x make compile-assets &
+	supervisor -n error -i 'public' wat-do.js
