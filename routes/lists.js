@@ -75,7 +75,7 @@ exports.setupLists = function(app) {
     res.render('index');
   });
 
-  app.get('/list/edit/:id', function(req, res) {
+  app.get('/list/:id/edit', function(req, res) {
     res.render('index');
   });
 

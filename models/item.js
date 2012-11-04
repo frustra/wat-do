@@ -7,7 +7,10 @@ var itemSchema = new mongoose.Schema({
   createdAt: Date,
   start: Date,
   end: Date,
-  completed: [ObjectId]
+  user: ObjectId,
+  list: ObjectId,
+  completed: [ObjectId],
+  comments: { type: ObjectId, ref: 'Comment' }
 });
 
 itemSchema.statics.clientObjects = function(items, user) {

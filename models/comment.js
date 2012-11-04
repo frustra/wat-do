@@ -4,8 +4,7 @@ var mongoose = require('mongoose')
 var commentSchema = new mongoose.Schema({
   message: String,
   createdAt: Date,
-  creator: { type: ObjectId, ref: 'User' },
-  item: { type: ObjectId, ref: 'Item' }
+  creator: { type: ObjectId, ref: 'User' }
 });
 
 exports.Comment = mongoose.model('Comment', commentSchema);
