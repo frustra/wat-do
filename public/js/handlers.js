@@ -1,20 +1,9 @@
 var handlers = {
-  getListPrefix: function() {
-    switch (handlers.dataType) {
-      case 1:
-        return '/list/' + handlers.dataId;
-      case 2:
-        return '/user/' + handlers.dataId;
-      default:
-        return '';
-    }
-  },
-
   saveItem: function(item) {
     item.start = moment(item.start).utc().format();
     item.end = moment(item.end).utc().format();
     if (item._id) { // Existing item
-      makeRequest('POST', handlers.getListPrefix() + '/item/' + item._id + '.json', false, item, function(data) {
+      makeRequest('POST', '/item/' + item._id + '.json', false, item, function(data) {
         for (var i = 0; i < gdata.length; i++) {
           if (gdata[i]._id == data._id) {
             gdata[i] = data;
@@ -25,7 +14,7 @@ var handlers = {
         handlers.changeURL('/');
       });
     } else { // New Item
-      makeRequest('POST', handlers.getListPrefix() + '/item/new.json', false, item, function(data) {
+      makeRequest('POST', '/item/new.json', false, item, function(data) {
         gdata.push(data);
         timelineUpdate(gdata);
         handlers.changeURL('/');
@@ -34,7 +23,7 @@ var handlers = {
   },
 
   deleteItem: function(item) {
-    makeRequest('DELETE', handlers.getListPrefix() + '/item/' + item._id + '.json', false, function(data) {
+    makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
       for (var i = 0; i < gdata.length; i++) {
         if (gdata[i]._id === item._id) {
           gdata.splice(i, 1);
@@ -188,7 +177,7 @@ var handlers = {
     //  setModal('list');
     //}, 2);
 
-    //crossroads.addRoute('/list/edit/(id) ', function(id) {
+    //crossroads.addRoute('/list/(id)/edit ', function(id) {
     //  setModal('list');
     //}, 2);
 
@@ -198,38 +187,10 @@ var handlers = {
       handlers.loadData(1, id);
     }, 1);
 
-    crossroads.addRoute('/list/{lid}/item/{iid}', function(lid, iid) {
-      setModal();
-      handlers.setTimelineVisible(true);
-      handlers.loadData(1, lid, doItem, iid);
-    }, 1);
-
-    crossroads.addRoute('/list/{id}/item/new', function(id) {
-      setModal();
-      handlers.setTimelineVisible(user);
-      if (user) {
-        handlers.loadData(1, id, doNew);
-      } else showError('You must be logged in to create new items.');
-    }, 2);
-
     crossroads.addRoute('/user/{id}', function(id) {
       setModal();
       handlers.setTimelineVisible(true);
       handlers.loadData(2, id);
-    }, 1);
-
-    crossroads.addRoute('/user/{uid}/item/{iid}', function(uid, iid) {
-      setModal();
-      handlers.setTimelineVisible(true);
-      handlers.loadData(2, uid, doItem, iid);
-    }, 1);
-
-    crossroads.addRoute('/user/{id}/item/new', function(id) {
-      setModal();
-      handlers.setTimelineVisible(user);
-      if (user) {
-        handlers.loadData(2, id, doNew);
-      } else showError('You must be logged in to create new items.');
     }, 1);
 
     crossroads.addRoute('/item/new', function() {

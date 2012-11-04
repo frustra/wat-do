@@ -1,5 +1,4 @@
 var moment = require('moment')
-  , render = require('./').render
   , List = require('../models/list').List
   , User = require('../models/user').User
   , Item = require('../models/item').Item;
@@ -18,7 +17,7 @@ exports.setupLists = function(app) {
   });
 
   app.post('/list/new.json', function(req, res) {
-    // TODO
+    // TODO - Creating list
     List.findById(req.params.id)
     .populate('items')
     .exec(function(err, list) {
@@ -39,7 +38,7 @@ exports.setupLists = function(app) {
   });
 
   app.post('/list/:id.json', function(req, res) {
-    // TODO
+    // TODO - Editting list, allow admin permission members aswell
     List.findById(req.params.id)
     .populate('items')
     .exec(function(err, list) {
@@ -50,7 +49,7 @@ exports.setupLists = function(app) {
   });
 
   app.delete('/list/:id.json', function(req, res) {
-    // TODO
+    // TODO - Deleting list, only allow owner
     List.findById(req.params.id)
     .populate('items')
     .exec(function(err, list) {

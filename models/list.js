@@ -1,6 +1,12 @@
 var mongoose = require('mongoose')
   , ObjectId = mongoose.Schema.ObjectId;
 
+/*
+ * Permissions for list members:
+ * 0: Can view
+ * 1: Can edit
+ * 2: Can admin
+ */
 var listSchema = new mongoose.Schema({
   name: String,
   public: Boolean,
