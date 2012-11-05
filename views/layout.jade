@@ -28,15 +28,18 @@ html
 
   body(lang='en')
     #topbar
-      header: a.home.watdo(href='/') wat do?
-      nav: ul
-        li: a.info(href='/about'): i.icon-info-sign
-        if !!user
-          li: a(href='/item/new') new
-          li.right: a(href='/logout') logout
-          li.right: a(href='/account') account
-        else
-          li.right: a(href='/login') login
+      nav: table: tr
+        td
+          a.home.watdo(href='/') wat do?
+          a.navlink.info(href='/about'): i.icon-info-sign
+          a.navlink(href='/item/new') new item
+        td
+        td.right
+          if !!user
+            a.navlink(href='/account') account
+            a.navlink(href='/logout') logout
+          else
+            a.navlink(href='/login') login
 
     #content
       block content
