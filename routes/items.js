@@ -127,7 +127,7 @@ exports.setupItems = function(app) {
   app.delete('/item/:id.json', function(req, res) {
     if (req.user) {
       if (!req.body.list && !req.body.user) req.body.user = req.user._id;
-      getListObject(req.user, req.body.user, req.body.list, 1, req.params.id, function(list, hasperm) {
+      getListObject(req.user, req.body.user, req.body.list, 2, req.params.id, function(list, hasperm) {
         if (list) {
           if (hasperm) {
             var id = list.items[0]._id;

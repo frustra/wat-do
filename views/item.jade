@@ -3,22 +3,22 @@
     .icon-ok#done
     input(type='checkbox', name='item-done', js-data='done', style='display: none;')
     #name-wrap
-      input.big.full-width(type='text', name='item-name', js-data='name', placeholder='Name')
-    textarea.medium.full-width(name='item-description', js-data='desc', placeholder='Description')
+      input.big.full-width(type='text', name='item-name', js-data='name', placeholder='Name', perm='1')
+    textarea.medium.full-width(name='item-description', js-data='desc', placeholder='Description', perm='1')
 
     hr
 
     .clearfix
       #start-date
         p Start Date:
-        .date-wrap: input.medium(type='text', name='start-date', js-data='start')
+        .date-wrap: input.medium(type='text', name='start-date', js-data='start', perm='1')
       #due-date
         p Due Date:
-        .date-wrap: input.medium(type='text', name='end-date', js-data='end')
+        .date-wrap: input.medium(type='text', name='end-date', js-data='end', perm='1')
 
     #buttons
       .left-group
-        input.btn-delete.btn.medium(type='button', value='Delete')
+        input.btn-delete.btn.medium(type='button', value='Delete', perm='2')
       .right-group
-        input.btn-save.btn.medium(type='submit', value='Save')
+        input.btn-save.btn.medium(type='submit', value='Save', perm='1')
         input.btn-cancel.btn.medium(type='button', value='Cancel')

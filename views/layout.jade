@@ -27,12 +27,15 @@ html
     block head
 
   body(lang='en')
-    #topbar
+    header#topbar
       nav: table: tr
         td
           a.home.watdo(href='/') wat do?
           a.navlink.info(href='/about'): i.icon-info-sign
-          a.navlink(href='/item/new') new item
+          if !!user
+            a.navlink(href='/item/new', perm='1') new item
+            a.navlink(href='/list/new') new list
+            a#editlist.navlink(perm='2') edit list
         td
         td.right
           if !!user

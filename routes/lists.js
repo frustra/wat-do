@@ -10,7 +10,7 @@ exports.setupLists = function(app) {
       .populate('items')
       .exec(function(err, user) {
         if (!err && user) {
-          res.json({response: Item.clientObjects(user.items, req.user._id)});
+          res.json({response: {permission: 2, list: Item.clientObjects(user.items, req.user._id)}});
         } else res.json({error: 'unknown1'});
       });
     } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
@@ -28,11 +28,12 @@ exports.setupLists = function(app) {
   });
 
   app.get('/list/:id.json', function(req, res) {
+    // TODO - Proper list permissions
     List.findById(req.params.id)
     .populate('items')
     .exec(function(err, list) {
       if (!err && list && (list.public || (req.user && list.owner._id.toString() === req.user._id))) {
-        res.json({response: Item.clientObjects(list.items, req.user ? req.user._id : null)});
+        res.json({response: {permission: 1, list: Item.clientObjects(list.items, req.user ? req.user._id : null)}});
       } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
     });
   });
@@ -65,7 +66,7 @@ exports.setupLists = function(app) {
     .populate('items')
     .exec(function(err, user) {
       if (!err && user && (user.public || own)) {
-        res.json({response: Item.clientObjects(user.items, req.user ? req.user._id : null)});
+        res.json({response: {permission: own ? 2 : 0, list: Item.clientObjects(user.items, req.user ? req.user._id : null)}});
       } else res.json({error: 'no-user', msg: 'The requested user\'s list is not public or the user does not exist.'});
     });
   });

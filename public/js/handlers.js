@@ -89,57 +89,34 @@ var handlers = {
     }
   },
 
-  dataType: null,
-  dataId: null,
-  loadData: function(type, id, cb, param) {
-    if (typeof id === 'function') {
-      param = cb;
-      cb = id;
-      id = undefined;
+  currentUser: null,
+  currentList: null,
+  currentPerm: 3,
+  loadData: function(user, list, cb, param) {
+    if (typeof user === 'function') {
+      param = list;
+      cb = user;
+      list = undefined;
+      user = undefined;
+    }
+    if (gdata && handlers.currentUser == user && handlers.currentList == list) {
+      if (cb && param) {
+        cb(param);
+      } else if (cb) cb();
+      return;
     }
     var link = '/items.json';
-    switch (type) {
-      case 0:
-        link = '/items.json';
-        if (handlers.dataType == 0) {
-          if (cb && param) {
-            cb(param);
-          } else if (cb) cb();
-          return;
-        }
-        break;
-      case 1:
-        link = '/list/' + id + '.json';
-        if (handlers.dataType == 1 && handlers.dataId == id) {
-          if (cb && param) {
-            cb(param);
-          } else if (cb) cb();
-          return;
-        }
-        break;
-      case 2:
-        link = '/user/' + id + '.json';
-        if (handlers.dataType == 2 && handlers.dataId == id) {
-          if (cb && param) {
-            cb(param);
-          } else if (cb) cb();
-          return;
-        }
-        break;
-      default:
-        if (gdata) {
-          if (cb && param) {
-            cb(param);
-          } else if (cb) cb();
-          return;
-        }
-        type = 0;
-        id = undefined;
+    if (user) {
+      link = '/user/' + user + '.json';
+    } else if (list) {
+      link = '/list/' + list + '.json';
     }
     makeRequest('GET', link, false, function(data) {
-      handlers.dataType = type;
-      handlers.dataId = id;
-      gdata = data;
+      handlers.currentUser = user;
+      handlers.currentList = list;
+      handlers.currentPerm = data.permission;
+      handlers.updatePermissions();
+      gdata = data.list;
       timelineUpdate(gdata);
       if (cb && param) {
         cb(param);
@@ -147,11 +124,26 @@ var handlers = {
     });
   },
 
+  updatePermissions: function() {
+    $('[perm]').each(function() {
+      $this = $(this);
+      if ($this.filter('input[type="text"],textarea').length > 0) {
+        if ($this.attr('perm') > handlers.currentPerm) {
+          $this.attr('readonly', 'readonly');
+        } else $this.removeAttr('readonly');
+      } else {
+        if ($this.attr('perm') > handlers.currentPerm) {
+          $this.hide();
+        } else $this.show();
+      }
+    });
+  },
+
   setupRoutes: function() {
     crossroads.addRoute('/', function(id) {
       setModal();
       handlers.setTimelineVisible(user);
-      if (user) handlers.loadData(0);
+      if (user) handlers.loadData();
     }, 0);
 
     crossroads.addRoute('/about', function(id) {
@@ -184,27 +176,40 @@ var handlers = {
     crossroads.addRoute('/list/{id}', function(id) {
       setModal();
       handlers.setTimelineVisible(true);
-      handlers.loadData(1, id);
+      handlers.loadData(null, id);
     }, 1);
 
     crossroads.addRoute('/user/{id}', function(id) {
       setModal();
       handlers.setTimelineVisible(true);
-      handlers.loadData(2, id);
+      handlers.loadData(id);
     }, 1);
 
     crossroads.addRoute('/item/new', function() {
       handlers.setTimelineVisible(user);
       if (user) {
-        handlers.loadData(0, doNew);
+        handlers.loadData(doNew);
       } else showError('You must be logged in to create new items.');
     }, 2);
 
     crossroads.addRoute('/item/{id}', function(id) {
-      handlers.setTimelineVisible(user);
-      if (user) {
-        handlers.loadData(0, doItem, id);
-      } else showError('You must be logged in to view this page.');
+      handlers.setTimelineVisible(true);
+      if (!gdata) {
+        makeRequest('GET', '/item/' + id + '.json', false, function(data) {
+          handlers.loadData(data.user, data.list, function() {
+            if (data.user) {
+              handlers.lastpage = '/user/' + data.user;
+              window.history.replaceState({'watpage': '/user/' + data.user}, 'Title', '/user/' + data.user);
+              window.history.pushState({'watpage': '/item/' + id}, 'Title', '/item/' + id);
+            } else if (data.list) {
+              handlers.lastpage = '/list/' + data.list;
+              window.history.replaceState({'watpage': '/list/' + data.list}, 'Title', '/list/' + data.list);
+              window.history.pushState({'watpage': '/item/' + id}, 'Title', '/item/' + id);
+            }
+            doItem(id);
+          });
+        });
+      } else handlers.loadData(handlers.currentUser, handlers.currentList, doItem, id);
     }, 1);
 
     crossroads.bypassed.add(function(request) {
@@ -224,7 +229,8 @@ var handlers = {
           gdata[i].start = moment(gdata[i].start).format("MMM D YYYY, h:mm a");
           gdata[i].end = moment(gdata[i].end).format("MMM D YYYY, h:mm a");
           var form = $("#item form");
-          form.find('.btn-delete').show();
+          if (handlers.currentPerm > 0) form.find('.btn-delete').show();
+          form.find('.btn-cancel').val(handlers.currentPerm > 0 ? 'Cancel' : 'Close');
           setFormData(form, gdata[i]);
           setModal('item');
           return;

@@ -171,6 +171,8 @@ $(function() {
     $(this).select();
   });
 
+  handlers.updatePermissions();
+
   window.onpopstate = function(event) {
     if (event.state != undefined && event.state.watpage != undefined) handlers.changeURL(event.state.watpage, true);
   };

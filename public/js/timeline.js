@@ -21,15 +21,21 @@ var timelineInit = function() {
   $('input[name="item-done"]').click(function(e) {
     e.preventDefault();
     var $this = $(this);
-    if ($this.attr('checked')) {
-      $this.attr('checked', false);
-      $('#done').removeClass('done');
-    } else {
-      $this.attr('checked', true);
-      $('#done').addClass('done');
+    if (handlers.currentPerm > 0) {
+      if ($this.attr('checked')) {
+        $this.attr('checked', false);
+        $('#done').removeClass('done');
+      } else {
+        $this.attr('checked', true);
+        $('#done').addClass('done');
+      }
     }
     $this.blur();
   }).attr('checked', false);
+
+  $('#editlist').click(function(e) {
+    changeURL('/list/' + handlers.currentList + '/edit');
+  });
 
   var form = $('#item form');
   form.find('.btn-delete').click(function(e) {
