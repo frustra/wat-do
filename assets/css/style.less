@@ -110,6 +110,7 @@ hr {
 a, a:visited {
   color: #3437A5;
   text-decoration: none;
+  cursor: pointer;
 }
 
 a:hover {
@@ -119,6 +120,10 @@ a:hover {
 .full-width {
   width: 100%;
   .box-sizing(border-box);
+}
+
+[perm]:not([hasperm]) {
+  display: none !important;
 }
 
 textarea {

@@ -1,5 +1,6 @@
 var GoogleStrategy = require('passport-google').Strategy;
 var User = require('../models/user').User;
+var Item = require('../models/item').Item;
 
 module.exports.setupAuth = function(app, passport) {
   passport.serializeUser(function(user, done) {
@@ -15,17 +16,35 @@ module.exports.setupAuth = function(app, passport) {
   function processAuth(identifier, profile, done) {
     User.findOne({ openid: identifier }, function(err, result) {
       if (result == null) {
+        var firstItem = new Item({
+          name: "Welcome to your wat do list!",
+          desc: "This list is only viewable by you, but you can set it to public under 'Account'.",
+          createdAt: Date.now(),
+          start: Date.now(),
+          end: Date.now() + 5 * 24 * 60 * 60 * 1000,
+          completed: [],
+          comments: []
+        });
         var user = new User({
-          openid: identifier,
           name: profile.displayName,
           email: profile.emails[0].value,
-          createdAt: Date.now()
+          openid: identifier,
+          createdAt: Date.now(),
+          public: false,
+          items: [firstItem]
         });
+        firstItem.user = user;
         user.save(function(err, user) {
           if (err) {
             throw err;
           } else {
-            done(err, user);
+            firstItem.save(function(err, item) {
+              if (err) {
+                throw err;
+              } else {
+                done(err, user);
+              }
+            });
           }
         });
       } else done(err, result);

@@ -10,7 +10,7 @@ var itemSchema = new mongoose.Schema({
   user: { type: ObjectId, ref: 'User' },
   list: { type: ObjectId, ref: 'List' },
   completed: [ObjectId],
-  comments: { type: ObjectId, ref: 'Comment' }
+  comments: [{ type: ObjectId, ref: 'Comment' }]
 });
 
 itemSchema.statics.clientObjects = function(items, user) {
@@ -18,8 +18,10 @@ itemSchema.statics.clientObjects = function(items, user) {
   for (var i = 0; i < items.length; i++) {
     tmp[i] = items[i].toObject();
     tmp[i].done = user ? items[i].completed.indexOf(user) >= 0 : false;
-    tmp[i].user = tmp[i].user ? tmp[i].user._id : undefined;
-    tmp[i].list = tmp[i].list ? tmp[i].list._id : undefined;
+    if (tmp[i].user && tmp[i].user._id) tmp[i].user = tmp[i].user._id;
+    if (tmp[i].list && tmp[i].list._id) tmp[i].list = tmp[i].list._id;
+    tmp[i].user = tmp[i].user ? ((user && tmp[i].user.toString() === user.toString()) ? undefined : tmp[i].user) : undefined;
+    tmp[i].list = tmp[i].user ? undefined : tmp[i].list;
     tmp[i].completed = undefined;
   }
   return tmp;
@@ -28,8 +30,10 @@ itemSchema.statics.clientObjects = function(items, user) {
 itemSchema.methods.clientObject = function(user) {
   var tmp = this.toObject();
   tmp.done = user ? this.completed.indexOf(user) >= 0 : false;
-  tmp.user = tmp.user ? tmp.user._id : undefined;
-  tmp.list = tmp.list ? tmp.list._id : undefined;
+  if (tmp.user && tmp.user._id) tmp.user = tmp.user._id;
+  if (tmp.list && tmp.list._id) tmp.list = tmp.list._id;
+  tmp.user = tmp.user ? ((user && tmp.user.toString() === user.toString()) ? undefined : tmp.user) : undefined;
+  tmp.list = tmp.list ? undefined : tmp.list;
   tmp.completed = undefined;
   return tmp;
 }

@@ -33,13 +33,19 @@ var timelineInit = function() {
     $this.blur();
   }).attr('checked', false);
 
-  $('#editlist').click(function(e) {
-    changeURL('/list/' + handlers.currentList + '/edit');
+  var formItem = $('#item form');
+  formItem.find('.btn-delete').click(function(e) {
+    handlers.deleteItem(formItem.data('js-data'));
   });
 
-  var form = $('#item form');
-  form.find('.btn-delete').click(function(e) {
-    handlers.deleteItem(form.data('js-data'));
+  var formList = $('#list form');
+  formList.find('.btn-delete').click(function(e) {
+    handlers.deleteList(formList.data('js-data'));
+  });
+
+  $('#editlist').click(function(e) {
+    e.preventDefault();
+    handlers.changeURL('/list/' + handlers.currentList + '/edit');
   });
 
   gtl.init = true;

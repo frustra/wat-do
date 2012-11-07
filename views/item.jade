@@ -1,9 +1,9 @@
-#item.modal-inner.clearfix
+#item.modal-inner
   form.editable(js-form="saveItem")
     .icon-ok#done
     input(type='checkbox', name='item-done', js-data='done', style='display: none;')
     #name-wrap
-      input.big.full-width(type='text', name='item-name', js-data='name', placeholder='Name', perm='1')
+      input.big.full-width(type='text', name='item-name', js-data='name', placeholder='Item Name', perm='1')
     textarea.medium.full-width(name='item-description', js-data='desc', placeholder='Description', perm='1')
 
     hr
@@ -18,7 +18,7 @@
 
     #buttons
       .left-group
-        input.btn-delete.btn.medium(type='button', value='Delete', perm='2')
+        input.btn-delete.btn.medium(type='button', value='Delete', perm='1')
       .right-group
         input.btn-save.btn.medium(type='submit', value='Save', perm='1')
         input.btn-cancel.btn.medium(type='button', value='Cancel')

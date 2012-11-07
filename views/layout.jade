@@ -54,5 +54,7 @@ html
             block modal-content
               include about
               include item
-              include account
+              if !!user
+                include list
+                include account
               include error

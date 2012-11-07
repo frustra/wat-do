@@ -120,8 +120,11 @@ $(function() {
   });
 
   $('a').click(function(e) {
-    e.preventDefault();
-    handlers.changeURL($(this).attr('href'));
+    var $this = $(this);
+    if ($this.attr('href')) {
+      e.preventDefault();
+      handlers.changeURL($this.attr('href'));
+    }
   });
 
   $('.overlay-inner').click(function(e) {

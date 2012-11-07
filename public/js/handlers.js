@@ -1,4 +1,22 @@
 var handlers = {
+  saveList: function(list) {
+    if (list._id) { // Existing List
+      makeRequest('POST', '/list/' + list._id + '.json', false, list, function(data) {
+        $('.overlay-inner').click();
+      });
+    } else { // New List
+      makeRequest('POST', '/list/new.json', false, list, function(data) {
+        handlers.changeURL('/list/' + data);
+      });
+    }
+  },
+
+  deleteList: function(list) {
+    makeRequest('DELETE', '/list/' + list._id + '.json', false, function(data) {
+      handlers.changeURL('/');
+    });
+  },
+
   saveItem: function(item) {
     item.start = moment(item.start).utc().format();
     item.end = moment(item.end).utc().format();
@@ -11,13 +29,16 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.changeURL('/');
+        $('.overlay-inner').click();
       });
     } else { // New Item
+      item.user = handlers.currentUser;
+      item.list = handlers.currentList;
+      console.log(item);
       makeRequest('POST', '/item/new.json', false, item, function(data) {
         gdata.push(data);
         timelineUpdate(gdata);
-        handlers.changeURL('/');
+        $('.overlay-inner').click();
       });
     }
   },
@@ -31,13 +52,13 @@ var handlers = {
         }
       }
       timelineUpdate(gdata);
-      handlers.changeURL('/');
+      $('.overlay-inner').click();
     });
   },
 
   saveAccount: function(account) {
     makeRequest('POST', '/account.json', false, account, function(data) {
-      handlers.changeURL('/');
+      $('.overlay-inner').click();
     });
   },
 
@@ -91,7 +112,7 @@ var handlers = {
 
   currentUser: null,
   currentList: null,
-  currentPerm: 3,
+  currentPerm: -1,
   loadData: function(user, list, cb, param) {
     if (typeof user === 'function') {
       param = list;
@@ -127,14 +148,15 @@ var handlers = {
   updatePermissions: function() {
     $('[perm]').each(function() {
       $this = $(this);
-      if ($this.filter('input[type="text"],textarea').length > 0) {
+      if ($this.filter('input[type="text"],input[type="checkbox"],textarea').length > 0) {
+        $this.attr('hasperm', 'hasperm');
         if ($this.attr('perm') > handlers.currentPerm) {
           $this.attr('readonly', 'readonly');
         } else $this.removeAttr('readonly');
       } else {
         if ($this.attr('perm') > handlers.currentPerm) {
-          $this.hide();
-        } else $this.show();
+          $this.removeAttr('hasperm');
+        } else $this.attr('hasperm', 'hasperm');
       }
     });
   },
@@ -149,7 +171,7 @@ var handlers = {
     crossroads.addRoute('/about', function(id) {
       setModal('about');
       handlers.setTimelineVisible(user);
-      if (user) handlers.loadData();
+      if (user) handlers.loadData(handlers.currentUser, handlers.currentList);
     }, 1);
 
     crossroads.addRoute('/account', function(id) {
@@ -161,17 +183,36 @@ var handlers = {
           setFormData($("#account form"), data);
           setModal('account');
         });
-        handlers.loadData();
+        handlers.loadData(handlers.currentUser, handlers.currentList);
       } else showError('You must be logged in to view this page.');
     }, 1);
 
-    //crossroads.addRoute('/list/new ', function(id) {
-    //  setModal('list');
-    //}, 2);
+    crossroads.addRoute('/list/new', function() {
+      if (user) {
+        var form = $("#list form");
+        form.find('.btn-delete').hide();
+        form.find('#sharelink').hide();
+        setFormData(form);
+        setModal('list');
+      } else showError('You must be logged in to create new lists.');
+    }, 2);
 
-    //crossroads.addRoute('/list/(id)/edit ', function(id) {
-    //  setModal('list');
-    //}, 2);
+    crossroads.addRoute('/list/{id}/edit', function(id) {
+      if (user) {
+        makeRequest('GET', '/list/' + id + '.json', false, function(data) {
+          if (data.permission < 2) {
+            showError('You do not have permission to edit this list.');
+            return;
+          }
+          data.share = window.location.protocol + "//" + window.location.host + "/list/" + data._id;
+          var form = $("#list form");
+          if (data.permission > 2) form.find('.btn-delete').show();
+          form.find('#sharelink').show();
+          setFormData(form, data);
+          setModal('list');
+        });
+      } else showError('You must be logged in to edit lists.');
+    }, 2);
 
     crossroads.addRoute('/list/{id}', function(id) {
       setModal();
@@ -188,7 +229,7 @@ var handlers = {
     crossroads.addRoute('/item/new', function() {
       handlers.setTimelineVisible(user);
       if (user) {
-        handlers.loadData(doNew);
+        handlers.loadData(handlers.currentUser, handlers.currentList, doNewItem);
       } else showError('You must be logged in to create new items.');
     }, 2);
 
@@ -216,7 +257,7 @@ var handlers = {
       if (window.location.pathname != request) window.location = request;
     });
 
-    function doNew() {
+    function doNewItem() {
       var form = $("#item form");
       form.find('.btn-delete').hide();
       setFormData(form, {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});

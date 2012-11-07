@@ -1,7 +1,23 @@
 var moment = require('moment')
+  , mongoose = require('mongoose')
   , List = require('../models/list').List
   , User = require('../models/user').User
   , Item = require('../models/item').Item;
+
+
+exports.getPermission = function(userobj, listobj, user) {
+  if (userobj) {
+    if (user && userobj._id.equals(user._id)) return 1;
+    if (userobj.public) return 0;
+  } else if (listobj) {
+    if (user && listobj.owner.equals(user._id)) return 3;
+    for (var i = 0; i < listobj.members.length; i++) {
+      if (listobj.members[i].equals(user._id)) return listobj.members[i].permission;
+    }
+    if (listobj.public) return 0;
+  }
+  return -1;
+}
 
 exports.setupItems = function(app) {
   function getListObject(requser, userid, listid, permission, item, cb) {
@@ -15,7 +31,7 @@ exports.setupItems = function(app) {
       if (item) query = query.populate('items', null, {_id: item});
       query.exec(function(err, list) {
         if (!err && list) {
-          if (requser && list.owner.toString() === requser._id.toString()) {
+          if (requser && list.owner.equals(requser._id)) {
             cb(list, true);
           } else if (requser && list.members.length == 1) {
             cb(list, list.members[0].permission >= permission);
@@ -29,7 +45,7 @@ exports.setupItems = function(app) {
       if (item) query = query.populate('items', null, {_id: item});
       query.exec(function(err, user) {
         if (!err && user) {
-          if (requser && user._id.toString() === requser._id.toString()) {
+          if (requser && user._id.equals(requser._id)) {
             cb(user, true);
           } else if (permission == 0) {
             cb(user, user.public);
@@ -39,22 +55,6 @@ exports.setupItems = function(app) {
     } else cb(null, false);
   }
 
-  function hasPermission(user, item, permission) {
-    if (item.user) {
-      if (item.user.public) return true;
-      if (req.user && item.user._id.toString() === req.user._id.toString()) return true;
-    } else if (item.list) {
-      if (item.list.public) return true;
-      if (req.user && item.list.owner.toString() === req.user._id.toString()) return true;
-      for (var i = 0; i < item.list.members.length; i++) {
-        if (item.list.members[i].toString() === req.user._id.toString() && item.list.members[i].permission >= permission) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   app.post('/item/new.json', function(req, res) {
     if (req.user) {
       // Save to database and return parsed object
@@ -62,10 +62,13 @@ exports.setupItems = function(app) {
       var newItem = new Item({
         name: req.body.name,
         desc: req.body.desc,
+        createdAt: Date.now(),
         start: req.body.start,
         end: req.body.end,
-        user: req.body.list ? undefined : req.body.user,
-        list: req.body.list
+        user: req.body.user ? mongoose.Types.ObjectId(req.body.user) : undefined,
+        list: req.body.user ? undefined : mongoose.Types.ObjectId(req.body.list),
+        completed: [],
+        comments: []
       });
       if (req.body.done === 'true') newItem.setDone(req.body.done, req.user._id);
       getListObject(req.user, req.body.user, req.body.list, 1, function(list, hasperm) {
@@ -77,9 +80,15 @@ exports.setupItems = function(app) {
                 list.save(function(err) {
                   if (!err) {
                     res.json({response: newItem.clientObject(req.user._id)});
-                  } else res.json({error: 'unknown2'});
+                  } else {
+                    console.log('unknown2: ' + err);
+                    res.json({error: 'unknown2'});
+                  }
                 });
-              } else res.json({error: 'unknown1'});
+              } else {
+                console.log('unknown1: ' + err);
+                res.json({error: 'unknown1'});
+              }
             });
           } else res.json({error: 'no-permission', msg: 'You do not have permission to edit this list.'});
         } else res.json({error: 'no-list', msg: 'The requested list does not exist.'});
@@ -93,7 +102,7 @@ exports.setupItems = function(app) {
     .populate('list')
     .exec(function(err, item) {
       if (!err && item) {
-        if (hasPermission(req.user, item, 0)) {
+        if (exports.getPermission(item.user, item.list, req.user) >= 0) {
           res.json({response: item.clientObject(req.user ? req.user._id : null)});
         } else res.json({error: 'no-permission', msg: 'You do not have permission to view this item.'});
       } else res.json({error: 'no-item', msg: 'The requested item does not exist.'});
@@ -116,7 +125,10 @@ exports.setupItems = function(app) {
             item.save(function(err) {
               if (!err) {
                 res.json({response: item.clientObject(req.user._id)});
-              } else res.json({error: 'unknown1'});
+              } else {
+                console.log('unknown1: ' + err);
+                res.json({error: 'unknown1'});
+              }
             });
           } else res.json({error: 'no-permission', msg: 'You do not have permission to edit this list.'});
         } else res.json({error: 'no-list', msg: 'The requested item does not exist.'});
@@ -127,7 +139,7 @@ exports.setupItems = function(app) {
   app.delete('/item/:id.json', function(req, res) {
     if (req.user) {
       if (!req.body.list && !req.body.user) req.body.user = req.user._id;
-      getListObject(req.user, req.body.user, req.body.list, 2, req.params.id, function(list, hasperm) {
+      getListObject(req.user, req.body.user, req.body.list, 1, req.params.id, function(list, hasperm) {
         if (list) {
           if (hasperm) {
             var id = list.items[0]._id;
@@ -137,9 +149,15 @@ exports.setupItems = function(app) {
                 list.save(function(err) {
                   if (!err) {
                     res.json({response: id});
-                } else res.json({error: 'unknown2'});
+                  } else {
+                    console.log('unknown2: ' + err);
+                    res.json({error: 'unknown2'});
+                  }
                 });
-              } else res.json({error: 'unknown1'});
+              } else {
+                console.log('unknown1: ' + err);
+                res.json({error: 'unknown1'});
+              }
             });
           } else res.json({error: 'no-permission', msg: 'You do not have permission to edit this list.'});
         } else res.json({error: 'no-list', msg: 'The requested item does not exist.'});
