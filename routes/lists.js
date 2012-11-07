@@ -11,7 +11,7 @@ exports.setupLists = function(app) {
       .populate('items')
       .exec(function(err, user) {
         if (!err && user) {
-          res.json({response: {permission: 1, list: Item.clientObjects(user.items, req.user._id)}});
+          res.json({response: {permission: 1, name: 'Your List', list: Item.clientObjects(user.items, req.user._id)}});
         } else {
           console.log('unknown1: ' + err);
           res.json({error: 'unknown1'});
@@ -42,7 +42,7 @@ exports.setupLists = function(app) {
 
   app.get('/list/:id.json', function(req, res) {
     List.findById(req.params.id)
-    .populate('members')
+    .populate('members.user', '_id')
     .populate('items')
     .exec(function(err, list) {
       if (!err && list) {
@@ -79,23 +79,59 @@ exports.setupLists = function(app) {
   });
 
   app.delete('/list/:id.json', function(req, res) {
-    // TODO - Deleting list, only allow owner, respond with list id
-    List.findById(req.params.id)
-    .populate('items')
-    .exec(function(err, list) {
-      if (!err && list && (list.public || (req.user && list.owner._id.equals(req.user._id)))) {
-        res.json({response: req.params.id});
-      } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
-    });
+    if (req.user) {
+      List.findById(req.params.id)
+      .populate('items')
+      .exec(function(err, list) {
+        if (!err && list) {
+          if (list.owner.equals(req.user._id)) {
+            var id = list._id;
+            var i = 0;
+            function callback(err) {
+              if (!err) {
+                i++;
+                if (i < list.items.length) {
+                  list.items[i].remove(callback);
+                } else {
+                  list.remove(function(err) {
+                    if (!err) {
+                      res.json({response: id});
+                    } else {
+                      console.log('unknown2: ' + err);
+                      res.json({error: 'unknown2'});
+                    }
+                  });
+                }
+              } else {
+                console.log('unknown1: ' + err);
+                res.json({error: 'unknown1'});
+              }
+            }
+            if (list.items.length > 0) {
+              list.items[i].remove(callback);
+            } else {
+              list.remove(function(err) {
+                if (!err) {
+                  res.json({response: id});
+                } else {
+                  console.log('unknown3: ' + err);
+                  res.json({error: 'unknown3'});
+                }
+              });
+            }
+          } else res.json({error: 'no-permission', msg: 'You do not have permission to delete this list.'});
+        } else res.json({error: 'no-list', msg: 'The requested list does not exist.'});
+      });
+    } else res.json({error: 'no-user', msg: 'You must be logged in to delete this list.'});
   });
 
   app.get('/user/:id.json', function(req, res) {
-    var own = req.user && req.params.id.equals(req.user._id);
+    var own = req.user && req.user._id.equals(req.params.id);
     User.findById(req.params.id)
     .populate('items')
     .exec(function(err, user) {
       if (!err && user && (user.public || own)) {
-        res.json({response: {permission: own ? 1 : 0, list: Item.clientObjects(user.items, req.user ? req.user._id : null)}});
+        res.json({response: {permission: own ? 1 : 0, name: user.name + '\'s List', list: Item.clientObjects(user.items, req.user ? req.user._id : null)}});
       } else res.json({error: 'no-user', msg: 'The requested user\'s list is not public or the user does not exist.'});
     });
   });

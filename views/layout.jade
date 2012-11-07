@@ -29,7 +29,7 @@ html
   body(lang='en')
     header#topbar
       nav: table: tr
-        td
+        td.left
           a.home.watdo(href='/') wat do?
           a.navlink.info(href='/about'): i.icon-info-sign
           if !!user
@@ -37,6 +37,7 @@ html
             a.navlink(href='/list/new') new list
             a#editlist.navlink(perm='2') edit list
         td
+          p#listname
         td.right
           if !!user
             a.navlink(href='/account') account

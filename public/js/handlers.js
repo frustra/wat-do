@@ -133,6 +133,7 @@ var handlers = {
       link = '/list/' + list + '.json';
     }
     makeRequest('GET', link, false, function(data) {
+      $('#listname').text(data.name);
       handlers.currentUser = user;
       handlers.currentList = list;
       handlers.currentPerm = data.permission;
