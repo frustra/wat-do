@@ -12,9 +12,11 @@ var handlers = {
   },
 
   deleteList: function(list) {
-    makeRequest('DELETE', '/list/' + list._id + '.json', false, function(data) {
-      handlers.changeURL('/');
-    });
+    if (confirm("Are you sure you want to delete this list?")) {
+      makeRequest('DELETE', '/list/' + list._id + '.json', false, function(data) {
+        handlers.changeURL('/');
+      });
+    }
   },
 
   saveItem: function(item) {
@@ -34,7 +36,6 @@ var handlers = {
     } else { // New Item
       item.user = handlers.currentUser;
       item.list = handlers.currentList;
-      console.log(item);
       makeRequest('POST', '/item/new.json', false, item, function(data) {
         gdata.push(data);
         timelineUpdate(gdata);
@@ -44,16 +45,18 @@ var handlers = {
   },
 
   deleteItem: function(item) {
-    makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
-      for (var i = 0; i < gdata.length; i++) {
-        if (gdata[i]._id === item._id) {
-          gdata.splice(i, 1);
-          break;
+    if (confirm("Are you sure you want to delete this item?")) {
+      makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
+        for (var i = 0; i < gdata.length; i++) {
+          if (gdata[i]._id === item._id) {
+            gdata.splice(i, 1);
+            break;
+          }
         }
-      }
-      timelineUpdate(gdata);
-      $('.overlay-inner').click();
-    });
+        timelineUpdate(gdata);
+        $('.overlay-inner').click();
+      });
+    }
   },
 
   saveAccount: function(account) {

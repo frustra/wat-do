@@ -58,7 +58,7 @@ exports.setupItems = function(app) {
   app.post('/item/new.json', function(req, res) {
     if (req.user) {
       // Save to database and return parsed object
-      if (!req.body.list && !req.body.user) req.body.user = req.user._id;
+      if (!req.body.list && !req.body.user) req.body.user = req.user._id.toString();
       var newItem = new Item({
         name: req.body.name,
         desc: req.body.desc,
