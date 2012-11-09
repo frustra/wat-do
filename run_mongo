@@ -1,1 +1,1 @@
-mongod --dbpath ./data/db
+/cygdrive/c/Program\ Files/MongoDB/mongod.exe --dbpath='data/db'

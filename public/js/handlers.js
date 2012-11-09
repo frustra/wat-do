@@ -1,5 +1,10 @@
 var handlers = {
   saveList: function(list) {
+    list.name = list.name.trim();
+    if (list.name.length <= 0) {
+      alert("You must enter a list name.");
+      return;
+    }
     if (list._id) { // Existing List
       makeRequest('POST', '/list/' + list._id + '.json', false, list, function(data) {
         $('.overlay-inner').click();
@@ -20,8 +25,26 @@ var handlers = {
   },
 
   saveItem: function(item) {
-    item.start = moment(item.start).utc().format();
-    item.end = moment(item.end).utc().format();
+    item.name = item.name.trim();
+    if (item.name.length <= 0) {
+      alert("You must enter an item name.");
+      return;
+    }
+    var tmpdate1 = moment(item.start);
+    var tmpdate2 = moment(item.end);
+    var datenow = moment();
+    if (!tmpdate1.isValid() || !tmpdate2.isValid()) {
+      alert("One of the dates you entered is not valid.");
+      return;
+    } else if (Math.abs(tmpdate1.diff(datenow, 'years', true)) > 1 || Math.abs(tmpdate2.diff(datenow, 'years', true)) > 1) {
+      alert("You cannot add items with dates so far away.");
+      return;
+    } else if (tmpdate1.diff(tmpdate2) >= 0) {
+      alert("Your item must be due after it starts.");
+      return;
+    }
+    item.start = tmpdate1.utc().format();
+    item.end = tmpdate2.utc().format();
     if (item._id) { // Existing item
       makeRequest('POST', '/item/' + item._id + '.json', false, item, function(data) {
         for (var i = 0; i < gdata.length; i++) {
@@ -60,6 +83,11 @@ var handlers = {
   },
 
   saveAccount: function(account) {
+    account.name = account.name.trim();
+    if (account.name.length <= 0) {
+      alert("You must enter a name.");
+      return;
+    }
     makeRequest('POST', '/account.json', false, account, function(data) {
       $('.overlay-inner').click();
     });

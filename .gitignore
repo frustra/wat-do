@@ -3,5 +3,5 @@ npm-debug.log
 
 config.json
 /public/master.css
-/run-mongo
+/run_mongo
 /data/db
