@@ -31,7 +31,16 @@ exports.setupLists = function(app) {
       });
       newList.save(function(err, list) {
         if (!err) {
-          res.json({response: list._id});
+          req.user.lists.push(list);
+          req.user.listsubs.push(list);
+          req.user.save(function(err) {
+            if (!err) {
+              res.json({response: list._id});
+            } else {
+              console.log('unknown2: ' + err);
+              res.json({error: 'unknown2'});
+            }
+          });
         } else {
           console.log('unknown1: ' + err);
           res.json({error: 'unknown1'});
@@ -64,7 +73,7 @@ exports.setupLists = function(app) {
             var newList = req.body;
             if (typeof newList.name !== 'undefined') list.name = newList.name;
             if (typeof newList.public !== 'undefined') list.public = newList.public === 'true';
-            list.save(function(err) {
+            list.save(function(err, list) {
               if (!err) {
                 res.json({response: list._id});
               } else {

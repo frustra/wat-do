@@ -8,7 +8,7 @@ module.exports.setupAuth = function(app, passport) {
   });
 
   passport.deserializeUser(function(obj, done) {
-    User.findOne({ _id: obj }, function(err, result) {
+    User.findById(obj, function(err, result) {
       done(err, result);
     });
   });
@@ -31,9 +31,13 @@ module.exports.setupAuth = function(app, passport) {
           openid: identifier,
           createdAt: Date.now(),
           public: false,
-          items: [firstItem]
+          items: [firstItem],
+          lists: [],
+          usersubs: [],
+          listsubs: []
         });
         firstItem.user = user;
+        user.usersubs.push(user);
         user.save(function(err, user) {
           if (err) {
             throw err;

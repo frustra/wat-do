@@ -48,20 +48,22 @@ var handlers = {
     if (item._id) { // Existing item
       makeRequest('POST', '/item/' + item._id + '.json', false, item, function(data) {
         for (var i = 0; i < gdata.length; i++) {
-          if (gdata[i]._id == data._id) {
-            gdata[i] = data;
+          if (gdata[i]._id == data.item._id) {
+            gdata[i] = data.item;
             break;
           }
         }
         timelineUpdate(gdata);
+        handlers.refreshUpdates(data.updatechange);
         $('.overlay-inner').click();
       });
     } else { // New Item
       item.user = handlers.currentUser;
       item.list = handlers.currentList;
       makeRequest('POST', '/item/new.json', false, item, function(data) {
-        gdata.push(data);
+        gdata.push(data.item);
         timelineUpdate(gdata);
+        handlers.refreshUpdates(data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -71,12 +73,13 @@ var handlers = {
     if (confirm("Are you sure you want to delete this item?")) {
       makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
         for (var i = 0; i < gdata.length; i++) {
-          if (gdata[i]._id === item._id) {
+          if (gdata[i]._id === data.id) {
             gdata.splice(i, 1);
             break;
           }
         }
         timelineUpdate(gdata);
+        handlers.refreshUpdates(data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -90,6 +93,13 @@ var handlers = {
     }
     makeRequest('POST', '/account.json', false, account, function(data) {
       $('.overlay-inner').click();
+    });
+  },
+
+  subscribe: function(subscribe) {
+    makeRequest('POST', '/updates.json', false, {subscribe: subscribe, user: handlers.currentUser, list: handlers.currentList}, function(data) {
+      handlers.updates = data;
+      handlers.refreshUpdates();
     });
   },
 
@@ -141,6 +151,36 @@ var handlers = {
     }
   },
 
+  updates: null,
+  refreshUpdates: function(change) {
+    if (!handlers.updates) {
+      makeRequest('GET', '/updates.json', false, function(data) {
+        if (data) {
+          handlers.updates = data;
+          handlers.refreshUpdates();
+        }
+      });
+      return;
+    }
+    var subbed = false;
+    if (handlers.currentUser) {
+      subbed = handlers.updates.usersubs[handlers.currentUser];
+    } else if (handlers.currentList) {
+      subbed = handlers.updates.listsubs[handlers.currentList];
+    } else {
+      subbed = handlers.updates.usersubs[handlers.updates.self];
+    }
+    if (change) {
+      subbed.updates += change;
+      handlers.updates.notifications += change;
+    }
+    if (subbed) {
+      $('#subscribe').text('unsubscribe').attr('subbed', 'subbed');
+    } else $('#subscribe').text('subscribe').removeAttr('subbed');
+    $('#updates').text(handlers.updates.notifications);
+  },
+
+  currentName: null,
   currentUser: null,
   currentList: null,
   currentPerm: -1,
@@ -165,11 +205,14 @@ var handlers = {
     }
     makeRequest('GET', link, false, function(data) {
       $('#listname').text(data.name);
+      handlers.currentName = data.name;
       handlers.currentUser = user;
       handlers.currentList = list;
       handlers.currentPerm = data.permission;
       handlers.updatePermissions();
+      handlers.refreshUpdates();
       gdata = data.list;
+      gtl.scrolled = false;
       timelineUpdate(gdata);
       if (cb && param) {
         cb(param);
@@ -194,19 +237,19 @@ var handlers = {
   },
 
   setupRoutes: function() {
-    crossroads.addRoute('/', function(id) {
+    crossroads.addRoute('/', function() {
       setModal();
       handlers.setTimelineVisible(user);
       if (user) handlers.loadData();
     }, 0);
 
-    crossroads.addRoute('/about', function(id) {
+    crossroads.addRoute('/about', function() {
       setModal('about');
       handlers.setTimelineVisible(user);
       if (user) handlers.loadData(handlers.currentUser, handlers.currentList);
     }, 1);
 
-    crossroads.addRoute('/account', function(id) {
+    crossroads.addRoute('/account', function() {
       handlers.setTimelineVisible(user);
       if (user) {
         makeRequest('GET', '/account.json', false, function(data) {
@@ -219,17 +262,29 @@ var handlers = {
       } else showError('You must be logged in to view this page.');
     }, 1);
 
+    crossroads.addRoute('/updates', function() {
+      handlers.setTimelineVisible(user);
+      if (user) {
+        // TODO
+        setModal('updates');
+        handlers.loadData(handlers.currentUser, handlers.currentList);
+      } else showError('You must be logged in to view this page.');
+    }, 1);
+
     crossroads.addRoute('/list/new', function() {
+      handlers.setTimelineVisible(user);
       if (user) {
         var form = $("#list form");
         form.find('.btn-delete').hide();
         form.find('#sharelink').hide();
         setFormData(form);
         setModal('list');
+        handlers.loadData(handlers.currentUser, handlers.currentList);
       } else showError('You must be logged in to create new lists.');
     }, 2);
 
     crossroads.addRoute('/list/{id}/edit', function(id) {
+      handlers.setTimelineVisible(user);
       if (user) {
         makeRequest('GET', '/list/' + id + '.json', false, function(data) {
           if (data.permission < 2) {
@@ -243,6 +298,7 @@ var handlers = {
           setFormData(form, data);
           setModal('list');
         });
+        handlers.loadData(null, id);
       } else showError('You must be logged in to edit lists.');
     }, 2);
 

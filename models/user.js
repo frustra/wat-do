@@ -7,7 +7,10 @@ var userSchema = new mongoose.Schema({
   openid: String,
   createdAt: Date,
   public: Boolean,
-  items: [{ type: ObjectId, ref: 'Item' }]
+  items: [{ type: ObjectId, ref: 'Item' }],
+  lists: [{ type: ObjectId, ref: 'List' }],
+  usersubs: [{ type: ObjectId, ref: 'User' }],
+  listsubs: [{ type: ObjectId, ref: 'List' }]
 });
 
 userSchema.methods.clientObject = function() {

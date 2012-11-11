@@ -20,7 +20,7 @@ itemSchema.statics.clientObjects = function(items, user) {
     tmp[i].done = user ? items[i].completed.indexOf(user) >= 0 : false;
     if (tmp[i].user && tmp[i].user._id) tmp[i].user = tmp[i].user._id;
     if (tmp[i].list && tmp[i].list._id) tmp[i].list = tmp[i].list._id;
-    tmp[i].user = tmp[i].user ? ((user && tmp[i].user.toString() === user.toString()) ? undefined : tmp[i].user) : undefined;
+    tmp[i].user = tmp[i].user ? ((user && tmp[i].user.equals(user)) ? undefined : tmp[i].user) : undefined;
     tmp[i].list = tmp[i].user ? undefined : tmp[i].list;
     tmp[i].completed = undefined;
   }
@@ -32,15 +32,15 @@ itemSchema.methods.clientObject = function(user) {
   tmp.done = user ? this.completed.indexOf(user) >= 0 : false;
   if (tmp.user && tmp.user._id) tmp.user = tmp.user._id;
   if (tmp.list && tmp.list._id) tmp.list = tmp.list._id;
-  tmp.user = tmp.user ? ((user && tmp.user.toString() === user.toString()) ? undefined : tmp.user) : undefined;
-  tmp.list = tmp.list ? undefined : tmp.list;
+  tmp.user = tmp.user ? ((user && tmp.user.equals(user)) ? undefined : tmp.user) : undefined;
+  tmp.list = tmp.user ? undefined : tmp.list;
   tmp.completed = undefined;
   return tmp;
 }
 
 itemSchema.methods.setDone = function(done, user) {
   if (done === 'true') {
-    this.completed.push(user);
+    if (this.completed.indexOf(user) < 0) this.completed.push(user);
   } else this.completed.remove(user);
 }
 

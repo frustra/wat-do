@@ -20,6 +20,7 @@ function setModal(name) {
 }
 
 function setFormData(form, obj, force) {
+  if (!form.data('js-data')) return;
   if (obj == null) {
     if (Object.keys(form.data('js-data')).length != 0 || force) {
       form.data('js-data', {});
@@ -79,6 +80,13 @@ function makeRequest(type, url, noerror, reqdata, callback) {
         showError();
       } else if (data.error) {
         console.log('Error: ' + data.error);
+        if (data.error === "no-user") {
+          user = false;1 
+          handlers.setTimelineVisible(false);
+          handlers.lastpage = '/';
+          window.history.replaceState({'watpage': '/'}, 'Title', '/');
+          window.history.pushState({'watpage': window.location.pathname}, 'Title', window.location.pathname);
+        }
         showError(data.msg);
       } else if (data.response) {
         callback(data.response);
@@ -175,6 +183,7 @@ $(function() {
   });
 
   handlers.updatePermissions();
+  if (user) handlers.refreshUpdates();
 
   window.onpopstate = function(event) {
     if (event.state != undefined && event.state.watpage != undefined) handlers.changeURL(event.state.watpage, true);

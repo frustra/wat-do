@@ -48,6 +48,19 @@ var timelineInit = function() {
     handlers.changeURL('/list/' + handlers.currentList + '/edit');
   });
 
+  $('#subscribe').click(function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    if ($this.attr('subbed')) {
+      $this.text('subscribe');
+      $this.removeAttr('subbed');
+    } else {
+      $this.text('unsubscribe');
+      $this.attr('subbed', 'subbed');
+    }
+    handlers.subscribe(!!$this.attr('subbed'));
+  });
+
   gtl.init = true;
   setInterval(timeUpdate, 1000);
 };

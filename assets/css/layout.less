@@ -36,6 +36,33 @@ body.scroll #topbar {
       .rounded(3px);
       .transition(all 0.15s ease-out);
 
+      &#subscribe[subbed] {
+        background: #468847;
+        color: white;
+      }
+
+      &#updates {
+        height: 20px;
+        line-height: 20px;
+        margin-top: 3px;
+        padding: 2px 15px;
+        font-weight: bold;
+        text-align: center;
+        .rounded(24px);
+
+        &:not([updates^="0"]) {
+          background: #B94A48;
+          color: white;
+
+          .box-shadow(none);
+          border: 1px solid transparent;
+
+          &:hover {
+            background: #943B3A;
+          }
+        }
+      }
+
       &:first-child {
         margin-left: 10px;
       }
@@ -111,7 +138,6 @@ body.scroll #topbar {
         }
 
         p#listname {
-          font-weight: bold;
           font-size: 20px;
         }
       }
