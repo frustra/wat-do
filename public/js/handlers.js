@@ -7,18 +7,36 @@ var handlers = {
     }
     if (list._id) { // Existing List
       makeRequest('POST', '/list/' + list._id + '.json', false, list, function(data) {
+        if (handlers.updates.listsubs[data._id]) handlers.updates.listsubs[data._id].name = data.name;
+        for (var i = 0; i < handlers.updates.lists.length; i++) {
+          if (handlers.updates.lists[i]._id === data._id) {
+            handlers.updates.lists[i].name = data.name;
+            break;
+          }
+        }
         $('.overlay-inner').click();
       });
     } else { // New List
       makeRequest('POST', '/list/new.json', false, list, function(data) {
-        handlers.changeURL('/list/' + data);
+        handlers.updates.lists.push(data);
+        handlers.updates.listsubs[data._id] = {name: data.name, updates: 0};
+        handlers.changeURL('/list/' + data._id);
       });
     }
   },
 
   deleteList: function(list) {
-    if (confirm("Are you sure you want to delete this list?")) {
+    if (confirm("Are you sure you want to delete the list: " + list.name)) {
       makeRequest('DELETE', '/list/' + list._id + '.json', false, function(data) {
+        handlers.updates.notifications -= handlers.updates.listsubs[data].updates;
+        handlers.updates.listsubs[data] = undefined;
+        for (var i = 0; i < handlers.updates.lists.length; i++) {
+          if (handlers.updates.lists[i]._id === data) {
+            handlers.updates.lists.splice(i, 1);
+            break;
+          }
+        }
+        handlers.refreshUpdates();
         handlers.changeURL('/');
       });
     }
@@ -70,7 +88,7 @@ var handlers = {
   },
 
   deleteItem: function(item) {
-    if (confirm("Are you sure you want to delete this item?")) {
+    if (confirm("Are you sure you want to delete the item: " + item.name)) {
       makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
         for (var i = 0; i < gdata.length; i++) {
           if (gdata[i]._id === data.id) {
@@ -152,12 +170,16 @@ var handlers = {
   },
 
   updates: null,
-  refreshUpdates: function(change) {
+  refreshUpdates: function(change, cb) {
+    if (typeof change === 'function') {
+      cb = change;
+      change = undefined;
+    }
     if (!handlers.updates) {
       makeRequest('GET', '/updates.json', false, function(data) {
         if (data) {
           handlers.updates = data;
-          handlers.refreshUpdates();
+          handlers.refreshUpdates(cb);
         }
       });
       return;
@@ -177,7 +199,8 @@ var handlers = {
     if (subbed) {
       $('#subscribe').text('unsubscribe').attr('subbed', 'subbed');
     } else $('#subscribe').text('subscribe').removeAttr('subbed');
-    $('#updates').text(handlers.updates.notifications);
+    $('#updates').text(handlers.updates.notifications).attr('updates', handlers.updates.notifications);
+    if (cb) cb();
   },
 
   currentName: null,
@@ -265,9 +288,11 @@ var handlers = {
     crossroads.addRoute('/updates', function() {
       handlers.setTimelineVisible(user);
       if (user) {
-        // TODO
-        setModal('updates');
-        handlers.loadData(handlers.currentUser, handlers.currentList);
+        handlers.refreshUpdates(function() {
+          populateUpdates();
+          setModal('updates');
+          handlers.loadData(handlers.currentUser, handlers.currentList);
+        });
       } else showError('You must be logged in to view this page.');
     }, 1);
 
@@ -366,6 +391,67 @@ var handlers = {
         }
       }
       showError('The requested item does not exist.');
+    }
+
+    function populateUpdates() {
+      if (handlers.updates.lists.length <= 0) {
+        $('#updates #lists').html('<li><a><span>None</span><div class="updates"></div></a></li>');
+      } else {
+        var lists = d3.select('#updates #lists').selectAll('li').data(handlers.updates.lists);
+        var tmp = lists.enter().append('li')
+          .append('a')
+          .attr('href', function(d) { return '/list/' + d._id; });
+        tmp.append('span')
+          .text(function(d) { return d.name; });
+        tmp.append('div')
+          .attr('class', 'updates')
+          .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
+          .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
+
+        tmp = lists.select('a')
+          .attr('href', function(d) { return '/list/' + d._id; });
+        tmp.select('span')
+          .text(function(d) { return d.name; })
+        tmp.select('div')
+          .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
+          .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
+
+        lists.exit().remove();
+      }
+      if (handlers.updates.usersubs.length <= 0 && handlers.updates.listsubs.length <= 0) {
+        $('#updates #usersubs').html('<li><a><span>None</span><div class="updates"></div></a></li>');
+        $('#updates #listsubs').html('');
+      } else {
+        var subs = [];
+        for (var id in handlers.updates.usersubs) {
+          if (handlers.updates.usersubs[id]) subs.push({_id: id, link: '/user/' + id, sub: handlers.updates.usersubs[id]});
+        }
+        for (var id in handlers.updates.listsubs) {
+          if (handlers.updates.listsubs[id]) subs.push({_id: id, link: '/list/' + id, sub: handlers.updates.listsubs[id]});
+        }
+
+        var listsubs = d3.select('#updates #listsubs').selectAll('li').data(subs);
+
+        var tmp = listsubs.enter().append('li')
+          .append('a')
+          .attr('href', function(d) { return d.link; });
+        tmp.append('span')
+          .text(function(d) { return d.sub.name; });
+        tmp.append('div')
+          .attr('class', 'updates')
+          .attr('updates', function(d) { return d.sub.updates; })
+          .text(function(d) { return d.sub.updates; });
+
+        tmp = listsubs.select('a')
+          .attr('href', function(d) { return d.link; });
+        tmp.select('span')
+          .text(function(d) { return d.sub.name; })
+        tmp.select('div')
+          .attr('updates', function(d) { return d.sub.updates; })
+          .text(function(d) { return d.sub.updates; });
+
+        listsubs.exit().remove();
+      }
     }
   }
 };

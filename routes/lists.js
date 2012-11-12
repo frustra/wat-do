@@ -35,7 +35,7 @@ exports.setupLists = function(app) {
           req.user.listsubs.push(list);
           req.user.save(function(err) {
             if (!err) {
-              res.json({response: list._id});
+              res.json({response: {_id: list._id, name: list.name}});
             } else {
               console.log('unknown2: ' + err);
               res.json({error: 'unknown2'});
@@ -75,7 +75,7 @@ exports.setupLists = function(app) {
             if (typeof newList.public !== 'undefined') list.public = newList.public === 'true';
             list.save(function(err, list) {
               if (!err) {
-                res.json({response: list._id});
+                res.json({response: {_id: list._id, name: list.name}});
               } else {
                 console.log('unknown1: ' + err);
                 res.json({error: 'unknown1'});

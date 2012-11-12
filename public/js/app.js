@@ -183,7 +183,6 @@ $(function() {
   });
 
   handlers.updatePermissions();
-  if (user) handlers.refreshUpdates();
 
   window.onpopstate = function(event) {
     if (event.state != undefined && event.state.watpage != undefined) handlers.changeURL(event.state.watpage, true);

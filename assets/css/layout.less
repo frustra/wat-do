@@ -294,6 +294,69 @@ body.scroll #topbar {
     }
   }
 
+  &#updates {
+    .list {
+      display: inline-block;
+      vertical-align: top;
+      width: 50%;
+    }
+
+    h3 {
+      font-size: 22px;
+      line-height: 26px;
+      padding-left: 5px;
+      font-weight: bold;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 20px;
+
+      a {
+        .transition(color 0.15s ease-out);
+
+        &[href] {
+          color: #444444;
+        }
+
+        &:not([href]) {
+          color: #000000;
+          cursor: auto;
+        }
+
+        &:hover {
+          color: #000000;
+
+          .updates {
+            background: #943B3A;
+          }
+        }
+
+        .updates {
+          .transition(background 0.15s ease-out);
+
+          display: inline-block;
+          text-align: center;
+          margin-left: 10px;
+          vertical-align: 2px;
+
+          line-height: 12px;
+          font-size: 10px;
+          padding: 1px 9px;
+          font-weight: bold;
+          .rounded(16px);
+
+          background: #B94A48;
+          color: white;
+
+          &[updates="0"], &:not([updates]) {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
   &#item {
     form {
       #done {
