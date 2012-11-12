@@ -4,4 +4,4 @@ npm-debug.log
 config.json
 public/master.css
 run_mongo
-data/db
+data

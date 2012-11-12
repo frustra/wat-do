@@ -122,7 +122,7 @@ var handlers = {
   },
 
   mouseDown: function(e) {
-    if ($('section#timeline-wrap').is(':visible')) {
+    if ($('section#timeline-wrap').is(':visible') && !$('#modal').is(':visible')) {
       var $window = $(window);
       if (e.clientY > 52 && e.clientX < $window.width() && e.clientY < $window.height()) {
         gtl.mousestart = [e.screenX, e.screenY];

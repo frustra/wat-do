@@ -35,13 +35,13 @@ html
           if !!user
             a.navlink(href='/item/new', perm='1') new item
             a.navlink#subscribe subscribe
-            a.navlink(href='/list/new') new list
             a.navlink#editlist(perm='2') edit list
         td
           p#listname
         td.right
           if !!user
             a.navlink#updates(href='/updates', updates='0') 0
+            a.navlink(href='/list/new') new list
             a.navlink(href='/account') account
             a.navlink(href='/logout') logout
           else

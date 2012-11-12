@@ -128,12 +128,12 @@ body.scroll #topbar {
         text-align: center;
 
         &.left {
-          min-width: 30%;
+          min-width: 40%;
           text-align: left;
         }
 
         &.right {
-          min-width: 30%;
+          min-width: 40%;
           text-align: right;
         }
 
@@ -310,47 +310,54 @@ body.scroll #topbar {
 
     ul {
       list-style-type: none;
-      padding-left: 20px;
+      padding: 5px 15px;
+      margin-bottom: 20px;
 
-      a {
-        .transition(color 0.15s ease-out);
+      li {
+        .transition(background 0.15s ease-out);
 
-        &[href] {
-          color: #444444;
-        }
-
-        &:not([href]) {
-          color: #000000;
-          cursor: auto;
+        &:first-child {
+          border: none;
         }
 
         &:hover {
-          color: #000000;
-
-          .updates {
-            background: #943B3A;
-          }
+          background: #DDDDDD;
         }
 
-        .updates {
-          .transition(background 0.15s ease-out);
-
+        a {
+          padding-left: 5px;
           display: inline-block;
-          text-align: center;
-          margin-left: 10px;
-          vertical-align: 2px;
+          width: 255px;
 
-          line-height: 12px;
-          font-size: 10px;
-          padding: 1px 9px;
-          font-weight: bold;
-          .rounded(16px);
+          &[href] {
+            color: #555555;
+          }
 
-          background: #B94A48;
-          color: white;
+          &:not([href]) {
+            color: #000000;
+            cursor: auto;
+          }
 
-          &[updates="0"], &:not([updates]) {
-            display: none;
+          .updates {
+            display: inline-block;
+            text-align: center;
+            margin-left: 10px;
+            vertical-align: 2px;
+
+            line-height: 12px;
+            font-size: 10px;
+            padding-left: 9px;
+            padding-right: 9px;
+            padding-bottom: 1px;
+            font-weight: bold;
+            .rounded(16px);
+
+            background: #B94A48;
+            color: white;
+
+            &[updates="0"], &:not([updates]) {
+              display: none;
+            }
           }
         }
       }
@@ -390,8 +397,6 @@ body.scroll #topbar {
           }
 
           #permission {
-            height: 26px;
-
             font-family: inherit;
             font-size: 14px;
             padding-top: 1px;

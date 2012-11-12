@@ -12,10 +12,8 @@ function setModal(name) {
         });
       } else $this.hide();
     });
-    $(window).unbind("mousedown", handlers.mouseDown);
   } else {
     $('#modal').hide();
-    $(window).bind("mousedown", handlers.mouseDown);
   }
 }
 
