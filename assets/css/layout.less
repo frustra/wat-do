@@ -298,7 +298,7 @@ body.scroll #topbar {
     .list {
       display: inline-block;
       vertical-align: top;
-      width: 50%;
+      width: 290px;
     }
 
     h3 {
@@ -351,6 +351,59 @@ body.scroll #topbar {
 
           &[updates="0"], &:not([updates]) {
             display: none;
+          }
+        }
+      }
+    }
+  }
+
+  &#list {
+    #members {
+      position: relative;
+      margin-top: 5px;
+
+      table {
+        width: 100%;
+
+        td {
+          &.right {
+            width: 0;
+            padding-left: 5px;
+          }
+
+          #email-wrap {
+            padding-right: 6px;
+
+            #email {
+              width: 100%;
+              height: 18px;
+
+              padding-top: 3px;
+              padding-bottom: 3px;
+              padding-left: 3px;
+              padding-right: 3px;
+              font-size: 14px;
+              background-color: #FFFFFF;
+              border: 1px solid #CCCCCC;
+              .box-shadow(0 1px 1px rgba(0, 0, 0, 0.075) inset);
+            }
+          }
+
+          #permission {
+            height: 26px;
+
+            font-family: inherit;
+            font-size: 14px;
+            padding-top: 1px;
+
+            cursor: pointer;
+          }
+
+          #adduser {
+            height: 26px;
+
+            font-size: 14px;
+            padding: 3px 8px;
           }
         }
       }

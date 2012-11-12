@@ -11,7 +11,15 @@
 
     hr
 
-    p List Memebers go here
+    #members
+      table: tr
+        td: #email-wrap
+          input#email.medium(type='text', name='user-email', placeholder='Email')
+        td.right: select#permission.medium(name='user-permission')
+          option(value='0') View Only
+          option(value='1') Edit
+          option(value='2') Admin
+        td.right: input#adduser.btn.medium(type='button', value='Add User')
 
     #buttons
       .left-group
