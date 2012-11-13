@@ -21,7 +21,7 @@ var config = require('hashish').merge(process.env, configFile);
 
 
 // Database
-mongoose.connect('mongodb://localhost/watdo');
+mongoose.connect(config['MONGOLAB_URI']);
 mongoose.connection.on('error', console.error.bind(console, 'mongodb connection error:'));
 mongoose.connection.once('open', function() {
   console.log('opened mongodb connection');
