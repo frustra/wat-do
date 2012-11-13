@@ -232,6 +232,9 @@ var handlers = {
       link = '/list/' + list + '.json';
     }
     makeRequest('GET', link, function(data) {
+      if (!user && !list) {
+        $('.subscribe').hide();
+      } else $('.subscribe').show();
       $('#listname').text(data.name);
       handlers.currentName = data.name;
       handlers.currentUser = user;
@@ -380,6 +383,7 @@ var handlers = {
     function doNewItem() {
       var form = $("#item form");
       form.find('.btn-delete').hide();
+      form.find('.btn-list').hide();
       setFormData(form, {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});
       setModal('item');
     }
@@ -391,6 +395,9 @@ var handlers = {
           gdata[i].end = moment(gdata[i].end).format("MMM D YYYY, h:mm a");
           var form = $("#item form");
           if (handlers.currentPerm > 0) form.find('.btn-delete').show();
+          if (!handlers.currentList && !handlers.currentUser) {
+            form.find('.btn-list').show();
+          } else form.find('.btn-list').hide();
           if (user) {
             form.find('.btn-save').show();
           } else form.find('.btn-save').hide();
@@ -405,30 +412,54 @@ var handlers = {
   },
 
   populateUpdates: function() {
-    if (handlers.updates.lists.length <= 0) {
-      $('#updates #lists').html('<li><a><span>None</span><div class="updates"></div></a></li>');
-    } else {
-      var lists = d3.select('#updates #lists').selectAll('li').data(handlers.updates.lists);
-      var tmp = lists.enter().append('li')
-        .append('a')
-        .attr('href', function(d) { return '/list/' + d._id; });
-      tmp.append('span')
-        .text(function(d) { return d.name; });
-      tmp.append('div')
-        .attr('class', 'updates')
-        .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
-        .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
+    var tmp = [];
+    tmp.push({name: 'Your List'});
+    tmp.concat(handlers.updates.lists);
+    var lists = d3.select('#updates #lists').selectAll('li').data(tmp);
+    var tmp = lists.enter().append('li')
+      .append('a')
+      .attr('href', function(d) { return d._id ? ('/list/' + d._id) : ('/user/' + handlers.updates.self); });
+    tmp.append('span')
+      .text(function(d) { return d.name; });
+    tmp.append('div')
+      .attr('class', 'updates')
+      .attr('updates', function(d) {
+        if (!d._id) {
+          return handlers.updates.usersubs[handlers.updates.self] ? handlers.updates.usersubs[handlers.updates.self].updates : 0;
+        } else {
+          return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0;
+        }
+      })
+      .text(function(d) {
+        if (!d._id) {
+          return handlers.updates.usersubs[handlers.updates.self] ? handlers.updates.usersubs[handlers.updates.self].updates : 0;
+        } else {
+          return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0;
+        }
+      });
 
-      tmp = lists.select('a')
-        .attr('href', function(d) { return '/list/' + d._id; });
-      tmp.select('span')
-        .text(function(d) { return d.name; })
-      tmp.select('div')
-        .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
-        .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
+    tmp = lists.select('a')
+      .attr('href', function(d) { return d._id ? ('/list/' + d._id) : ('/user/' + handlers.updates.self); });
+    tmp.select('span')
+      .text(function(d) { return d.name; })
+    tmp.select('div')
+      .attr('updates', function(d) {
+        if (!d._id) {
+          return handlers.updates.usersubs[handlers.updates.self] ? handlers.updates.usersubs[handlers.updates.self].updates : 0;
+        } else {
+          return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0;
+        }
+      })
+      .text(function(d) {
+        if (!d._id) {
+          return handlers.updates.usersubs[handlers.updates.self] ? handlers.updates.usersubs[handlers.updates.self].updates : 0;
+        } else {
+          return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0;
+        }
+      });
 
-      lists.exit().remove();
-    }
+    lists.exit().remove();
+
     if (handlers.updates.usersubs.length <= 0 && handlers.updates.listsubs.length <= 0) {
       $('#updates #usersubs').html('<li><a><span>None</span><div class="updates"></div></a></li>');
       $('#updates #listsubs').html('');

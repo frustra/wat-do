@@ -98,7 +98,9 @@ exports.setupMain = function(app) {
             var listsubs = {};
             var notifications = 0;
             for (var i = 0; i < user.usersubs.length; i++) {
-              usersubs[user.usersubs[i]._id] = {name: user.usersubs[i].name + '\'s List', updates: 0};
+              var name = user.usersubs[i].name + '\'s List';
+              if (user.usersubs[i]._id.equals(req.user._id)) name = 'Your List';
+              usersubs[user.usersubs[i]._id] = {name: name, updates: 0};
             }
             for (var i = 0; i < user.listsubs.length; i++) {
               listsubs[user.listsubs[i]._id] = {name: user.listsubs[i].name, updates: 0};
@@ -114,7 +116,10 @@ exports.setupMain = function(app) {
               }
             }
             res.json({response: {self: req.user._id, notifications: notifications, lists: user.lists, usersubs: usersubs, listsubs: listsubs}});
-          } else res.json({error: 'no-item', msg: 'The requested item does not exist.'});
+          } else {
+            console.log('unknown2: ' + err);
+            res.json({error: 'unknown2'});
+          }
         });
       } else {
         console.log('unknown1: ' + err);
