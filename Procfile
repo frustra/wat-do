@@ -1,1 +1,1 @@
-web: node wat-do.js
+web: make run
