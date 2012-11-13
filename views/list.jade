@@ -12,18 +12,22 @@
     hr
 
     #members
-      table: tr
-        td: #email-wrap
-          input#email.medium(type='text', name='user-email', placeholder='Email')
-        td.right: select#permission.medium(name='user-permission')
-          option(value='0') View Only
-          option(value='1') Edit
-          option(value='2') Admin
-        td.right: input#adduser.btn.medium(type='button', value='Add User')
+      table#members-head
+        tr
+          td: #email-wrap
+            input#email.medium(type='text', name='user-email', placeholder='Email')
+          td.right: select.permission.medium(name='user-permission')
+            option(value='0') View Only
+            option(value='1') View &amp; Edit
+            option(value='2') Admin
+          td.right: input#adduser.btn.medium(type='button', value='Add User')
+      table#members-list
+
+    hr
 
     #buttons
       .left-group
-        input.btn-delete.btn.medium(type='button', value='Delete')
+        input.btn-delete.btn.medium(type='button', value='Delete', perm='3')
       .right-group
         input.btn-save.btn.medium(type='submit', value='Save')
         input.btn-cancel.btn.medium(type='button', value='Cancel')

@@ -6,7 +6,11 @@ var handlers = {
       return;
     }
     if (list._id) { // Existing List
-      makeRequest('POST', '/list/' + list._id + '.json', false, list, function(data) {
+      makeRequest('POST', '/list/' + list._id + '.json', list, function(data) {
+        if (handlers.currentList === data._id) {
+          $('#listname').text(data.name);
+          handlers.currentName = data.name;
+        }
         if (handlers.updates.listsubs[data._id]) handlers.updates.listsubs[data._id].name = data.name;
         for (var i = 0; i < handlers.updates.lists.length; i++) {
           if (handlers.updates.lists[i]._id === data._id) {
@@ -17,7 +21,7 @@ var handlers = {
         $('.overlay-inner').click();
       });
     } else { // New List
-      makeRequest('POST', '/list/new.json', false, list, function(data) {
+      makeRequest('POST', '/list/new.json', list, function(data) {
         handlers.updates.lists.push(data);
         handlers.updates.listsubs[data._id] = {name: data.name, updates: 0};
         handlers.changeURL('/list/' + data._id);
@@ -27,7 +31,7 @@ var handlers = {
 
   deleteList: function(list) {
     if (confirm("Are you sure you want to delete the list: " + list.name)) {
-      makeRequest('DELETE', '/list/' + list._id + '.json', false, function(data) {
+      makeRequest('DELETE', '/list/' + list._id + '.json', function(data) {
         handlers.updates.notifications -= handlers.updates.listsubs[data].updates;
         handlers.updates.listsubs[data] = undefined;
         for (var i = 0; i < handlers.updates.lists.length; i++) {
@@ -64,7 +68,7 @@ var handlers = {
     item.start = tmpdate1.utc().format();
     item.end = tmpdate2.utc().format();
     if (item._id) { // Existing item
-      makeRequest('POST', '/item/' + item._id + '.json', false, item, function(data) {
+      makeRequest('POST', '/item/' + item._id + '.json', item, function(data) {
         for (var i = 0; i < gdata.length; i++) {
           if (gdata[i]._id == data.item._id) {
             gdata[i] = data.item;
@@ -78,7 +82,7 @@ var handlers = {
     } else { // New Item
       item.user = handlers.currentUser;
       item.list = handlers.currentList;
-      makeRequest('POST', '/item/new.json', false, item, function(data) {
+      makeRequest('POST', '/item/new.json', item, function(data) {
         gdata.push(data.item);
         timelineUpdate(gdata);
         handlers.refreshUpdates(data.updatechange);
@@ -89,7 +93,7 @@ var handlers = {
 
   deleteItem: function(item) {
     if (confirm("Are you sure you want to delete the item: " + item.name)) {
-      makeRequest('DELETE', '/item/' + item._id + '.json', false, function(data) {
+      makeRequest('DELETE', '/item/' + item._id + '.json', function(data) {
         for (var i = 0; i < gdata.length; i++) {
           if (gdata[i]._id === data.id) {
             gdata.splice(i, 1);
@@ -109,13 +113,13 @@ var handlers = {
       alert("You must enter a name.");
       return;
     }
-    makeRequest('POST', '/account.json', false, account, function(data) {
+    makeRequest('POST', '/account.json', account, function(data) {
       $('.overlay-inner').click();
     });
   },
 
   subscribe: function(subscribe) {
-    makeRequest('POST', '/updates.json', false, {subscribe: subscribe, user: handlers.currentUser, list: handlers.currentList}, function(data) {
+    makeRequest('POST', '/updates.json', {subscribe: subscribe, user: handlers.currentUser, list: handlers.currentList}, function(data) {
       handlers.updates = data;
       handlers.refreshUpdates();
     });
@@ -171,12 +175,13 @@ var handlers = {
 
   updates: null,
   refreshUpdates: function(change, cb) {
+    if (!user) return;
     if (typeof change === 'function') {
       cb = change;
       change = undefined;
     }
     if (!handlers.updates) {
-      makeRequest('GET', '/updates.json', false, function(data) {
+      makeRequest('GET', '/updates.json', function(data) {
         if (data) {
           handlers.updates = data;
           handlers.refreshUpdates(cb);
@@ -226,7 +231,7 @@ var handlers = {
     } else if (list) {
       link = '/list/' + list + '.json';
     }
-    makeRequest('GET', link, false, function(data) {
+    makeRequest('GET', link, function(data) {
       $('#listname').text(data.name);
       handlers.currentName = data.name;
       handlers.currentUser = user;
@@ -275,7 +280,7 @@ var handlers = {
     crossroads.addRoute('/account', function() {
       handlers.setTimelineVisible(user);
       if (user) {
-        makeRequest('GET', '/account.json', false, function(data) {
+        makeRequest('GET', '/account.json', function(data) {
           data.createdAt = moment(data.createdAt).format("MMM D YYYY, h:mm a");
           data.share = window.location.protocol + "//" + window.location.host + "/user/" + data._id;
           setFormData($("#account form"), data);
@@ -289,7 +294,7 @@ var handlers = {
       handlers.setTimelineVisible(user);
       if (user) {
         handlers.refreshUpdates(function() {
-          populateUpdates();
+          handlers.populateUpdates();
           setModal('updates');
           handlers.loadData(handlers.currentUser, handlers.currentList);
         });
@@ -303,6 +308,7 @@ var handlers = {
         form.find('.btn-delete').hide();
         form.find('#sharelink').hide();
         setFormData(form);
+        $('#list #members-list').html('');
         setModal('list');
         handlers.loadData(handlers.currentUser, handlers.currentList);
       } else showError('You must be logged in to create new lists.');
@@ -311,7 +317,7 @@ var handlers = {
     crossroads.addRoute('/list/{id}/edit', function(id) {
       handlers.setTimelineVisible(user);
       if (user) {
-        makeRequest('GET', '/list/' + id + '.json', false, function(data) {
+        makeRequest('GET', '/list/' + id + '.json', function(data) {
           if (data.permission < 2) {
             showError('You do not have permission to edit this list.');
             return;
@@ -321,6 +327,7 @@ var handlers = {
           if (data.permission > 2) form.find('.btn-delete').show();
           form.find('#sharelink').show();
           setFormData(form, data);
+          handlers.populateListMembers(data);
           setModal('list');
         });
         handlers.loadData(null, id);
@@ -349,7 +356,7 @@ var handlers = {
     crossroads.addRoute('/item/{id}', function(id) {
       handlers.setTimelineVisible(true);
       if (!gdata) {
-        makeRequest('GET', '/item/' + id + '.json', false, function(data) {
+        makeRequest('GET', '/item/' + id + '.json', function(data) {
           handlers.loadData(data.user, data.list, function() {
             if (data.user) {
               handlers.lastpage = '/user/' + data.user;
@@ -384,7 +391,10 @@ var handlers = {
           gdata[i].end = moment(gdata[i].end).format("MMM D YYYY, h:mm a");
           var form = $("#item form");
           if (handlers.currentPerm > 0) form.find('.btn-delete').show();
-          form.find('.btn-cancel').val(handlers.currentPerm > 0 ? 'Cancel' : 'Close');
+          if (user) {
+            form.find('.btn-save').show();
+          } else form.find('.btn-save').hide();
+          form.find('.btn-cancel').val(user ? 'Cancel' : 'Close');
           setFormData(form, gdata[i]);
           setModal('item');
           return;
@@ -392,66 +402,117 @@ var handlers = {
       }
       showError('The requested item does not exist.');
     }
+  },
 
-    function populateUpdates() {
-      if (handlers.updates.lists.length <= 0) {
-        $('#updates #lists').html('<li><a><span>None</span><div class="updates"></div></a></li>');
-      } else {
-        var lists = d3.select('#updates #lists').selectAll('li').data(handlers.updates.lists);
-        var tmp = lists.enter().append('li')
-          .append('a')
-          .attr('href', function(d) { return '/list/' + d._id; });
-        tmp.append('span')
-          .text(function(d) { return d.name; });
-        tmp.append('div')
-          .attr('class', 'updates')
-          .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
-          .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
+  populateUpdates: function() {
+    if (handlers.updates.lists.length <= 0) {
+      $('#updates #lists').html('<li><a><span>None</span><div class="updates"></div></a></li>');
+    } else {
+      var lists = d3.select('#updates #lists').selectAll('li').data(handlers.updates.lists);
+      var tmp = lists.enter().append('li')
+        .append('a')
+        .attr('href', function(d) { return '/list/' + d._id; });
+      tmp.append('span')
+        .text(function(d) { return d.name; });
+      tmp.append('div')
+        .attr('class', 'updates')
+        .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
+        .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
 
-        tmp = lists.select('a')
-          .attr('href', function(d) { return '/list/' + d._id; });
-        tmp.select('span')
-          .text(function(d) { return d.name; })
-        tmp.select('div')
-          .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
-          .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
+      tmp = lists.select('a')
+        .attr('href', function(d) { return '/list/' + d._id; });
+      tmp.select('span')
+        .text(function(d) { return d.name; })
+      tmp.select('div')
+        .attr('updates', function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; })
+        .text(function(d) { return handlers.updates.listsubs[d._id] ? handlers.updates.listsubs[d._id].updates : 0; });
 
-        lists.exit().remove();
-      }
-      if (handlers.updates.usersubs.length <= 0 && handlers.updates.listsubs.length <= 0) {
-        $('#updates #usersubs').html('<li><a><span>None</span><div class="updates"></div></a></li>');
-        $('#updates #listsubs').html('');
-      } else {
-        var subs = [];
-        for (var id in handlers.updates.usersubs) {
-          if (handlers.updates.usersubs[id]) subs.push({_id: id, link: '/user/' + id, sub: handlers.updates.usersubs[id]});
-        }
-        for (var id in handlers.updates.listsubs) {
-          if (handlers.updates.listsubs[id]) subs.push({_id: id, link: '/list/' + id, sub: handlers.updates.listsubs[id]});
-        }
-
-        var listsubs = d3.select('#updates #listsubs').selectAll('li').data(subs);
-
-        var tmp = listsubs.enter().append('li')
-          .append('a')
-          .attr('href', function(d) { return d.link; });
-        tmp.append('span')
-          .text(function(d) { return d.sub.name; });
-        tmp.append('div')
-          .attr('class', 'updates')
-          .attr('updates', function(d) { return d.sub.updates; })
-          .text(function(d) { return d.sub.updates; });
-
-        tmp = listsubs.select('a')
-          .attr('href', function(d) { return d.link; });
-        tmp.select('span')
-          .text(function(d) { return d.sub.name; })
-        tmp.select('div')
-          .attr('updates', function(d) { return d.sub.updates; })
-          .text(function(d) { return d.sub.updates; });
-
-        listsubs.exit().remove();
-      }
+      lists.exit().remove();
     }
+    if (handlers.updates.usersubs.length <= 0 && handlers.updates.listsubs.length <= 0) {
+      $('#updates #usersubs').html('<li><a><span>None</span><div class="updates"></div></a></li>');
+      $('#updates #listsubs').html('');
+    } else {
+      var subs = [];
+      for (var id in handlers.updates.usersubs) {
+        if (handlers.updates.usersubs[id]) subs.push({_id: id, link: '/user/' + id, sub: handlers.updates.usersubs[id]});
+      }
+      for (var id in handlers.updates.listsubs) {
+        if (handlers.updates.listsubs[id]) subs.push({_id: id, link: '/list/' + id, sub: handlers.updates.listsubs[id]});
+      }
+
+      var listsubs = d3.select('#updates #listsubs').selectAll('li').data(subs);
+
+      var tmp = listsubs.enter().append('li')
+        .append('a')
+        .attr('href', function(d) { return d.link; });
+      tmp.append('span')
+        .text(function(d) { return d.sub.name; });
+      tmp.append('div')
+        .attr('class', 'updates')
+        .attr('updates', function(d) { return d.sub.updates; })
+        .text(function(d) { return d.sub.updates; });
+
+      tmp = listsubs.select('a')
+        .attr('href', function(d) { return d.link; });
+      tmp.select('span')
+        .text(function(d) { return d.sub.name; })
+      tmp.select('div')
+        .attr('updates', function(d) { return d.sub.updates; })
+        .text(function(d) { return d.sub.updates; });
+
+      listsubs.exit().remove();
+    }
+  },
+
+  populateListMembers: function(list) {
+    var members = d3.select('#list #members-list').selectAll('tr').data(list.members);
+    var tmp = members.enter().append('tr');
+    tmp.append('td')
+      .attr('class', 'left')
+      .text('X')
+      .on("click", function(d, i) {
+        list.members.splice(i, 1);
+        $('#list form').data('js-data', list);
+        handlers.populateListMembers(list);
+      });
+    tmp.append('td')
+      .attr('class', 'email')
+      .append('p')
+      .text(function(d) { return d.user.email; });
+    tmp = tmp.append('td')
+      .attr('class', 'right')
+      .append('select')
+      .attr('class', 'permission medium')
+      .on("change", function(d) {
+        d.permission = $(d3.event.target).val();
+        $('#list form').data('js-data', list);
+      });
+    tmp.append('option')
+      .attr('class', 'option0')
+      .attr('value', '0')
+      .attr('selected', function(d) { return d.permission == 0 ? 'selected' : undefined; })
+      .text('View Only');
+    tmp.append('option')
+      .attr('class', 'option1')
+      .attr('value', '1')
+      .attr('selected', function(d) { return d.permission == 1 ? 'selected' : undefined; })
+      .text('View & Edit');
+    tmp.append('option')
+      .attr('class', 'option2')
+      .attr('value', '2')
+      .attr('selected', function(d) { return d.permission == 2 ? 'selected' : undefined; })
+      .text('Admin');
+
+    members.select('.email p')
+      .text(function(d) { return d.user.email; });
+    members.select('.right option0')
+      .attr('selected', function(d) { return d.permission == 0 ? 'selected' : undefined; });
+    members.select('.right option1')
+      .attr('selected', function(d) { return d.permission == 1 ? 'selected' : undefined; });
+    members.select('.right option2')
+      .attr('selected', function(d) { return d.permission == 2 ? 'selected' : undefined; });
+
+    members.exit().remove();
   }
 };

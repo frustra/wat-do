@@ -50,17 +50,23 @@ function setFormData(form, obj, force) {
 }
 
 function showError(msg) {
-  if (msg) {
-    $('#error #defaultmsg').hide();
-    $('#error #msg').show().text(msg);
+  if ($('#modal').is(':visible')) {
+    if (msg) {
+      alert(msg);
+    } else alert($('#error #defaultmsg').text());
   } else {
-    $('#error #defaultmsg').show();
-    $('#error #msg').hide();
+    if (msg) {
+      $('#error #defaultmsg').hide();
+      $('#error #msg').show().text(msg);
+    } else {
+      $('#error #defaultmsg').show();
+      $('#error #msg').hide();
+    }
+    setModal('error');
   }
-  setModal('error');
 }
 
-function makeRequest(type, url, noerror, reqdata, callback) {
+function makeRequest(type, url, reqdata, callback) {
   if (typeof reqdata === 'function') {
     callback = reqdata;
     reqdata = undefined;
@@ -70,16 +76,12 @@ function makeRequest(type, url, noerror, reqdata, callback) {
     url: url,
     data: reqdata,
     success: function(data) {
-      if (noerror) {
-        callback(data ? data.response : undefined);
-        return;
-      }
       if (!data) {
         showError();
       } else if (data.error) {
         console.log('Error: ' + data.error);
         if (data.error === "no-user") {
-          user = false;1 
+          user = false;
           handlers.setTimelineVisible(false);
           handlers.lastpage = '/';
           window.history.replaceState({'watpage': '/'}, 'Title', '/');
@@ -91,7 +93,6 @@ function makeRequest(type, url, noerror, reqdata, callback) {
       } else showError();
     },
     error: function(jqXHR, status, error) {
-      if (noerror) return;
       if (status === 'timeout') {
         showError('wat do could not connect to the server, please try again later.');
       } else {
@@ -125,7 +126,7 @@ $(function() {
     });
   });
 
-  $('a').click(function(e) {
+  $(document).on('click', 'a', function(e) {
     var $this = $(this);
     if ($this.attr('href')) {
       e.preventDefault();

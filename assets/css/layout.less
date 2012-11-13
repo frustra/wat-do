@@ -128,12 +128,12 @@ body.scroll #topbar {
         text-align: center;
 
         &.left {
-          min-width: 40%;
+          width: 40%;
           text-align: left;
         }
 
         &.right {
-          min-width: 40%;
+          width: 40%;
           text-align: right;
         }
 
@@ -372,43 +372,80 @@ body.scroll #topbar {
       table {
         width: 100%;
 
-        td {
-          &.right {
-            width: 0;
-            padding-left: 5px;
-          }
+        &#members-list {
+          margin-top: 5px;
 
-          #email-wrap {
-            padding-right: 6px;
+          tr {
+            td {
+              &:last-child {
+                padding-bottom: 5px;
+              }
 
-            #email {
-              width: 100%;
-              height: 18px;
+              &.left {
+                padding-left: 5px;
+                cursor: pointer;
+                color: #999999;
+                font-weight: bold;
+                .transition(color 150ms ease-out);
 
-              padding-top: 3px;
-              padding-bottom: 3px;
-              padding-left: 3px;
-              padding-right: 3px;
-              font-size: 14px;
-              background-color: #FFFFFF;
-              border: 1px solid #CCCCCC;
-              .box-shadow(0 1px 1px rgba(0, 0, 0, 0.075) inset);
+                &:hover {
+                  color: #B94A48;
+                }
+              }
+
+              p {
+                padding-left: 5px;
+              }
             }
           }
+        }
 
-          #permission {
-            font-family: inherit;
-            font-size: 14px;
-            padding-top: 1px;
+        tr {
+          td {
+            &.left {
+              width: 0;
+              padding-right: 5px;
+              text-align: center;
+            }
 
-            cursor: pointer;
-          }
+            &.right {
+              width: 0;
+              padding-left: 5px;
+              text-align: center;
+            }
 
-          #adduser {
-            height: 26px;
+            #email-wrap {
+              padding-right: 6px;
 
-            font-size: 14px;
-            padding: 3px 8px;
+              #email {
+                width: 100%;
+                height: 18px;
+
+                padding-top: 3px;
+                padding-bottom: 3px;
+                padding-left: 3px;
+                padding-right: 3px;
+                font-size: 14px;
+                background-color: #FFFFFF;
+                border: 1px solid #CCCCCC;
+                .box-shadow(0 1px 1px rgba(0, 0, 0, 0.075) inset);
+              }
+            }
+
+            #adduser {
+              height: 26px;
+
+              font-size: 14px;
+              padding: 3px 8px;
+            }
+
+            .permission {
+              font-family: inherit;
+              font-size: 14px;
+              padding-top: 1px;
+
+              cursor: pointer;
+            }
           }
         }
       }

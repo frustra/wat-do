@@ -51,13 +51,13 @@ exports.setupLists = function(app) {
 
   app.get('/list/:id.json', function(req, res) {
     List.findById(req.params.id)
-    .populate('members.user', '_id')
+    .populate('members.user', '_id email')
     .populate('items')
     .exec(function(err, list) {
       if (!err && list) {
         var permission = getPermission(null, list, req.user);
         if (permission >= 0) {
-          res.json({response: {_id: list._id, name: list.name, public: list.public, permission: permission, list: Item.clientObjects(list.items, req.user ? req.user._id : null)}});
+          res.json({response: {_id: list._id, name: list.name, public: list.public, permission: permission, members: list.members, list: Item.clientObjects(list.items, req.user ? req.user._id : null)}});
         } else res.json({error: 'no-permission', msg: 'You do not have permission to view this list.'});
       } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
     });
@@ -73,6 +73,12 @@ exports.setupLists = function(app) {
             var newList = req.body;
             if (typeof newList.name !== 'undefined') list.name = newList.name;
             if (typeof newList.public !== 'undefined') list.public = newList.public === 'true';
+            list.members = [];
+            if (typeof newList.members !== 'undefined') {
+              for (var member in newList.members) {
+                list.members.push({permission: Math.max(Math.min(newList.members[member].permission, 2), 0), user: newList.members[member].user._id});
+              }
+            }
             list.save(function(err, list) {
               if (!err) {
                 res.json({response: {_id: list._id, name: list.name}});

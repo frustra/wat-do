@@ -21,7 +21,7 @@ var timelineInit = function() {
   $('input[name="item-done"]').click(function(e) {
     e.preventDefault();
     var $this = $(this);
-    if (handlers.currentPerm > 0) {
+    if (user) {
       if ($this.attr('checked')) {
         $this.attr('checked', false);
         $('#done').removeClass('done');
@@ -59,6 +59,24 @@ var timelineInit = function() {
       $this.attr('subbed', 'subbed');
     }
     handlers.subscribe(!!$this.attr('subbed'));
+  });
+
+  $('#list #adduser').click(function(e) {
+    e.preventDefault();
+    var form = $('#list form');
+    var email = form.find('#email').val();
+    var permission = form.find('#members-head .permission').val();
+    var list = form.data('js-data');
+    for (var i = 0; i < list.members.length; i++) {
+      if (list.members[i].user.email === email) {
+        alert("This user is already added to the list.");
+        return;
+      }
+    }
+    makeRequest('POST', '/email.json', {email: email}, function(data) {
+      list.members.push({permission: permission, user: data});
+      handlers.populateListMembers(list);
+    });
   });
 
   gtl.init = true;

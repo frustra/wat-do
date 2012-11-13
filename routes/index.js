@@ -39,6 +39,16 @@ exports.setupMain = function(app) {
     } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
   });
 
+  app.post('/email.json', function(req, res) {
+    if (req.user) {
+      User.findOne({email: req.body.email}, '_id email', function(err, user) {
+        if (!err && user) {
+          res.json({response: user});
+        } else res.json({error: 'not-found', msg: 'The email entered does not exist.'});
+      });
+    } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
+  });
+
   app.get('/updates', function(req, res) {
     res.render('index');
   });

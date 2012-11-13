@@ -12,7 +12,7 @@ exports.getPermission = function(userobj, listobj, user) {
   } else if (listobj) {
     if (user && listobj.owner.equals(user._id)) return 3;
     for (var i = 0; i < listobj.members.length; i++) {
-      if (listobj.members[i].equals(user._id)) return listobj.members[i].permission;
+      if (user && (listobj.members[i].user._id || listobj.members[i].user).equals(user._id)) return listobj.members[i].permission;
     }
     if (listobj.public) return 0;
   }
@@ -94,31 +94,36 @@ exports.setupItems = function(app) {
       .populate('list')
       .exec(function(err, item) {
         if (!err && item) {
-          if (exports.getPermission(item.user, item.list, req.user) >= 1) {
-            var isupdate = false;
-            var updatechange = 0;
-            if (item.completed.indexOf(req.user._id) < 0 && (item.end.getTime() - Date.now()) < ((item.end.getTime() - item.start.getTime()) * 0.2)) isupdate = true;
+          var permission = exports.getPermission(item.user, item.list, req.user);
+          if (permission < 0) {
+            res.json({error: 'no-permission', msg: 'You do not have permission to edit this list.'});
+            return;
+          }
+          var isupdate = false;
+          var updatechange = 0;
+          if (item.completed.indexOf(req.user._id) < 0 && (item.end.getTime() - Date.now()) < ((item.end.getTime() - item.start.getTime()) * 0.2)) isupdate = true;
 
-            var newItem = req.body;
+          var newItem = req.body;
+          if (permission >= 1) {
             if (typeof newItem.name !== 'undefined') item.name = newItem.name;
             if (typeof newItem.desc !== 'undefined') item.desc = newItem.desc;
-            if (typeof newItem.done !== 'undefined') item.setDone(newItem.done, req.user._id);
             if (typeof newItem.start !== 'undefined') item.start = newItem.start;
             if (typeof newItem.end !== 'undefined') item.end = newItem.end;
+          }
+          if (typeof newItem.done !== 'undefined') item.setDone(newItem.done, req.user._id);
 
-            if (item.completed.indexOf(req.user._id) < 0 && (item.end.getTime() - Date.now()) < ((item.end.getTime() - item.start.getTime()) * 0.2)) {
-              if (!isupdate) updatechange = 1;
-            } else if (isupdate) updatechange = -1;
+          if (item.completed.indexOf(req.user._id) < 0 && (item.end.getTime() - Date.now()) < ((item.end.getTime() - item.start.getTime()) * 0.2)) {
+            if (!isupdate) updatechange = 1;
+          } else if (isupdate) updatechange = -1;
 
-            item.save(function(err, item) {
-              if (!err) {
-                res.json({response: {updatechange: updatechange, item: item.clientObject(req.user._id)}});
-              } else {
-                console.log('unknown1: ' + err);
-                res.json({error: 'unknown1'});
-              }
-            });
-          } else res.json({error: 'no-permission', msg: 'You do not have permission to edit this list.'});
+          item.save(function(err, item) {
+            if (!err) {
+              res.json({response: {updatechange: updatechange, item: item.clientObject(req.user._id)}});
+            } else {
+              console.log('unknown1: ' + err);
+              res.json({error: 'unknown1'});
+            }
+          });
         } else res.json({error: 'no-item', msg: 'The requested item does not exist.'});
       });
     } else res.json({error: 'no-user', msg: 'You must be logged in to edit this item.'});
