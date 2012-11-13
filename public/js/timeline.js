@@ -48,16 +48,12 @@ var timelineInit = function() {
     handlers.changeURL('/list/' + handlers.currentList + '/edit');
   });
 
-  $('#subscribe').click(function(e) {
+  $('.subscribe').click(function(e) {
     e.preventDefault();
     var $this = $(this);
     if ($this.attr('subbed')) {
-      $this.text('subscribe');
       $this.removeAttr('subbed');
-    } else {
-      $this.text('unsubscribe');
-      $this.attr('subbed', 'subbed');
-    }
+    } else $this.attr('subbed', 'subbed');
     handlers.subscribe(!!$this.attr('subbed'));
   });
 
@@ -151,6 +147,7 @@ function itemsEnter(items) {
     .attr("class", "item-back")
     .attr("done", function(d) { return d.done; })
     .attr("rend", function(d) { return d.rend; })
+    .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .append("div")
@@ -161,6 +158,7 @@ function itemsEnter(items) {
     .attr("class", "item")
     .attr("done", function(d) { return d.done; })
     .attr("rend", function(d) { return d.rend; })
+    .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; });
 
@@ -191,6 +189,7 @@ function itemsUpdate(items) {
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .attr("done", function(d) { return d.done; })
     .attr("rend", function(d) { return d.rend; })
+    .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
     .transition().duration(750)
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; })
@@ -202,6 +201,7 @@ function itemsUpdate(items) {
     .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
     .attr("done", function(d) { return d.done; })
     .attr("rend", function(d) { return d.rend; })
+    .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
     .transition().duration(750)
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; });
@@ -260,7 +260,9 @@ var timelineUpdate = function(data) {
   var items = gtl.body.selectAll(".item-wrap")
     .data(data.sort(function(a, b) {
       if (a.done == b.done) {
-          return a.rend > b.rend ? 1 : (a.rend == b.rend ? 0 : -1);
+        var apercent = a.rend / (a.rend - a.rstart);
+        var bpercent = b.rend / (b.rend - b.rstart);
+          return apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
       } else if (a.done) {
         return 1;
       } else return -1;

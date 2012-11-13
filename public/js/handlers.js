@@ -202,8 +202,8 @@ var handlers = {
       handlers.updates.notifications += change;
     }
     if (subbed) {
-      $('#subscribe').text('unsubscribe').attr('subbed', 'subbed');
-    } else $('#subscribe').text('subscribe').removeAttr('subbed');
+      $('.subscribe').attr('subbed', 'subbed');
+    } else $('.subscribe').removeAttr('subbed');
     $('#updates').text(handlers.updates.notifications).attr('updates', handlers.updates.notifications);
     if (cb) cb();
   },
