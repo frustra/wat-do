@@ -262,7 +262,8 @@ var timelineUpdate = function(data) {
       if (a.done == b.done) {
         var apercent = a.rend / (a.rend - a.rstart);
         var bpercent = b.rend / (b.rend - b.rstart);
-          return apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
+        var result = apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
+        return a.done ? -result : result;
       } else if (a.done) {
         return 1;
       } else return -1;
