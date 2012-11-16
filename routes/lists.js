@@ -8,10 +8,29 @@ exports.setupLists = function(app) {
   app.get('/items.json', function(req, res) {
     if (req.user) {
       User.findById(req.user._id)
-      .populate('items')
+      .populate('usersubs', '_id')
+      .populate('listsubs', '_id')
       .exec(function(err, user) {
         if (!err && user) {
-          res.json({response: {permission: 1, name: 'Your List', list: Item.clientObjects(user.items, req.user._id)}});
+          Item.find({ $or: [{user: {$in: user.usersubs}}, {list: {$in: user.listsubs}}] })
+          .populate('user')
+          .populate('list')
+          .exec(function(err, items) {
+            if (!err && items) {
+              var list = [];
+              for (var i = 0; i < items.length; i++) {
+                if (items[i].completed.indexOf(user._id) < 0) { // Completed items don't go on the front page.
+                  if (getPermission(items[i].user, items[i].list, req.user) >= 0) { // Can't show items we don't have permission for.
+                    list.push(items[i]);
+                  }
+                }
+              }
+              res.json({response: {permission: 0, name: 'Your Subscriptions', list: Item.clientObjects(list, req.user._id)}});
+            } else {
+              console.log('unknown2: ' + err);
+              res.json({error: 'unknown2'});
+            }
+          });
         } else {
           console.log('unknown1: ' + err);
           res.json({error: 'unknown1'});
@@ -146,7 +165,7 @@ exports.setupLists = function(app) {
     .populate('items')
     .exec(function(err, user) {
       if (!err && user && (user.public || own)) {
-        res.json({response: {permission: own ? 1 : 0, name: user.name + '\'s List', list: Item.clientObjects(user.items, req.user ? req.user._id : null)}});
+        res.json({response: {permission: own ? 1 : 0, name: (own ? 'Your List' : user.name + '\'s List'), list: Item.clientObjects(user.items, req.user ? req.user._id : null)}});
       } else res.json({error: 'no-user', msg: 'The requested user\'s list is not public or the user does not exist.'});
     });
   });
