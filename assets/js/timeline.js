@@ -15,7 +15,7 @@ var timelineInit = function() {
   gtl.rules = gtl.timeline.append("div").attr("id", "tlrules");
   gtl.body = gtl.timeline.append("div").attr("id", "tlbody");
 
-  $('#done').click(function(e) {
+  $('#done').click(function() {
     $('input[name="item-done"]').click();
   });
   $('input[name="item-done"]').click(function(e) {
@@ -34,12 +34,15 @@ var timelineInit = function() {
   }).attr('checked', false);
 
   var formItem = $('#item form');
-  formItem.find('.btn-delete').click(function(e) {
+  formItem.find('.btn-delete').click(function() {
     handlers.deleteItem(formItem.data('js-data'));
+  });
+  formItem.find('.btn-list').click(function() {
+    console.log('Go to List');
   });
 
   var formList = $('#list form');
-  formList.find('.btn-delete').click(function(e) {
+  formList.find('.btn-delete').click(function() {
     handlers.deleteList(formList.data('js-data'));
   });
 
@@ -105,7 +108,7 @@ function barsEnter(bars) {
   wrap.append("div")
     .attr("class", "rule-text")
     .style("left", function(d) { return (gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) - (gtl.scale / 2)) + "px"; })
-    .style("width", function(d) { return gtl.scale + "px"; })
+    .style("width", function() { return gtl.scale + "px"; })
     .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gtl.gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); });
 
   gtl.rules.selectAll(".now")
@@ -124,7 +127,7 @@ function barsUpdate(bars) {
     .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gtl.gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); })
     .transition().duration(750)
     .style("left", function(d) { return (gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) - (gtl.scale / 2)) + "px"; })
-    .style("width", function(d) { return gtl.scale + "px"; });
+    .style("width", function() { return gtl.scale + "px"; });
 
   gtl.rules.selectAll(".now")
     .transition().duration(750)

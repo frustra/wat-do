@@ -1,3 +1,8 @@
+/** @license
+ * wat-do <https://github.com/j1i/wat-do/>
+ * License: MIT
+ * Author: Jacob Wirth, Justin Li
+ */
 var gdata = null;
 
 function setModal(name) {
@@ -118,7 +123,7 @@ $(function() {
   var $window = $(window)
     , addedScroll = false;
 
-  $window.scroll(function(e) {
+  $window.scroll(function() {
     if ($window.scrollTop() > 1) {
       if (addedScroll) return;
       addedScroll = true;
@@ -145,7 +150,7 @@ $(function() {
     }
   });
 
-  $('.overlay-inner').click(function(e) {
+  $('.overlay-inner').click(function() {
     if (window.location.pathname !== '/') {
       if (!handlers.lastpage || window.history.length <= 1) {
         handlers.changeURL('/');
@@ -183,12 +188,12 @@ $(function() {
     });
   });
 
-  $('.btn-cancel').click(function(e) {
+  $('.btn-cancel').click(function() {
     setFormData($(this).parents('form[js-form]'), null, true);
     $('.overlay-inner').click();
   });
 
-  $('input.link[readonly]').click(function(e) {
+  $('input.link[readonly]').click(function() {
     $(this).select();
   });
 

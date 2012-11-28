@@ -113,7 +113,7 @@ var handlers = {
       alert("You must enter a name.");
       return;
     }
-    makeRequest('POST', '/account.json', account, function(data) {
+    makeRequest('POST', '/account.json', account, function() {
       $('.overlay-inner').click();
     });
   },
