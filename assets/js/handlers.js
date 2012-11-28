@@ -197,11 +197,11 @@ var handlers = {
     } else {
       subbed = handlers.updates.usersubs[handlers.updates.self];
     }
-    if (change) {
-      subbed.updates += change;
-      handlers.updates.notifications += change;
-    }
     if (subbed) {
+      if (change) {
+        subbed.updates += change;
+        handlers.updates.notifications += change;
+      }
       $('.subscribe').attr('subbed', 'subbed');
     } else $('.subscribe').removeAttr('subbed');
     $('#updates').text(handlers.updates.notifications).attr('updates', handlers.updates.notifications);
