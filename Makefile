@@ -1,5 +1,5 @@
-LESSC = lessc
-UGLIFYJS = uglifyjs
+LESSC = node_modules/less/bin/lessc
+UGLIFYJS = node_modules/uglify-js/bin/uglifyjs
 
 prepare: compile-assets
 	npm install
