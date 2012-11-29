@@ -48,6 +48,7 @@ app.configure(function() {
   app.use(passport.session());
 
   app.use(function(req, res, next) {
+    app.locals.devmode = typeof req.query.dev !== 'undefined';
     if (typeof req.user !== 'undefined' && req.user != null) {
       app.locals.user = req.user;
     } else app.locals.user = null;
@@ -57,6 +58,7 @@ app.configure(function() {
 
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, 'assets/js')));
 });
 
 app.configure('development', function() {

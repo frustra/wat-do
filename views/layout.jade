@@ -17,7 +17,12 @@ html
     script(type='text/javascript', src='/lib/moment.min.js')
     script(type='text/javascript', src='/lib/signals.min.js')
     script(type='text/javascript', src='/lib/crossroads.min.js')
-    script(type='text/javascript', src='/master.js')
+    if devmode
+      script(type='text/javascript', src='/app.js')
+      script(type='text/javascript', src='/handlers.js')
+      script(type='text/javascript', src='/timeline.js')
+    else
+      script(type='text/javascript', src='/master.js')
     if !!user
       script var user = !{!!user};
     else
