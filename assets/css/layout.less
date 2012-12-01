@@ -1,5 +1,5 @@
 body {
-  background-color: #DDDDDD;
+  background-color: #eaeaea;
   color: rgb(60,60,60);
   -webkit-text-size-adjust: 100%; // Stops Mobile Safari from auto-adjusting font-sizes
 }
@@ -17,7 +17,7 @@ body.scroll #topbar {
   padding: 10px 0;
   border-bottom: 1px solid #CCC;
   .transition(all 0.3s ease-out);
-  background-color: rgba(239, 239, 239, 0.92);
+  background-color: rgba(245, 245, 245, 0.92);
   z-index: 100;
   overflow-y: hidden;
   overflow-x: auto;
@@ -125,10 +125,10 @@ body.scroll #topbar {
       &.home {
         display: inline-block;
         padding: 3px 15px;
-        height: 26px;
-        margin: 0 10px;
+        height: 28px;
+        margin: 0 6px;
         color: #4447A0;
-        font-size: 24px;
+        font-size: 28px;
         line-height: 26px;
         .transition(all 0.15s ease-out);
 
@@ -185,6 +185,18 @@ body.scroll #topbar {
         float: right;
         right: -50%;
         width: 100%;
+        text-align: center;
+
+        .maintext {
+          text-shadow: -1px 0 1px #FFF;
+          font-weight: 600;
+        }
+
+        .subtext {
+          margin: 16px 0 48px 0;
+          text-shadow: -1px 0 1px #FFF;
+          color: #1C1C1C;
+        }
 
         #logo {
           display: block;
@@ -198,27 +210,52 @@ body.scroll #topbar {
         }
 
         p {
-          padding-top: 30px;
-          padding-left: 15px;
-          padding-right: 15px;
-          padding-bottom: 10px;
-          font-size: 28px;
-          line-height: 30px;
-          text-align: justify;
+          padding: 15px;
+          font-size: 12pt;
         }
 
-        #get-started {
-          text-align: center;
-          margin-top: 20px;
-          margin-bottom: 30px;
-          width: 100$;
-
-          a {
-            .buttonBackground(#62C462, #51A351, #FFF, 0 -1px rgba(0,0,0,.25));
-            font-size: 28px;
-            padding: 15px;
-            width: 200px;
+        .features {
+          margin: 40px 0;
+          .icons {
+            padding: 20px 0;
+            i {
+              font-size: 80px;
+            }
+            .big {
+              font-size: 50px;
+              margin-bottom: 6px;
+              padding: 0 18px;
+              display: inline-block;
+            }
           }
+
+          .feature {
+            width: 33.33333%;
+            text-align: center;
+            float: left;
+            p {
+              font-size: 11pt;
+            }
+          }
+          .clearfix()
+        }
+
+        .heading {
+          text-transform: uppercase;
+          font-weight: 600;
+          font-size: 13pt;
+          letter-spacing: 1px;
+          color: #1C1C1C;
+        }
+
+        a.btn {
+          .buttonBackground(#6262c4, #5151a3, #FFF, 0 -1px rgba(0,0,0,.25));
+          .rounded(8px);
+          text-shadow: 1px 0 1px #aaa;
+          font-size: 18pt;
+          padding: 15px 40px;
+          margin: 40px 0;
+          font-weight: 600;
         }
       }
     }
