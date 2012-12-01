@@ -147,6 +147,14 @@ function barsExit(bars) {
   bars.transition().duration(750).remove();
 }
 
+function getListName(d) {
+  if (d.user) {
+    return d.user._id == handlers.currentUser ? '' : d.user.name;
+  } else if (d.list) {
+    return d.list._id == handlers.currentList ? '' : d.list.name;
+  } else return '';
+}
+
 function itemsEnter(items) {
   var wrap = items.append("div")
     .attr("class", "item-wrap");
@@ -182,8 +190,8 @@ function itemsEnter(items) {
 
   front.append("div")
     .attr("class", "info from")
-    .attr("title", function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } })
-    .text(function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } });
+    .attr("title", getListName)
+    .text(getListName);
 
   front.append("div")
     .attr("class", "info due")
@@ -228,8 +236,8 @@ function itemsUpdate(items) {
     .text(function(d) { return d.desc; });
 
   front.select(".from")
-    .attr("title", function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } })
-    .text(function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } });
+    .attr("title", getListName)
+    .text(getListName);
 
   front.select(".due")
     .attr("title", function(d) { return moment().add('hours', d.rend).calendar(); })

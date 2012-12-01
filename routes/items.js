@@ -118,7 +118,7 @@ exports.setupItems = function(app) {
 
           item.save(function(err, item) {
             if (!err) {
-              res.json({response: {updatechange: updatechange, item: item.clientObject(req.user._id), user: item.user ? item.user_id : undefined, list: item.list ? item.list._id : undefined}});
+              res.json({response: {updatechange: updatechange, item: item.clientObject(req.user._id), user: item.user ? item.user._id : undefined, list: item.list ? item.list._id : undefined}});
             } else {
               console.log('unknown1: ' + err);
               res.json({error: 'unknown1'});
