@@ -57,7 +57,7 @@ exports.setupItems = function(app) {
                     if (!err) {
                       var updatechange = 0;
                       if (newItem.completed.indexOf(req.user._id) < 0 && (newItem.end.getTime() - Date.now()) < ((newItem.end.getTime() - newItem.start.getTime()) * 0.2)) updatechange = 1;
-                      res.json({response: {updatechange: updatechange, item: newItem.clientObject(req.user._id), user: item.user ? item.user_id : undefined, list: item.list ? item.list._id : undefined}});
+                      res.json({response: {updatechange: updatechange, item: newItem.clientObject(req.user._id), user: newItem.user ? newItem.user_id : undefined, list: newItem.list ? newItem.list._id : undefined}});
                     } else {
                       console.log('unknown2: ' + err);
                       res.json({error: 'unknown2'});
