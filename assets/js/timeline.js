@@ -1,4 +1,4 @@
-var gtl = {init: false, scale: 100, mouse: null, mousestart: null, scrolled: false};
+var gtl = {init: false, scale: 100, mouse: null, mousestart: null, scrolled: false, smoothscroll: false};
 
 var timelineInit = function() {
   gtl.x = d3.scale.linear()
@@ -38,7 +38,12 @@ var timelineInit = function() {
     handlers.deleteItem(formItem.data('js-data'));
   });
   formItem.find('.btn-list').click(function() {
-    console.log('Go to List');
+    var item = formItem.data('js-data');
+    if (item.user) {
+      handlers.changeURL('/user/' + item.user._id);
+    } else if (item.list) {
+      handlers.changeURL('/list/' + item.list._id);
+    }
   });
 
   var formList = $('#list form');
@@ -67,7 +72,7 @@ var timelineInit = function() {
     var permission = form.find('#members-head .permission').val();
     var list = form.data('js-data');
     for (var i = 0; i < list.members.length; i++) {
-      if (list.members[i].user.email === email) {
+      if (list.members[i].user.email.toLowerCase() === email.toLowerCase()) {
         alert("This user is already added to the list.");
         return;
       }
@@ -84,11 +89,11 @@ var timelineInit = function() {
 
 function timeUpdate() {
   gtl.rules.selectAll(".now")
-    .transition().duration(750)
+    .transition().duration(750).ease("linear")
     .style("left", gtl.x(moment().diff(gtl.starttime) / 3600000) + "px");
 
   gtl.body.selectAll(".white")
-    .transition().duration(750)
+    .transition().duration(750).ease("linear")
     .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart + moment().diff(gtl.starttime) / 3600000) - 1) + "px"; });
 
   gtl.body.selectAll(".item-back")
@@ -120,21 +125,21 @@ function barsEnter(bars) {
 
 function barsUpdate(bars) {
   bars.select(".rule")
-    .transition().duration(750)
+    .transition().duration(750).ease("linear")
     .style("left", function(d) { return gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) + "px"; });
 
   bars.select(".rule-text")
     .html(function(d) { var tmp = moment().add('days', d - Math.floor(-gtl.gstart / 24) + 1); return tmp.format("ddd") + "<br/>" + tmp.format("MMM D"); })
-    .transition().duration(750)
+    .transition().duration(750).ease("linear")
     .style("left", function(d) { return (gtl.x(d * 24 - Math.floor(-gtl.gstart / 24) * 24 + 24 - moment().hours()) - (gtl.scale / 2)) + "px"; })
     .style("width", function() { return gtl.scale + "px"; });
 
   gtl.rules.selectAll(".now")
-    .transition().duration(750)
+    .transition().duration(750).ease("linear")
     .style("left", gtl.x(0) + "px");
 
   gtl.body.selectAll(".white")
-    .transition().duration(750)
+    .transition().duration(750).ease("linear")
     .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
 }
 
@@ -174,6 +179,11 @@ function itemsEnter(items) {
     .attr("class", "info desc")
     .attr("title", function(d) { return d.desc; })
     .text(function(d) { return d.desc; });
+
+  front.append("div")
+    .attr("class", "info from")
+    .attr("title", function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } })
+    .text(function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } });
 
   front.append("div")
     .attr("class", "info due")
@@ -216,6 +226,10 @@ function itemsUpdate(items) {
   front.select(".desc")
     .attr("title", function(d) { return d.desc; })
     .text(function(d) { return d.desc; });
+
+  front.select(".from")
+    .attr("title", function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } })
+    .text(function(d) { if (d.user == handlers.currentUser || d.list == handlers.currentList) { return d.user ? d.user.name : d.list.name; } else { return ''; } });
 
   front.select(".due")
     .attr("title", function(d) { return moment().add('hours', d.rend).calendar(); })
@@ -279,5 +293,11 @@ var timelineUpdate = function(data) {
   if (!gtl.mouse && !gtl.scrolled) {
     $(window).scrollLeft(gtl.x(0) - $(window).width() / 2);
     gtl.scrolled = true;
+  }
+  if (gtl.smoothscroll) {
+    $('body,html').animate({
+      scrollLeft: gtl.x(0) - $(window).width() / 2
+    }, 755, 'linear');
+    gtl.smoothscroll = false;
   }
 };

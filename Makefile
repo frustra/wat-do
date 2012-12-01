@@ -10,7 +10,7 @@ compile-assets:
 
 dev:
 	supervisor -n exit -w 'assets' -e 'less|js' -x make compile-assets &
-	supervisor -n error -i 'public' wat-do.js
+	supervisor -n error -i 'public,assets' wat-do.js
 
 run: compile-assets
 	node wat-do.js

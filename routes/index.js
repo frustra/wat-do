@@ -41,7 +41,7 @@ exports.setupMain = function(app) {
 
   app.post('/email.json', function(req, res) {
     if (req.user) {
-      User.findOne({email: req.body.email}, '_id email', function(err, user) {
+      User.findOne({email: new RegExp('^' + req.body.email + '$', "i")}, '_id email', function(err, user) {
         if (!err && user) {
           res.json({response: user});
         } else res.json({error: 'not-found', msg: 'The email entered does not exist.'});

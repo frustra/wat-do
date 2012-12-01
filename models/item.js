@@ -18,10 +18,22 @@ itemSchema.statics.clientObjects = function(items, user) {
   for (var i = 0; i < items.length; i++) {
     tmp[i] = items[i].toObject();
     tmp[i].done = user ? items[i].completed.indexOf(user) >= 0 : false;
-    if (tmp[i].user && tmp[i].user._id) tmp[i].user = tmp[i].user._id;
-    if (tmp[i].list && tmp[i].list._id) tmp[i].list = tmp[i].list._id;
-    tmp[i].user = tmp[i].user ? ((user && tmp[i].user.equals(user)) ? undefined : tmp[i].user) : undefined;
-    tmp[i].list = tmp[i].user ? undefined : tmp[i].list;
+    if (tmp[i].user) {
+      if (tmp[i].user._id) {
+        tmp[i].user = {_id: tmp[i].user._id, name: tmp[i].user.name + '\'s List'};
+      } else tmp[i].user = {_id: tmp[i].user, name: ''};
+    }
+    if (tmp[i].list) {
+      if (tmp[i].list._id) {
+        tmp[i].list = {_id: tmp[i].list._id, name: tmp[i].list.name};
+      } else tmp[i].list = {_id: tmp[i].list, name: ''};
+    }
+    if (tmp[i].user) {
+      if (user && user.equals(tmp[i].user._id)) {
+        tmp[i].user.name = 'Your List';
+      }
+      tmp[i].list = undefined;
+    }
     tmp[i].completed = undefined;
   }
   return tmp;
@@ -30,10 +42,22 @@ itemSchema.statics.clientObjects = function(items, user) {
 itemSchema.methods.clientObject = function(user) {
   var tmp = this.toObject();
   tmp.done = user ? this.completed.indexOf(user) >= 0 : false;
-  if (tmp.user && tmp.user._id) tmp.user = tmp.user._id;
-  if (tmp.list && tmp.list._id) tmp.list = tmp.list._id;
-  tmp.user = tmp.user ? ((user && tmp.user.equals(user)) ? undefined : tmp.user) : undefined;
-  tmp.list = tmp.user ? undefined : tmp.list;
+  if (tmp.user) {
+    if (tmp.user._id) {
+      tmp.user = {_id: tmp.user._id, name: tmp.user.name + '\'s List'};
+    } else tmp.user = {_id: tmp.user, name: ''};
+  }
+  if (tmp.list) {
+    if (tmp.list._id) {
+      tmp.list = {_id: tmp.list._id, name: tmp.list.name};
+    } else tmp.list = {_id: tmp.list, name: ''};
+  }
+  if (tmp.user) {
+    if (user && user.equals(tmp.user._id)) {
+      tmp.user.name = 'Your List';
+    }
+    tmp.list = undefined;
+  }
   tmp.completed = undefined;
   return tmp;
 }

@@ -57,7 +57,7 @@ exports.setupItems = function(app) {
                     if (!err) {
                       var updatechange = 0;
                       if (newItem.completed.indexOf(req.user._id) < 0 && (newItem.end.getTime() - Date.now()) < ((newItem.end.getTime() - newItem.start.getTime()) * 0.2)) updatechange = 1;
-                      res.json({response: {updatechange: updatechange, item: newItem.clientObject(req.user._id)}});
+                      res.json({response: {updatechange: updatechange, item: newItem.clientObject(req.user._id), user: item.user ? item.user_id : undefined, list: item.list ? item.list._id : undefined}});
                     } else {
                       console.log('unknown2: ' + err);
                       res.json({error: 'unknown2'});
@@ -118,7 +118,7 @@ exports.setupItems = function(app) {
 
           item.save(function(err, item) {
             if (!err) {
-              res.json({response: {updatechange: updatechange, item: item.clientObject(req.user._id)}});
+              res.json({response: {updatechange: updatechange, item: item.clientObject(req.user._id), user: item.user ? item.user_id : undefined, list: item.list ? item.list._id : undefined}});
             } else {
               console.log('unknown1: ' + err);
               res.json({error: 'unknown1'});
@@ -138,6 +138,8 @@ exports.setupItems = function(app) {
         if (!err && item) {
           if (exports.getPermission(item.user, item.list, req.user) >= 1) {
             var id = item._id;
+            var user = item.user ? item.user_id : undefined;
+            var list = item.list ? item.list._id : undefined;
             (item.user || item.list).items.remove(id);
             (item.user || item.list).save(function(err) {
               if (!err) {
@@ -145,7 +147,7 @@ exports.setupItems = function(app) {
                 if (item.completed.indexOf(req.user._id) < 0 && (item.end.getTime() - Date.now()) < ((item.end.getTime() - item.start.getTime()) * 0.2)) updatechange = -1;
                 item.remove(function(err) {
                   if (!err) {
-                    res.json({response: {updatechange: updatechange, id: id}});
+                    res.json({response: {updatechange: updatechange, id: id, user: user, list: list}});
                   } else {
                     console.log('unknown2: ' + err);
                     res.json({error: 'unknown2'});

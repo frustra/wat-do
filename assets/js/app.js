@@ -88,6 +88,7 @@ function makeRequest(type, url, reqdata, callback) {
         if (data.error === "no-user") {
           user = false;
           handlers.setTimelineVisible(false);
+          setModal();
           handlers.lastpage = '/';
           window.history.replaceState({'watpage': '/'}, 'Title', '/');
           window.history.pushState({'watpage': window.location.pathname}, 'Title', window.location.pathname);

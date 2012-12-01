@@ -40,7 +40,7 @@ var handlers = {
             break;
           }
         }
-        handlers.refreshUpdates();
+        handlers.refreshUpdates(handlers.currentUser, handlers.currentList);
         handlers.changeURL('/');
       });
     }
@@ -76,7 +76,7 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.updatechange);
+        handlers.refreshUpdates(data.user, data.list, data.updatechange);
         $('.overlay-inner').click();
       });
     } else { // New Item
@@ -85,7 +85,7 @@ var handlers = {
       makeRequest('POST', '/item/new.json', item, function(data) {
         gdata.push(data.item);
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.updatechange);
+        handlers.refreshUpdates(data.user, data.list, data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -101,7 +101,7 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.updatechange);
+        handlers.refreshUpdates(data.user, data.list, data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -121,7 +121,7 @@ var handlers = {
   subscribe: function(subscribe) {
     makeRequest('POST', '/updates.json', {subscribe: subscribe, user: handlers.currentUser, list: handlers.currentList}, function(data) {
       handlers.updates = data;
-      handlers.refreshUpdates();
+      handlers.refreshUpdates(handlers.currentUser, handlers.currentList);
     });
   },
 
@@ -170,11 +170,17 @@ var handlers = {
     } else {
       if ($sectiontimeline.is(':visible')) $sectiontimeline.hide();
       if (!$sectionhome.is(':visible')) $sectionhome.show();
+      $('#listname').text('');
+      handlers.currentName = null;
+      handlers.currentUser = null,
+      handlers.currentList = null,
+      handlers.currentPerm = -1;
+      handlers.updatePermissions();
     }
   },
 
   updates: null,
-  refreshUpdates: function(change, cb) {
+  refreshUpdates: function(userid, listid, change, cb) {
     if (!user) return;
     if (typeof change === 'function') {
       cb = change;
@@ -184,18 +190,16 @@ var handlers = {
       makeRequest('GET', '/updates.json', function(data) {
         if (data) {
           handlers.updates = data;
-          handlers.refreshUpdates(cb);
+          handlers.refreshUpdates(userid, listid, change, cb);
         }
       });
       return;
     }
     var subbed = false;
     if (handlers.currentUser) {
-      subbed = handlers.updates.usersubs[handlers.currentUser];
-    } else if (handlers.currentList) {
-      subbed = handlers.updates.listsubs[handlers.currentList];
-    } else {
-      subbed = handlers.updates.usersubs[handlers.updates.self];
+      subbed = handlers.updates.usersubs[userid];
+    } else if (listid) {
+      subbed = handlers.updates.listsubs[listid];
     }
     if (subbed) {
       if (change) {
@@ -205,6 +209,11 @@ var handlers = {
       $('.subscribe').attr('subbed', 'subbed');
     } else $('.subscribe').removeAttr('subbed');
     $('#updates').text(handlers.updates.notifications).attr('updates', handlers.updates.notifications);
+    if (handlers.updates.notifications > 0) {
+      document.title = "(" + handlers.updates.notifications + ") wat do?";
+    } else {
+      document.title = "wat do?";
+    }
     if (cb) cb();
   },
 
@@ -241,9 +250,9 @@ var handlers = {
       handlers.currentList = list;
       handlers.currentPerm = data.permission;
       handlers.updatePermissions();
-      handlers.refreshUpdates();
+      handlers.refreshUpdates(handlers.currentUser, handlers.currentList);
       gdata = data.list;
-      gtl.scrolled = false;
+      gtl.smoothscroll = true;
       timelineUpdate(gdata);
       if (cb && param) {
         cb(param);
@@ -265,6 +274,9 @@ var handlers = {
         } else $this.attr('hasperm', 'hasperm');
       }
     });
+    if (!user || (!handlers.currentUser && !handlers.currentList)) {
+      $('.subscribe').hide();
+    } else $('.subscribe').show();
   },
 
   setupRoutes: function() {
@@ -296,7 +308,7 @@ var handlers = {
     crossroads.addRoute('/updates', function() {
       handlers.setTimelineVisible(user);
       if (user) {
-        handlers.refreshUpdates(function() {
+        handlers.refreshUpdates(handlers.currentUser, handlers.currentList, function() {
           handlers.populateUpdates();
           setModal('updates');
           handlers.loadData(handlers.currentUser, handlers.currentList);
@@ -414,7 +426,7 @@ var handlers = {
   populateUpdates: function() {
     var tmp = [];
     tmp.push({name: 'Your List'});
-    tmp.concat(handlers.updates.lists);
+    tmp = tmp.concat(handlers.updates.lists);
     var lists = d3.select('#updates #lists').selectAll('li').data(tmp);
     var tmp = lists.enter().append('li')
       .append('a')
