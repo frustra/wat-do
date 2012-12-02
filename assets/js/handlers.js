@@ -5,6 +5,7 @@ var handlers = {
       alert("You must enter a list name.");
       return;
     }
+    $('#list .btn-save').attr('disabled', 'disabled');
     if (list._id) { // Existing List
       makeRequest('POST', '/list/' + list._id + '.json', list, function(data) {
         if (handlers.currentList === data._id) {
@@ -31,6 +32,7 @@ var handlers = {
 
   deleteList: function(list) {
     if (confirm("Are you sure you want to delete the list: " + list.name)) {
+      $('#list .btn-delete').attr('disabled', 'disabled');
       makeRequest('DELETE', '/list/' + list._id + '.json', function(data) {
         handlers.updates.notifications -= handlers.updates.listsubs[data].updates;
         handlers.updates.listsubs[data] = undefined;
@@ -65,6 +67,7 @@ var handlers = {
       alert("Your item must be due after it starts.");
       return;
     }
+    $('#item .btn-save').attr('disabled', 'disabled');
     item.start = tmpdate1.utc().format();
     item.end = tmpdate2.utc().format();
     if (item._id) { // Existing item
@@ -76,7 +79,7 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.user, data.list, data.updatechange);
+        handlers.refreshUpdates(data.user && data.user._id, data.list && data.list._id, data.updatechange);
         $('.overlay-inner').click();
       });
     } else { // New Item
@@ -85,7 +88,7 @@ var handlers = {
       makeRequest('POST', '/item/new.json', item, function(data) {
         gdata.push(data.item);
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.user, data.list, data.updatechange);
+        handlers.refreshUpdates(data.user && data.user._id, data.list && data.list._id, data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -93,6 +96,7 @@ var handlers = {
 
   deleteItem: function(item) {
     if (confirm("Are you sure you want to delete the item: " + item.name)) {
+      $('#item .btn-delete').attr('disabled', 'disabled');
       makeRequest('DELETE', '/item/' + item._id + '.json', function(data) {
         for (var i = 0; i < gdata.length; i++) {
           if (gdata[i]._id === data.id) {
@@ -101,7 +105,7 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.user, data.list, data.updatechange);
+        handlers.refreshUpdates(data.user && data.user._id, data.list && data.list._id, data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -372,14 +376,14 @@ var handlers = {
       handlers.setTimelineVisible(true);
       if (!gdata) {
         makeRequest('GET', '/item/' + id + '.json', function(data) {
-          handlers.loadData(data.user, data.list, function() {
+          handlers.loadData(data.user && data.user._id, data.list && data.list._id, function() {
             if (data.user) {
-              handlers.lastpage = '/user/' + data.user;
-              window.history.replaceState({'watpage': '/user/' + data.user}, 'Title', '/user/' + data.user);
+              handlers.lastpage = '/user/' + data.user._id;
+              window.history.replaceState({'watpage': '/user/' + data.user._id}, 'Title', '/user/' + data.user._id);
               window.history.pushState({'watpage': '/item/' + id}, 'Title', '/item/' + id);
             } else if (data.list) {
-              handlers.lastpage = '/list/' + data.list;
-              window.history.replaceState({'watpage': '/list/' + data.list}, 'Title', '/list/' + data.list);
+              handlers.lastpage = '/list/' + data.list._id;
+              window.history.replaceState({'watpage': '/list/' + data.list._id}, 'Title', '/list/' + data.list._id);
               window.history.pushState({'watpage': '/item/' + id}, 'Title', '/item/' + id);
             }
             doItem(id);

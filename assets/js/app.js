@@ -7,8 +7,11 @@ var gdata = null;
 
 function setModal(name) {
   if (name) {
+    $('.modal-inner [disabled]').each(function() {
+      $(this).removeAttr('disabled');
+    });
     $('#modal').show();
-    $.each($('.modal-inner'), function() {
+    $('.modal-inner').each(function() {
       var $this = $(this);
       if (this.id == name) {
         $this.show();
@@ -17,9 +20,7 @@ function setModal(name) {
         });
       } else $this.hide();
     });
-  } else {
-    $('#modal').hide();
-  }
+  } else $('#modal').hide();
 }
 
 function setFormData(form, obj, force) {
@@ -56,6 +57,9 @@ function setFormData(form, obj, force) {
 
 function showError(msg) {
   if ($('#modal').is(':visible')) {
+    $('.modal-inner [disabled]').each(function() {
+      $(this).removeAttr('disabled');
+    });
     if (msg) {
       alert(msg);
     } else alert($('#error #defaultmsg').text());
