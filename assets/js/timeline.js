@@ -215,7 +215,6 @@ function itemsUpdate(items) {
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
     .style("width", function(d) { return gtl.w(d.rend - d.rstart) + "px"; })
     .select(".white")
-    .transition().duration(750)
     .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
 
   var front = items.select(".item")

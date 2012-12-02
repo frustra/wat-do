@@ -196,7 +196,7 @@ var handlers = {
       return;
     }
     var subbed = false;
-    if (handlers.currentUser) {
+    if (userid) {
       subbed = handlers.updates.usersubs[userid];
     } else if (listid) {
       subbed = handlers.updates.listsubs[listid];
@@ -472,9 +472,8 @@ var handlers = {
 
     lists.exit().remove();
 
-    if (handlers.updates.usersubs.length <= 0 && handlers.updates.listsubs.length <= 0) {
-      $('#updates #usersubs').html('<li><a><span>None</span><div class="updates"></div></a></li>');
-      $('#updates #listsubs').html('');
+    if (Object.keys(handlers.updates.usersubs).length <= 0 && Object.keys(handlers.updates.listsubs).length <= 0) {
+      $('#updates #listsubs').html('<li><a><span>None</span><div class="updates"></div></a></li>');
     } else {
       var subs = [];
       for (var id in handlers.updates.usersubs) {

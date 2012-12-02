@@ -13,11 +13,11 @@ var itemSchema = new mongoose.Schema({
   comments: [{ type: ObjectId, ref: 'Comment' }]
 });
 
-itemSchema.statics.clientObjects = function(items, user) {
+itemSchema.statics.clientObjects = function(items, user, subbed) {
   var tmp = [];
   for (var i = 0; i < items.length; i++) {
     tmp[i] = items[i].toObject();
-    tmp[i].done = user ? items[i].completed.indexOf(user) >= 0 : false;
+    tmp[i].done = (user && (items[i].completed.indexOf(user) >= 0)) || (!subbed && (items[i].end.getTime() <= Date.now()));
     if (tmp[i].user) {
       if (tmp[i].user._id) {
         tmp[i].user = {_id: tmp[i].user._id, name: tmp[i].user.name + '\'s List'};
@@ -41,7 +41,7 @@ itemSchema.statics.clientObjects = function(items, user) {
 
 itemSchema.methods.clientObject = function(user) {
   var tmp = this.toObject();
-  tmp.done = user ? this.completed.indexOf(user) >= 0 : false;
+  tmp.done = user && (this.completed.indexOf(user) >= 0);
   if (tmp.user) {
     if (tmp.user._id) {
       tmp.user = {_id: tmp.user._id, name: tmp.user.name + '\'s List'};

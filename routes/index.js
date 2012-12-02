@@ -55,25 +55,33 @@ exports.setupMain = function(app) {
 
   app.get('/updates.json', function(req, res) {
     if (req.user) {
-      doUpdates(req, res);
+      doUpdates(req, res, false);
     } else res.json({error: 'no-user', msg: 'You must be logged in to view this page.'});
   });
 
   app.post('/updates.json', function(req, res) {
     if (req.user) {
+      var subuser = false;
+      var sublist = false
       if (!req.body.list && !req.body.user) req.body.user = req.user._id;
       if (req.body.user) {
         if (req.body.subscribe === 'true') {
-          if (req.user.usersubs.indexOf(req.body.user) < 0) req.user.usersubs.push(req.body.user);
+          if (req.user.usersubs.indexOf(req.body.user) < 0) {
+            subuser = req.body.user;
+            req.user.usersubs.push(req.body.user);
+          }
         } else req.user.usersubs.remove(req.body.user);
       } else if (req.body.list) {
         if (req.body.subscribe === 'true') {
-          if (req.user.listsubs.indexOf(req.body.list) < 0) req.user.listsubs.push(req.body.list);
+          if (req.user.listsubs.indexOf(req.body.list) < 0) {
+            sublist = req.body.list;
+            req.user.listsubs.push(req.body.list);
+          }
         } else req.user.listsubs.remove(req.body.list);
       }
       req.user.save(function(err, user) {
         if (!err) {
-          doUpdates(req, res);
+          doUpdates(req, res, subuser, sublist);
         } else {
           console.log('unknown2: ' + err);
           res.json({error: 'unknown2'});
@@ -82,7 +90,7 @@ exports.setupMain = function(app) {
     } else res.json({error: 'no-user', msg: 'You must be logged in to subscribe to a list.'});
   });
 
-  function doUpdates(req, res) {
+  function doUpdates(req, res, subuser, sublist) {
     User.findById(req.user._id)
     .populate('lists', '_id name')
     .populate('usersubs', '_id name')
@@ -106,6 +114,9 @@ exports.setupMain = function(app) {
               listsubs[user.listsubs[i]._id] = {name: user.listsubs[i].name, updates: 0};
             }
             for (var i = 0; i < items.length; i++) {
+              if (items[i].end.getTime() <= Date.now()) {
+                if (subuser && items[i].user && items[i].user._id.equals(subuser) || sublist && items[i].list && items[i].list._id.equals(sublist)) items[i].setDone('true', user._id);
+              }
               if (items[i].completed.indexOf(user._id) < 0 && (items[i].end.getTime() - Date.now()) < ((items[i].end.getTime() - items[i].start.getTime()) * 0.2)) { // If item is not complete and has less than 20% of time left.
                 if (getPermission(items[i].user, items[i].list, req.user) >= 0) { // Make sure we don't display any notifications for items we don't have permission for.
                   notifications++;
@@ -115,7 +126,21 @@ exports.setupMain = function(app) {
                 }
               }
             }
-            res.json({response: {self: req.user._id, notifications: notifications, lists: user.lists, usersubs: usersubs, listsubs: listsubs}});
+            if ((subuser || sublist) && items.length > 0) {
+              var i = 0;
+              function callback(err) {
+                if (!err) {
+                  i++;
+                  if (i < items.length) {
+                    items[i].save(callback);
+                  } else res.json({response: {self: req.user._id, notifications: notifications, lists: user.lists, usersubs: usersubs, listsubs: listsubs}});
+                } else {
+                  console.log('unknown3: ' + err);
+                  res.json({error: 'unknown3'});
+                }
+              }
+              items[i].save(callback);
+            } else res.json({response: {self: req.user._id, notifications: notifications, lists: user.lists, usersubs: usersubs, listsubs: listsubs}});
           } else {
             console.log('unknown2: ' + err);
             res.json({error: 'unknown2'});
