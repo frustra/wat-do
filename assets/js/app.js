@@ -1,5 +1,5 @@
 /** @license
- * wat-do <https://github.com/j1i/wat-do/>
+ * wat-do <https://github.com/Frustra/wat-do/>
  * License: MIT
  * Author: Jacob Wirth, Justin Li
  */

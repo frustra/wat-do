@@ -79,7 +79,7 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.user && data.user._id, data.list && data.list._id, data.updatechange);
+        handlers.refreshUpdates(data.user, data.list, data.updatechange);
         $('.overlay-inner').click();
       });
     } else { // New Item
@@ -88,7 +88,7 @@ var handlers = {
       makeRequest('POST', '/item/new.json', item, function(data) {
         gdata.push(data.item);
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.user && data.user._id, data.list && data.list._id, data.updatechange);
+        handlers.refreshUpdates(data.user, data.list, data.updatechange);
         $('.overlay-inner').click();
       });
     }
@@ -105,7 +105,7 @@ var handlers = {
           }
         }
         timelineUpdate(gdata);
-        handlers.refreshUpdates(data.user && data.user._id, data.list && data.list._id, data.updatechange);
+        handlers.refreshUpdates(data.user, data.list, data.updatechange);
         $('.overlay-inner').click();
       });
     }
