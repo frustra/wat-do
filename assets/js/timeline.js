@@ -284,10 +284,13 @@ var timelineUpdate = function(data) {
   var items = gtl.body.selectAll(".item-wrap")
     .data(data.sort(function(a, b) {
       if (a.done == b.done) {
-        var apercent = a.rend / (a.rend - a.rstart);
-        var bpercent = b.rend / (b.rend - b.rstart);
-        var result = apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
-        return a.done ? -result : result;
+        if (a.done) {
+          return a.rend > b.rend ? -1 : (a.rend == b.rend ? 0 : 1);
+        } else {
+          var apercent = a.rend / (a.rend - a.rstart);
+          var bpercent = b.rend / (b.rend - b.rstart);
+          return apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
+        }
       } else if (a.done) {
         return 1;
       } else return -1;
