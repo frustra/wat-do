@@ -165,7 +165,7 @@ function itemsEnter(items) {
     .attr("rend", function(d) { return d.rend; })
     .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
-    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .style("top", function(d) { return (gtl.y(d.row) + 45) + "px"; })
     .append("div")
     .attr("class", "white")
     .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
@@ -176,7 +176,7 @@ function itemsEnter(items) {
     .attr("rend", function(d) { return d.rend; })
     .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
     .style("left", function(d) { return gtl.x(d.rstart) + "px"; })
-    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; });
+    .style("top", function(d) { return (gtl.y(d.row) + 45) + "px"; });
 
   front.append("div")
     .attr("class", "info title")
@@ -207,7 +207,7 @@ function itemsEnter(items) {
 
 function itemsUpdate(items) {
   items.select(".item-back")
-    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .style("top", function(d) { return (gtl.y(d.row) + 45) + "px"; })
     .attr("done", function(d) { return d.done; })
     .attr("rend", function(d) { return d.rend; })
     .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
@@ -218,7 +218,7 @@ function itemsUpdate(items) {
     .style("width", function(d) { return Math.max(0, gtl.w(-d.rstart) - 1) + "px"; });
 
   var front = items.select(".item")
-    .style("top", function(d, i) { return (gtl.y(i) + 45) + "px"; })
+    .style("top", function(d) { return (gtl.y(d.row) + 45) + "px"; })
     .attr("done", function(d) { return d.done; })
     .attr("rend", function(d) { return d.rend; })
     .attr("notify", function(d) { return (d.rend / (d.rend - d.rstart)) <= 0.2; })
@@ -281,23 +281,41 @@ var timelineUpdate = function(data) {
   barsUpdate(bars);
   barsExit(bars.exit());
 
-  var items = gtl.body.selectAll(".item-wrap")
-    .data(data.sort(function(a, b) {
-      if (a.done == b.done) {
-        var endc = a.rend < b.rend ? -1 : (a.rend == b.rend ? 0 : 1);
-        if (a.done) { // Sort completed items as most recent first
-          return -endc;
-        } else if (a.rstart > 0 || b.rstart > 0) { // Sort items that haven't started yet by start date
-          return a.rstart < b.rstart ? -1 : (a.rstart == b.rstart ? endc : 1);
-        } else { // Sort in-progress items by percentage complete
-          var apercent = a.rend / (a.rend - a.rstart);
-          var bpercent = b.rend / (b.rend - b.rstart);
-          return apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
+  var sorted = data.sort(function(a, b) {
+    if (a.done == b.done) {
+      var endc = a.rend < b.rend ? -1 : (a.rend == b.rend ? 0 : 1);
+      if (a.done) { // Sort completed items as most recent first
+        return -endc;
+      } else if (a.rstart > 0 || b.rstart > 0) { // Sort items that haven't started yet by start date
+        return a.rstart < b.rstart ? -1 : (a.rstart == b.rstart ? endc : 1);
+      } else { // Sort in-progress items by percentage complete
+        var apercent = a.rend / (a.rend - a.rstart);
+        var bpercent = b.rend / (b.rend - b.rstart);
+        return apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
+      }
+    } else if (a.done) { // Completed items go underneith all other items
+      return 1;
+    } else return -1;
+  });
+
+  var rowend = [];
+  var rows = 0;
+  for (var i = 0; i < sorted.length; i++) { // Compress rows of items into available space
+    (function() {
+      for (var r = 0; r < rows; r++) {
+        if (rowend[r] <= sorted[i].rstart) {
+          rowend[r] = sorted[i].rend;
+          sorted[i].row = r;
+          return;
         }
-      } else if (a.done) { // Completed items go underneith all other items
-        return 1;
-      } else return -1;
-    }), function(d) { return d._id; });
+      }
+      sorted[i].row = rows;
+      rowend[rows++] = sorted[i].rend;
+    })();
+  }
+
+  var items = gtl.body.selectAll(".item-wrap")
+    .data(sorted, function(d) { return d._id; });
 
   itemsEnter(items.enter());
   itemsUpdate(items);
