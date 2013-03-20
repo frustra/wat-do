@@ -284,14 +284,17 @@ var timelineUpdate = function(data) {
   var items = gtl.body.selectAll(".item-wrap")
     .data(data.sort(function(a, b) {
       if (a.done == b.done) {
-        if (a.done) {
-          return a.rend > b.rend ? -1 : (a.rend == b.rend ? 0 : 1);
-        } else {
+        var endc = a.rend < b.rend ? -1 : (a.rend == b.rend ? 0 : 1);
+        if (a.done) { // Sort completed items as most recent first
+          return -endc;
+        } else if (a.rstart > 0 || b.rstart > 0) { // Sort items that haven't started yet by start date
+          return a.rstart < b.rstart ? -1 : (a.rstart == b.rstart ? endc : 1);
+        } else { // Sort in-progress items by percentage complete
           var apercent = a.rend / (a.rend - a.rstart);
           var bpercent = b.rend / (b.rend - b.rstart);
           return apercent > bpercent ? 1 : (apercent == bpercent ? 0 : -1);
         }
-      } else if (a.done) {
+      } else if (a.done) { // Completed items go underneith all other items
         return 1;
       } else return -1;
     }), function(d) { return d._id; });
