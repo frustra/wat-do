@@ -267,20 +267,6 @@ var timelineUpdate = function(data) {
   gtl.gstart -= (screen.width / gtl.scale * 24);
   gtl.gend += (screen.width / gtl.scale * 24);
 
-  var height = data.length * 70;
-  gtl.main.attr("style", "height:" + (height + 50) + "px;");
-  gtl.y.range([0, height]);
-
-  gtl.x.domain([gtl.gstart, gtl.gstart + 24]);
-  gtl.y.domain([0, data.length]);
-
-  var bars = gtl.rules.selectAll(".rule-wrap")
-    .data(d3.range(Math.floor((gtl.gend - gtl.gstart) / 24)));
-
-  barsEnter(bars.enter());
-  barsUpdate(bars);
-  barsExit(bars.exit());
-
   var sorted = data.sort(function(a, b) {
     if (a.done == b.done) {
       var endc = a.rend < b.rend ? -1 : (a.rend == b.rend ? 0 : 1);
@@ -299,6 +285,7 @@ var timelineUpdate = function(data) {
   });
 
   var rowend = [];
+  var rowstart = [];
   var rows = 0;
   for (var i = 0; i < sorted.length; i++) { // Compress rows of items into available space
     (function() {
@@ -307,12 +294,31 @@ var timelineUpdate = function(data) {
           rowend[r] = sorted[i].rend;
           sorted[i].row = r;
           return;
+        } else if (rowstart[r] >= sorted[i].rend) {
+          rowstart[r] = sorted[i].rstart;
+          sorted[i].row = r;
+          return;
         }
       }
       sorted[i].row = rows;
+      rowstart[rows] = sorted[i].rstart;
       rowend[rows++] = sorted[i].rend;
     })();
   }
+
+  var height = rows * 70;
+  gtl.main.attr("style", "height:" + (height + 50) + "px;");
+  gtl.y.range([0, height]);
+
+  gtl.x.domain([gtl.gstart, gtl.gstart + 24]);
+  gtl.y.domain([0, rows]);
+
+  var bars = gtl.rules.selectAll(".rule-wrap")
+    .data(d3.range(Math.floor((gtl.gend - gtl.gstart) / 24)));
+
+  barsEnter(bars.enter());
+  barsUpdate(bars);
+  barsExit(bars.exit());
 
   var items = gtl.body.selectAll(".item-wrap")
     .data(sorted, function(d) { return d._id; });
