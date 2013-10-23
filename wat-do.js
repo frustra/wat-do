@@ -37,7 +37,6 @@ app.configure(function() {
   app.set('view engine', 'jade');
 
   app.use(express.favicon(__dirname + '/public/favicon.ico'));
-  //app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
 
@@ -61,6 +60,7 @@ app.configure(function() {
 });
 
 app.configure('development', function() {
+  app.use(express.logger('dev'));
   app.use(express.errorHandler());
 });
 
