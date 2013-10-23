@@ -1,8 +1,12 @@
 LESSC = node_modules/less/bin/lessc
 UGLIFYJS = node_modules/uglify-js/bin/uglifyjs
 
-compile-assets:
+prepare: compile-assets
+
+install:
 	npm install
+
+compile-assets: install
 	${LESSC} -O3 --yui-compress assets/css/master.less > public/master.css
 	${UGLIFYJS} assets/js/*.js --comments -c -m -o public/master.js
 
