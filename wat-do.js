@@ -33,7 +33,6 @@ var app = express();
 app.realm = config['app_realm'];
 
 app.configure(function() {
-  app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
 
@@ -72,7 +71,11 @@ setupLists(app);
 setupMain(app);
 setupAuth(app, passport);
 
+var socket = '/tmp/wat-do-node.socket';
+if (fs.existsSync(socket)) fs.unlinkSync(socket);
 
-http.createServer(app).listen(app.get('port'), function() {
-  console.log("Express server listening on port " + app.get('port'));
+http.createServer(app).listen(process.env.PORT || socket, function() {
+  if (!process.env.PORT) fs.chmod(socket, '666');
+
+  console.log("wat-do server listening on port " + (process.env.PORT ? "port " + process.env.PORT : socket));
 });
