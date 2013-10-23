@@ -1,5 +1,5 @@
-LESSC = ./node_modules/less/bin/lessc
-UGLIFYJS = ./node_modules/uglify-js/bin/uglifyjs
+LESSC = ./node_modules/.bin/lessc
+UGLIFYJS = ./node_modules/.bin/uglifyjs
 
 prepare: compile-assets
 
