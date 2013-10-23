@@ -10,8 +10,8 @@
     "express": "3.0.0rc4",
     "jade": "*",
     "mongoose": "3.4.0",
-    "passport": "0.1.12",
-    "passport-google": "0.2.0",
+    "passport": "0.1.17",
+    "passport-google": "0.3.0",
     "hashish": "*",
     "moment": "1.7.0",
     "markdown": "0.4.0",
@@ -20,7 +20,7 @@
   },
 
   "engines": {
-    "node": "0.8.x",
+    "node": "0.10.x",
     "npm": "1.1.49"
   }
 }
