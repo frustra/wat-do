@@ -16,8 +16,3 @@ dev:
 
 run:
 	node wat-do.js
-
-build-run:
-	${LESSC} -O3 --yui-compress assets/css/master.less > public/master.css
-	${UGLIFYJS} assets/js/*.js --comments -c -m -o public/master.js
-	node wat-do.js
