@@ -1,13 +1,15 @@
 #list.modal-inner
   form.editable(js-form="saveList")
     input.big.full-width(type='text', name='list-name', js-data='name', placeholder='List Name')
-
+    label.readonly#listowner
+      | List Owner:
+      input.medium.full-width(type='text', readonly='readonly', name='list-owner', js-data='ownername')
     label.checkbox
       input#public.medium(type='checkbox', name='list-public', js-data='public')
       | List is Public
     label.readonly#sharelink
       | Share Link:
-      input.medium.full-width.link(type='text', readonly="readonly", name='list-share', js-data='share')
+      input.medium.full-width.link(type='text', readonly='readonly', name='list-share', js-data='share')
 
     hr
 

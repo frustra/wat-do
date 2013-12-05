@@ -54,8 +54,8 @@ var handlers = {
       alert("You must enter an item name.");
       return;
     }
-    var tmpdate1 = moment(item.start);
-    var tmpdate2 = moment(item.end);
+    var tmpdate1 = moment(item.startday + ", " + item.starthour);
+    var tmpdate2 = moment(item.endday + ", " + item.endhour);
     var datenow = moment();
     if (!tmpdate1.isValid() || !tmpdate2.isValid()) {
       alert("One of the dates you entered is not valid.");
@@ -326,6 +326,7 @@ var handlers = {
         var form = $("#list form");
         form.find('.btn-delete').hide();
         form.find('#sharelink').hide();
+        form.find('#listowner').hide();
         setFormData(form);
         $('#list #members-list').html('');
         setModal('list');
@@ -341,10 +342,12 @@ var handlers = {
             showError('You do not have permission to edit this list.');
             return;
           }
+          data.ownername = data.owner.name + " (" + data.owner.email + ")";
           data.share = window.location.protocol + "//" + window.location.host + "/list/" + data._id;
           var form = $("#list form");
           if (data.permission > 2) form.find('.btn-delete').show();
           form.find('#sharelink').show();
+          form.find('#listowner').show();
           setFormData(form, data);
           handlers.populateListMembers(data);
           setModal('list');
@@ -400,15 +403,26 @@ var handlers = {
       var form = $("#item form");
       form.find('.btn-delete').hide();
       form.find('.btn-list').hide();
-      setFormData(form, {start: moment().format("MMM D YYYY, h:mm a"), end: moment().add('days', 7).format("MMM D YYYY, h:mm a")});
+      var start = moment().startOf("day");
+      var end = start.add('days', 7);
+      setFormData(form, {
+        startday: start.format("MMM D YYYY"),
+        starthour: start.format("h:mm a"),
+        endday: end.format("MMM D YYYY"),
+        endhour: end.format("h:mm a")
+      });
       setModal('item');
     }
 
     function doItem(id) {
       for (var i = 0; i < gdata.length; i++) {
         if (gdata[i]._id == id) {
-          gdata[i].start = moment(gdata[i].start).format("MMM D YYYY, h:mm a");
-          gdata[i].end = moment(gdata[i].end).format("MMM D YYYY, h:mm a");
+          var start = moment(gdata[i].start);
+          var end = moment(gdata[i].end);
+          gdata[i].startday = start.format("MMM D YYYY");
+          gdata[i].starthour = start.format("h:mm a");
+          gdata[i].endday = end.format("MMM D YYYY");
+          gdata[i].endhour = end.format("h:mm a");
           var form = $("#item form");
           if (handlers.currentPerm > 0) form.find('.btn-delete').show();
           if (!handlers.currentList && !handlers.currentUser) {
@@ -523,7 +537,7 @@ var handlers = {
         handlers.populateListMembers(list);
       });
     tmp.append('td')
-      .attr('class', 'email')
+      .attr('class', 'name')
       .append('p')
       .text(function(d) { return d.user.email; });
     tmp = tmp.append('td')
@@ -550,8 +564,12 @@ var handlers = {
       .attr('selected', function(d) { return d.permission == 2 ? 'selected' : undefined; })
       .text('Admin');
 
-    members.select('.email p')
-      .text(function(d) { return d.user.email; });
+    members.select('.name p')
+      .text(function(d) {
+        if (d.user.name) {
+          return d.user.name + " (" + d.user.email + ")";
+        } else return d.user.email;
+      });
     members.select('.right option0')
       .attr('selected', function(d) { return d.permission == 0 ? 'selected' : undefined; });
     members.select('.right option1')

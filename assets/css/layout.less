@@ -58,7 +58,7 @@ body.scroll #topbar {
           .box-shadow(inset 0 0 12px rgba(0,0,0, 0.765));
         }
       }
-      
+
       &#updates {
         height: 20px;
         line-height: 20px;
@@ -86,7 +86,7 @@ body.scroll #topbar {
         padding: 3px 5px 5px 5px;
         height: 22px;
         width: 20px;
-        
+
         i {
           padding: 0;
           margin: 0;
@@ -562,12 +562,11 @@ body.scroll #topbar {
         float: left;
         width: 50%;
         margin-top: 3px;
-        min-width: 250px;
+        min-width: 270px;
 
         p {
           float: left;
           padding: 5px;
-          margin-right: -85px;
           width: 75px;
 
           font-size: 15px;
@@ -575,25 +574,24 @@ body.scroll #topbar {
         }
 
         .date-wrap {
-          margin-left: 85px;
+          white-space: nowrap;
 
           input[type='text'] {
             padding: 5px;
-            width: 100%;
             line-height: 18px;
+
+            &[name$='day'] {
+              width: 85px;
+            }
+
+            &[name$='hour'] {
+              width: 65px;
+            }
           }
-        }
-      }
 
-      #start-date {
-        .date-wrap {
-          margin-right: 22px;
-        }
-      }
-
-      #due-date {
-        .date-wrap {
-          margin-right: 12px;
+          span {
+            padding: 5px;
+          }
         }
       }
     }

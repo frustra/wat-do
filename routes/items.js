@@ -10,7 +10,7 @@ exports.getPermission = function(userobj, listobj, user) {
     if (user && userobj._id.equals(user._id)) return 1;
     if (userobj.public) return 0;
   } else if (listobj) {
-    if (user && listobj.owner.equals(user._id)) return 3;
+    if (user && (listobj.owner._id || listobj.owner).equals(user._id)) return 3;
     for (var i = 0; i < listobj.members.length; i++) {
       if (user && (listobj.members[i].user._id || listobj.members[i].user).equals(user._id)) return listobj.members[i].permission;
     }

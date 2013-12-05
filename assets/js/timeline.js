@@ -255,7 +255,7 @@ var timelineUpdate = function(data) {
   }
   var currentDate = moment();
   gtl.starttime = currentDate;
-  
+
   for (var i = 0; i < data.length; ++i) {
     data[i].rstart = moment(data[i].start).diff(currentDate) / 3600000;
     data[i].rend = moment(data[i].end).diff(currentDate) / 3600000;
@@ -273,7 +273,7 @@ var timelineUpdate = function(data) {
       if (a.done) { // Sort completed items as most recent first
         return -endc;
       } else if (a.rstart > 0 || b.rstart > 0) { // Sort items that haven't started yet by start date
-        return a.rstart < b.rstart ? -1 : (a.rstart == b.rstart ? endc : 1);
+        return a.rstart < b.rstart ? -1 : (a.rstart == b.rstart ? -endc : 1);
       } else { // Sort in-progress items by percentage complete
         var apercent = a.rend / (a.rend - a.rstart);
         var bpercent = b.rend / (b.rend - b.rstart);

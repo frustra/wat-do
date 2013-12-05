@@ -1,5 +1,5 @@
 /** @license
- * wat-do <https://github.com/Frustra/wat-do/>
+ * wat-do <https://github.com/frustra/wat-do/>
  * License: MIT
  * Author: Jacob Wirth, Justin Li
  */
@@ -26,32 +26,34 @@ function setModal(name) {
 function setFormData(form, obj, force) {
   if (!form.data('js-data')) return;
   if (obj == null) {
+    if (!form.data('js-data')._id && !force) return;
     if (Object.keys(form.data('js-data')).length != 0 || force) {
       form.data('js-data', {});
       form.find('textarea[js-data],input[js-data]').each(function() {
         var $this = $(this);
         $this.data('js-commit', null);
+        $this.data('changed', false);
         if ($this.attr('type') == 'checkbox') {
           if (!!$this.attr('checked')) $this.click();
         } else $this.val('');
       });
     }
   } else {
-    if (form.data('js-data') != obj || force) {
-      form.data('js-data', obj);
-      form.find('textarea[js-data],input[js-data]').each(function() {
-        var $this = $(this);
-        var key = $this.attr("js-data");
-        var val = '';
-        if (typeof obj[key] !== 'undefined') {
-          val = obj[key];
-        }
-        $this.data("js-commit", val);
-        if ($this.attr('type') == 'checkbox') {
-          if (!!$this.attr('checked') != val) $this.click();
-        } else $this.val(val);
-      });
-    }
+    if (form.data('js-data')._id == obj._id && !force) return;
+    form.data('js-data', obj);
+    form.find('textarea[js-data],input[js-data]').each(function() {
+      var $this = $(this);
+      var key = $this.attr("js-data");
+      var val = '';
+      if (typeof obj[key] !== 'undefined') {
+        val = obj[key];
+      }
+      $this.data("js-commit", val);
+      $this.data('changed', false);
+      if ($this.attr('type') == 'checkbox') {
+        if (!!$this.attr('checked') != val) $this.click();
+      } else $this.val(val);
+    });
   }
 }
 
@@ -163,19 +165,32 @@ $(function() {
     } else setModal();
   });
 
-  $('.editable').keydown(function(e) {
+  $('.editable input, .editable textarea').keydown(function(e) {
     if (e.which == 27) { // Escape
       e.preventDefault();
-      $(e.target).val($(e.target).data('js-commit'));
-      e.target.blur();
+      $(this).val($(this).data('js-commit'));
+      $(this).data('changed', false);
+      this.blur();
     } else if (e.which == 13 && !e.shiftKey) { // Return
       e.preventDefault();
-      e.target.blur();
-    }
+      this.blur();
+    } else $(this).data('changed', true);
   });
 
   $('.editable input, .editable textarea').blur(function() {
     $(this).data("js-commit", $(this).val());
+  });
+
+  $('.date-wrap input').keyup(function(e) {
+    if (this.name == "start-date-day") {
+      var parse = moment($(this).val());
+      if (!parse.isValid()) return;
+      var endday = $(".date-wrap input[name='end-date-day']");
+      if (!endday.data('changed')) endday.val(parse.add('days', 7).format("MMM D YYYY"));
+    } else if (this.name == "start-date-hour") {
+      var endhour = $(".date-wrap input[name='end-date-hour']");
+      if (!endhour.data('changed')) endhour.val($(this).val());
+    }
   });
 
   $('form[js-form]').each(function() {

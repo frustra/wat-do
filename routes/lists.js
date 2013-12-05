@@ -70,14 +70,15 @@ exports.setupLists = function(app) {
 
   app.get('/list/:id.json', function(req, res) {
     List.findById(req.params.id)
-    .populate('members.user', '_id email')
+    .populate('members.user', '_id name email')
+    .populate('owner', '_id name email')
     .populate('items')
     .exec(function(err, list) {
       if (!err && list) {
         var permission = getPermission(null, list, req.user);
         if (permission >= 0) {
           var subbed = req.user && (req.user.listsubs.indexOf(req.params.id) >= 0);
-          res.json({response: {_id: list._id, name: list.name, public: list.public, permission: permission, members: list.members, list: Item.clientObjects(list.items, req.user ? req.user._id : null, subbed)}});
+          res.json({response: {_id: list._id, name: list.name, public: list.public, permission: permission, members: list.members, owner: list.owner, list: Item.clientObjects(list.items, req.user ? req.user._id : null, subbed)}});
         } else res.json({error: 'no-permission', msg: 'You do not have permission to view this list.'});
       } else res.json({error: 'no-list', msg: 'The requested list is not public or does not exist.'});
     });

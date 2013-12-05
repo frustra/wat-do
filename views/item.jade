@@ -11,10 +11,16 @@
     .clearfix
       #start-date
         p Start Date:
-        .date-wrap: input.medium(type='text', name='start-date', js-data='start', perm='1')
+        .date-wrap
+          input.medium(type='text', name='start-date-day', js-data='startday', perm='1')
+          span at
+          input.medium(type='text', name='start-date-hour', js-data='starthour', perm='1')
       #due-date
         p Due Date:
-        .date-wrap: input.medium(type='text', name='end-date', js-data='end', perm='1')
+        .date-wrap
+          input.medium(type='text', name='end-date-day', js-data='endday', perm='1')
+          span at
+          input.medium(type='text', name='end-date-hour', js-data='endhour', perm='1')
 
     #buttons
       .left-group
