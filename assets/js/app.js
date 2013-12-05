@@ -168,29 +168,44 @@ $(function() {
   $('.editable input, .editable textarea').keydown(function(e) {
     if (e.which == 27) { // Escape
       e.preventDefault();
-      $(this).val($(this).data('js-commit'));
-      $(this).data('changed', false);
+      $(this).parents('.editable').find('input, textarea').each(function() {
+        if ($(this).data('js-commit')) {
+          $(this).val($(this).data('js-commit'));
+          $(this).data('changed', false);
+        }
+      });
       this.blur();
     } else if (e.which == 13 && !e.shiftKey) { // Return
       e.preventDefault();
       this.blur();
-    } else $(this).data('changed', true);
+    }
   });
 
   $('.editable input, .editable textarea').blur(function() {
     $(this).data("js-commit", $(this).val());
   });
 
-  $('.date-wrap input').keyup(function(e) {
+  $('.date-wrap input').keyup(function() {
+    if ($(this).attr("readonly")) return;
+    if (!$(this).data('changed')) $(this).data('changed', $(this).data('js-commit'));
     if (this.name == "start-date-day") {
-      var parse = moment($(this).val());
-      if (!parse.isValid()) return;
       var endday = $(".date-wrap input[name='end-date-day']");
-      if (!endday.data('changed')) endday.val(parse.add('days', 7).format("MMM D YYYY"));
+      var parseold = moment($(this).data('changed'), "MMM D YYYY");
+      var parsenew = moment($(this).val(), "MMM D YYYY");
+      var parseend = moment(endday.val(), "MMM D YYYY");
+      if (!parseold.isValid() || !parsenew.isValid() || !parseend.isValid()) return;
+      var diff = parsenew.diff(parseold, "days");
+      if (!endday.data('changed')) endday.val(parseend.add("days", diff).format("MMM D YYYY"));
     } else if (this.name == "start-date-hour") {
       var endhour = $(".date-wrap input[name='end-date-hour']");
-      if (!endhour.data('changed')) endhour.val($(this).val());
+      var parseold = moment($(this).data('changed'), "h:mm a");
+      var parsenew = moment($(this).val(), "h:mm a");
+      var parseend = moment(endhour.val(), "h:mm a");
+      if (!parseold.isValid() || !parsenew.isValid() || !parseend.isValid()) return;
+      var diff = parsenew.diff(parseold, "minutes");
+      if (!endhour.data('changed')) endhour.val(parseend.add("minutes", diff).format("h:mm a"));
     }
+    $(this).data('changed', $(this).val());
   });
 
   $('form[js-form]').each(function() {
