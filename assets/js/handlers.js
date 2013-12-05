@@ -54,8 +54,8 @@ var handlers = {
       alert("You must enter an item name.");
       return;
     }
-    var tmpdate1 = moment(item.startday + ", " + item.starthour);
-    var tmpdate2 = moment(item.endday + ", " + item.endhour);
+    var tmpdate1 = moment(item.startday + ", " + item.starthour, "MMM D YYYY, h:mm a");
+    var tmpdate2 = moment(item.endday + ", " + item.endhour, "MMM D YYYY, h:mm a");
     var datenow = moment();
     if (!tmpdate1.isValid() || !tmpdate2.isValid()) {
       alert("One of the dates you entered is not valid.");
