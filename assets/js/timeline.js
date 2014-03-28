@@ -19,7 +19,6 @@ var timelineInit = function() {
     $('input[name="item-done"]').click();
   });
   $('input[name="item-done"]').click(function(e) {
-    e.preventDefault();
     var $this = $(this);
     if (user) {
       if ($this.attr('checked')) {
@@ -29,6 +28,9 @@ var timelineInit = function() {
         $this.attr('checked', true);
         $('#done').addClass('done');
       }
+      if ($this.attr('checked') == $this.is(':checked')) e.preventDefault();
+    } else {
+      e.preventDefault();
     }
     $this.blur();
   }).attr('checked', false);

@@ -34,7 +34,7 @@ function setFormData(form, obj, force) {
         $this.data('js-commit', null);
         $this.data('changed', false);
         if ($this.attr('type') == 'checkbox') {
-          if (!!$this.attr('checked')) $this.click();
+          if (!!$this.is(':checked')) $this.click();
         } else $this.val('');
       });
     }
@@ -51,7 +51,7 @@ function setFormData(form, obj, force) {
       $this.data("js-commit", val);
       $this.data('changed', false);
       if ($this.attr('type') == 'checkbox') {
-        if (!!$this.attr('checked') != val) $this.click();
+        if (!!$this.is(':checked') != val) $this.click();
       } else $this.val(val);
     });
   }
@@ -216,7 +216,7 @@ $(function() {
       form.find('textarea[js-data],input[js-data]').each(function() {
         var $this = $(this);
         if ($this.attr('type') == 'checkbox') {
-          form.data('js-data')[$this.attr('js-data')] = !!$this.attr('checked');
+          form.data('js-data')[$this.attr('js-data')] = !!$this.is(':checked');
         } else form.data('js-data')[$this.attr('js-data')] = $this.val();
       });
       handlers[form.attr('js-form')](form.data('js-data'));
