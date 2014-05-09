@@ -39,7 +39,7 @@ function setFormData(form, obj, force) {
       });
     }
   } else {
-    if (form.data('js-data')._id == obj._id && !force) return;
+    if (form.data('js-data')._id === obj._id && !force) return;
     form.data('js-data', obj);
     form.find('textarea[js-data],input[js-data]').each(function() {
       var $this = $(this);

@@ -403,9 +403,10 @@ var handlers = {
       var form = $("#item form");
       form.find('.btn-delete').hide();
       form.find('.btn-list').hide();
-      var start = moment().startOf("day");
-      var end = start.add('days', 7);
+      var start = moment().startOf('day');
+      var end = moment().startOf('day').add('days', 7);
       setFormData(form, {
+        _id: -1,
         startday: start.format("MMM D YYYY"),
         starthour: start.format("h:mm a"),
         endday: end.format("MMM D YYYY"),
