@@ -70,7 +70,7 @@ var handlers = {
     $('#item .btn-save').attr('disabled', 'disabled');
     item.start = tmpdate1.utc().format();
     item.end = tmpdate2.utc().format();
-    if (item._id >= 0) { // Existing item
+    if (item._id && item._id != -1) { // Existing item
       makeRequest('POST', '/item/' + item._id + '.json', item, function(data) {
         for (var i = 0; i < gdata.length; i++) {
           if (gdata[i]._id == data.item._id) {
