@@ -10,7 +10,7 @@
     "express": "3.0.0rc4",
     "jade": "*",
     "mongoose": "3.4.0",
-    "passport": "0.1.17",
+    "passport": "0.2.0",
     "passport-google": "0.3.0",
     "hashish": "*",
     "moment": "1.7.0",
