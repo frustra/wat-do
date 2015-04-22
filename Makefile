@@ -1,5 +1,6 @@
 LESSC = ./node_modules/.bin/lessc
 UGLIFYJS = ./node_modules/.bin/uglifyjs
+UGLIFYCSS = ./node_modules/.bin/uglifycss
 
 prepare: compile-assets
 
@@ -7,8 +8,8 @@ install:
 	npm install
 
 compile-assets: install
-	${LESSC} -O3 --yui-compress assets/css/master.less > public/master.css
-	${UGLIFYJS} assets/js/*.js --comments -c -m -o public/master.js
+	${LESSC} assets/css/master.less > public/master.css
+	cat assets/js/*.js > public/master.js
 
 dev:
 	supervisor -n exit -w 'assets' -e 'less|js' -x make compile-assets &

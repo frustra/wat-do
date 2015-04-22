@@ -5,6 +5,13 @@ var express = require('express')
   , mongoose = require('mongoose')
   , passport = require('passport');
 
+var favicon = require('serve-favicon')
+  , bodyParser = require('body-parser')
+  , session = require('cookie-session')
+  , serveStatic = require('serve-static')
+  , morgan = require('morgan')
+  , errorhandler = require('errorhandler');
+
 var setupMain = require('./routes/').setupMain
   , setupItems = require('./routes/items').setupItems
   , setupLists = require('./routes/lists').setupLists
@@ -32,44 +39,38 @@ mongoose.connection.once('open', function() {
 var app = express();
 app.realm = config['app_realm'];
 
-app.configure(function() {
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(bodyParser.json());
 
-  app.use(express.favicon(__dirname + '/public/favicon.ico'));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
+// app.use(express.cookieParser());
+app.use(session({ secret: config['session_secret'] }));
+app.use(passport.initialize());
+app.use(passport.session());
 
-  app.use(express.cookieParser());
-  app.use(express.session({ secret: config['session_secret'] }));
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  app.use(function(req, res, next) {
-    app.locals.devmode = typeof req.query.dev !== 'undefined';
-    if (typeof req.user !== 'undefined' && req.user != null) {
-      app.locals.user = req.user;
-    } else app.locals.user = null;
-    if (typeof app.locals.toclient === 'undefined') app.locals.toclient = null;
-    next();
-  });
-
-  app.use(app.router);
-  app.use(express.static(path.join(__dirname, 'public')));
-  app.use(express.static(path.join(__dirname, 'assets/js')));
+app.use(function(req, res, next) {
+  app.locals.devmode = typeof req.query.dev !== 'undefined';
+  if (typeof req.user !== 'undefined' && req.user != null) {
+    app.locals.user = req.user;
+  } else app.locals.user = null;
+  if (typeof app.locals.toclient === 'undefined') app.locals.toclient = null;
+  next();
 });
 
-app.configure('development', function() {
-  app.use(express.logger('dev'));
-  app.use(express.errorHandler());
-});
+app.use(serveStatic(path.join(__dirname, 'public')));
+app.use(serveStatic(path.join(__dirname, 'assets/js')));
 
+if (app.get('env') == 'development') {
+  app.use(morgan('dev'));
+  app.use(errorhandler());
+}
 
 // Setup
 setupItems(app);
 setupLists(app);
 setupMain(app);
-setupAuth(app, passport);
+setupAuth(app, passport, config);
 
 var socket = '/tmp/wat-do-node.socket';
 if (fs.existsSync(socket)) fs.unlinkSync(socket);
